@@ -1,0 +1,14 @@
+/* Reset global */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Bootstrap */
+@import "bootstrap/dist/css/bootstrap.min.css";
+
+/* estilos globales personalizados */
+body {
+  font-family: 'Inter', sans-serif;
+}
