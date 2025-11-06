@@ -1,0 +1,27 @@
+.hero {
+  margin-top: 3rem;
+}
+
+.hero-section {
+  background-color: #ebebeb;
+  border: 0.1rem solid #ebebeb;
+  border-radius: 0.5rem;
+}
+
+.container-hero-text {
+  padding: 4rem;
+}
+
+.hero-titles{
+    margin-top: 1rem;
+    color: #F97316;
+}
+
+.container-hero-image{
+    margin-top: 3rem;
+}
+
+.hero-image {
+  width: 80%;
+  height: 80%;
+}
