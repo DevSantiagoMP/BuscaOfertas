@@ -1,0 +1,47 @@
+.mi-navbar {
+ margin-top: 1rem;
+}
+
+.mi-navbar .search-bar {
+  width: 80%;
+  margin-right: -2.1rem;
+  height: 2.5rem;
+  padding: 0 1rem;
+  border-radius: 2rem;
+  border: 0.1rem solid #e0e0e0;
+}
+
+.mi-navbar .button-search {
+  background-color: #f97316;
+  padding: 0 1rem;
+  border: 0.1rem solid #f97316;
+  border-top-right-radius: 2rem;
+  border-bottom-right-radius: 2rem;
+}
+
+.button-search .search-icon {
+  color: white;
+}
+
+.login-button{
+  background-color: #141414;
+  color: white;
+  border: 0.1rem solid #141414;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  transition: transform 0.2s ease;
+}
+
+.register-button{
+  background-color: #E0E0E0;
+  color: black;
+  border: 0.1rem solid #E0E0E0;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  transition: transform 0.2s ease;
+}
+
+.login-button:hover,
+.register-button:hover {
+  transform: scale(1.05);
+}

@@ -12,7 +12,15 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
+
+// Global CSS
 import "./app.css";
+
+// Bootstrap CSS
+import "bootstrap/dist/css/bootstrap.min.css";
+
+// Bootstrap Icons CSS
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
