@@ -12,16 +12,44 @@
   padding: 4rem;
 }
 
-.hero-titles{
-    margin-top: 1rem;
-    color: #F97316;
+.container-hero-buttons {
+  margin-top: 1.5rem;
 }
 
-.container-hero-image{
-    margin-top: 3rem;
+.container-hero-link {
+  margin-top: 1.1rem;
+  margin-left: 1.1rem;
+}
+
+.hero-link {
+  color: black;
+}
+
+.login-button {
+  background-color: #141414;
+  color: white;
+  border: 0.1rem solid #141414;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  transition: transform 0.2s ease;
+}
+
+.register-button {
+  background-color: #e0e0e0;
+  color: black;
+  border: 0.1rem solid #e0e0e0;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  transition: transform 0.2s ease;
+}
+
+.hero-titles {
+  margin-top: 1rem;
+  color: #f97316;
 }
 
 .hero-image {
   width: 80%;
-  height: 80%;
+  height: auto;
+  margin-left: 2rem;
 }
