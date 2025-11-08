@@ -22,26 +22,3 @@
 .button-search .search-icon {
   color: white;
 }
-
-.login-button{
-  background-color: #141414;
-  color: white;
-  border: 0.1rem solid #141414;
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-  transition: transform 0.2s ease;
-}
-
-.register-button{
-  background-color: #E0E0E0;
-  color: black;
-  border: 0.1rem solid #E0E0E0;
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-  transition: transform 0.2s ease;
-}
-
-.login-button:hover,
-.register-button:hover {
-  transform: scale(1.05);
-}

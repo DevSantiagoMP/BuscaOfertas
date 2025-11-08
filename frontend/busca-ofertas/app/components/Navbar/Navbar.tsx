@@ -14,17 +14,11 @@ const Navbar = () => {
             </div>
 
             {/* Barra de busqueda  */}
-            <div className="col-md-6 d-flex">
+            <div className="col-md-9 d-flex justify-content-center justify-content-md-start mt-sm-3">
               <input className="search-bar" type="text" placeholder="¿Que estas buscando hoy?" />
               <button className="button-search">
                 <i className="bi bi-search search-icon"></i>
               </button>
-            </div>
-
-            {/* Botones de iniciar sesion y registro */}
-            <div className="col-md-3 d-flex justify-content-center gap-2 buttons-navbar">
-              <button className="login-button">Iniciar Sesión</button>
-              <button className="register-button">Registrarse</button>
             </div>
         </div>
       </div>

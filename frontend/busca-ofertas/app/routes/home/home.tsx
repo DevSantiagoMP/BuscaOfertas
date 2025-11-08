@@ -28,7 +28,9 @@ export default function Home() {
                 <button className="register-button">Registrarse</button>
               </div>
               <div className="container-hero-link">
-                <Link to="/principal" className="hero-link">Explora ofertas sin registrarte</Link>
+                <Link to="/principal" className="hero-link">
+                  Explora ofertas sin registrarte
+                </Link>
               </div>
             </div>
 
