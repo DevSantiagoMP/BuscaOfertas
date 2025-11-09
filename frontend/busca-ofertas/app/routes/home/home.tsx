@@ -24,18 +24,54 @@ export default function Home() {
                 Haz crecer tu negocio publicando productos y ofertas en minutos.
               </p>
               <div className="d-flex gap-4 container-hero-buttons">
+                {/* Buttons */}
                 <button className="login-button">Iniciar Sesión</button>
                 <button className="register-button">Registrarse</button>
               </div>
               <div className="container-hero-link">
+                {/* Link */}
                 <Link to="/principal" className="hero-link">
                   Explora ofertas sin registrarte
                 </Link>
               </div>
             </div>
 
+            {/* Image */}
             <div className="d-none d-xl-block col-xl-6 align-self-center">
               <img src={heroImage} alt="Hero Image" className="hero-image" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits section */}
+      <section className="benefits">
+        <div className="container container-benefit text-center text-md-start">
+          <div className="row">
+
+            {/* First benefit */}
+            <div className="col-md-4">
+              <i className="bi bi-cart-dash cart-icon ms-md-5"></i>
+              <h5 className="first-benefit-title">Para clientes</h5>
+              <p>Encuentra ofertas</p>
+            </div>
+
+            {/* Second benefit */}
+            <div className="col-md-4">
+              <i className="bi bi-shop shop-icon"></i>
+              <h5 className="second-benefit-title">Para negocios</h5>
+              <p>Publica productos y ofertas fácil y rápido.</p>
+            </div>
+
+            {/* Third benefit */}
+            <div className="col-md-4">
+              <i className="bi bi-piggy-bank piggy-icon"></i>
+              <h5 className="third-benefit-title">Planes accesibles para negocios</h5>
+                <p> * Plan gratuito: Registra 20 productos.</p>
+                <p>
+                  * Con suscripción: Registra productos ilimitados y adquiere más
+                  visibilidad.
+                </p>
             </div>
           </div>
         </div>
