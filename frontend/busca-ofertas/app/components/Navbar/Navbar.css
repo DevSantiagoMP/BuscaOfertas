@@ -2,16 +2,24 @@
  margin-top: 1rem;
 }
 
-.mi-navbar .search-bar {
-  width: 90%;
-  margin-right: -2.1rem;
+.search-bar {
+  width: 70%;
+  min-width: 250px;
+  max-width: 800px;
+  margin-right: -2rem;
   height: 2.5rem;
   padding: 0 1rem;
   border-radius: 2rem;
   border: 0.1rem solid #e0e0e0;
 }
 
-.mi-navbar .button-search {
+.search-bar:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: #e0e0e0; 
+}
+
+ .button-search {
   background-color: #f97316;
   padding: 0 1rem;
   border: 0.1rem solid #f97316;
@@ -21,4 +29,8 @@
 
 .button-search .search-icon {
   color: white;
+}
+
+.hamburger-menu:focus{
+  box-shadow: none;
 }

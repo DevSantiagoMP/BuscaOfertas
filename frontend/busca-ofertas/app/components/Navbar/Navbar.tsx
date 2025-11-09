@@ -1,25 +1,41 @@
-import './Navbar.css'
-import Logo from '../Logo/Logo'
+import "./Navbar.css";
+import Logo from "../Logo/Logo";
 
 const Navbar = () => {
   return (
-    <nav className="mi-navbar">
-      <div className='container-fluid'>
+    <nav className="navbar navbar-expand-lg">
+      <div className="container-fluid">
 
-        <div className="row align-items-center">
+        {/* Logo */}
+        <Logo />
 
-            {/* Logo y titulo */}
-            <div className="col-md-3">
-              <Logo />
-            </div>
+        {/* Hamburger menu */}
+        <button
+          className="navbar-toggler hamburger-menu"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
 
-            {/* Barra de busqueda  */}
-            <div className="col-md-9 d-flex justify-content-center justify-content-md-start mt-sm-3">
-              <input className="search-bar" type="text" placeholder="¿Que estas buscando hoy?" />
-              <button className="button-search">
-                <i className="bi bi-search search-icon"></i>
-              </button>
-            </div>
+        {/* Search bar */}
+        <div className="collapse navbar-collapse justify-content-center" id="navbarSupportedContent">
+          <form className="d-flex justify-content-center w-100" role="search">
+            <input
+              className="search-bar"
+              type="search"
+              placeholder="¿Qué estás buscando?"
+              aria-label="Search"
+            />
+            <button className="button-search">
+              <i className="bi bi-search search-icon"></i>
+            </button>
+          </form>
+
         </div>
       </div>
     </nav>
