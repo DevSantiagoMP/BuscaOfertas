@@ -78,7 +78,7 @@
 /*---Benefits section--- */
 
 .benefits {
-  margin-top: 3rem;
+  margin-top: 2rem;
 }
 
 .container-benefit {
@@ -123,7 +123,7 @@
   border: var(--border);
   border-radius: var(--border-radius);
   padding: 3rem;
-  margin-top: 3rem;
+  margin-top: 2rem;
   text-align: center;
 }
 

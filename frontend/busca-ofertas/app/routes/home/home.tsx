@@ -1,5 +1,6 @@
 import "./home.css";
 import Navbar from "../../components/Navbar/Navbar";
+import Footer from "../../components/Footer/Footer";
 import heroImage from "../../assets/hero-image.png";
 import { Link } from "react-router";
 
@@ -79,7 +80,7 @@ export default function Home() {
 
         {/* Plans */}
         <div className="container">
-          <div className="row justify-content-center gap-4">
+          <div className="row justify-content-center gap-md-4">
             <div className="col-md-4 plan-container">
               <h5>Registra productos ilimitados.</h5>
               <p> Plan mensual desde <br />10.000 COP.</p>
@@ -92,8 +93,10 @@ export default function Home() {
               <button>Adquirir plan</button>
             </div>
           </div>
-          
         </div>
+
+        <Footer/>
+
       </section>
     </>
   );
