@@ -105,3 +105,37 @@
     margin-left: 33%;
   }
 }
+
+/*---Plans section---*/
+
+.plan-container {
+  background-color: #ebebeb;
+  border: 0.1rem solid #ebebeb;
+  border-radius: 0.5rem;
+  padding: 3rem;
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.plan-container h5 {
+  color: #f97316;
+}
+
+.plan-container p {
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.plan-container button {
+  background-color: #f97316;
+  color: white;
+  border: 0.1rem solid #f97316;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  transition: transform 0.2s ease;
+}
+
+.plan-container button:hover {
+  transform: scale(1.05);
+}

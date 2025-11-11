@@ -48,7 +48,6 @@ export default function Home() {
       <section className="benefits">
         <div className="container container-benefit text-center text-md-start">
           <div className="row">
-
             {/* First benefit */}
             <div className="col-md-4">
               <i className="bi bi-cart-dash cart-icon ms-md-5"></i>
@@ -66,14 +65,34 @@ export default function Home() {
             {/* Third benefit */}
             <div className="col-md-4">
               <i className="bi bi-piggy-bank piggy-icon"></i>
-              <h5 className="third-benefit-title">Planes accesibles para negocios</h5>
-                <p> * Plan gratuito: Registra 20 productos.</p>
-                <p>
-                  * Con suscripción: Registra productos ilimitados y adquiere más
-                  visibilidad.
-                </p>
+              <h5 className="third-benefit-title">
+                Planes accesibles para negocios
+              </h5>
+              <p> * Plan gratuito: Registra 20 productos.</p>
+              <p>
+                * Con suscripción: Registra productos ilimitados y adquiere más
+                visibilidad.
+              </p>
             </div>
           </div>
+        </div>
+
+        {/* Plans */}
+        <div className="container">
+          <div className="row justify-content-center gap-4">
+            <div className="col-md-4 plan-container">
+              <h5>Registra productos ilimitados.</h5>
+              <p> Plan mensual desde <br />10.000 COP.</p>
+              <button>Adquirir plan</button>
+            </div>
+
+             <div className="col-md-4 plan-container">
+              <h5>Registra productos ilimitados.</h5>
+              <p>Plan anual desde <br />110.000 COP.</p>
+              <button>Adquirir plan</button>
+            </div>
+          </div>
+          
         </div>
       </section>
     </>
