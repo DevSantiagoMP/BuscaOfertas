@@ -1,4 +1,5 @@
 import "./Footer.css";
+import { Link } from "react-router";
 
 const Footer = () => {
   return (
@@ -8,8 +9,8 @@ const Footer = () => {
 
           <div className="col-md-4">
             <h6>Encuentra:</h6>
-            <p>Ofertas</p>
-            <p>Administra tu negocio</p>
+            <Link to="/principal">Ofertas</Link>
+            <Link to="/administrar-negocio">Administra tu negocio</Link>
           </div>
 
           <div className="col-md-4 mt-4 mt-md-0">
@@ -21,9 +22,9 @@ const Footer = () => {
 
           <div className="col-md-4 mt-4 mt-md-0">
             <h6>Redes sociales:</h6>
-            <p>Facebook</p>
-            <p>Instagram</p>
-            <p>Twitter</p>
+            <Link to="#">Facebook</Link>
+            <Link to="#">Instagram</Link>
+            <Link to="#">Twitter</Link>
           </div>
         </div>
       </div>

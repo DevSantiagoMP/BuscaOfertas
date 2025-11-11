@@ -25,16 +25,24 @@ export default function Home() {
                 Haz crecer tu negocio publicando productos y ofertas en minutos.
               </p>
               <div className="d-flex gap-4 container-hero-buttons">
+
                 {/* Buttons */}
-                <button className="login-button">Iniciar Sesión</button>
-                <button className="register-button">Registrarse</button>
+                <Link to="/login">
+                  <button className="login-button">Iniciar Sesión</button>
+                </Link>
+
+                <Link to="/registro">
+                  <button className="register-button">Registrarse</button>
+                </Link>
               </div>
+
               <div className="container-hero-link">
                 {/* Link */}
                 <Link to="/principal" className="hero-link">
                   Explora ofertas sin registrarte
                 </Link>
               </div>
+
             </div>
 
             {/* Image */}
@@ -49,6 +57,7 @@ export default function Home() {
       <section className="benefits">
         <div className="container container-benefit text-center text-md-start">
           <div className="row">
+
             {/* First benefit */}
             <div className="col-md-4">
               <i className="bi bi-cart-dash cart-icon ms-md-5"></i>
@@ -83,20 +92,30 @@ export default function Home() {
           <div className="row justify-content-center gap-md-4">
             <div className="col-md-4 plan-container">
               <h5>Registra productos ilimitados.</h5>
-              <p> Plan mensual desde <br />10.000 COP.</p>
-              <button>Adquirir plan</button>
+              <p>
+                {" "}
+                Plan mensual desde <br />
+                10.000 COP.
+              </p>
+              <Link to="/plan-mensual">
+                <button>Adquirir plan</button>
+              </Link>
             </div>
 
-             <div className="col-md-4 plan-container">
+            <div className="col-md-4 plan-container">
               <h5>Registra productos ilimitados.</h5>
-              <p>Plan anual desde <br />110.000 COP.</p>
-              <button>Adquirir plan</button>
+              <p>
+                Plan anual desde <br />
+                110.000 COP.
+              </p>
+              <Link to="/plan-anual">
+                <button>Adquirir plan</button>
+              </Link>
             </div>
           </div>
         </div>
 
-        <Footer/>
-
+        <Footer />
       </section>
     </>
   );
