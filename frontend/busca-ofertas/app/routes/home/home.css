@@ -1,3 +1,13 @@
+/* variables */
+:root {
+  --background-color: #ebebeb;
+  --representative-color: #f97316;
+  --border: 0.1rem solid #ebebeb;
+  --border-radius: 0.5rem;
+  --transition: transform 0.2s ease;;
+  --transform: scale(1.05);
+}   
+
 /*---Hero section---*/
 
 .hero {
@@ -5,9 +15,9 @@
 }
 
 .hero-section {
-  background-color: #ebebeb;
-  border: 0.1rem solid #ebebeb;
-  border-radius: 0.5rem;
+  background-color: var(--background-color);
+  border: var(--border);
+  border-radius: var(--border-radius);
 }
 
 .container-hero-text {
@@ -16,7 +26,7 @@
 
 .hero-titles {
   margin-top: 1rem;
-  color: #f97316;
+  color: var(--representative-color);
 }
 
 .hero-image {
@@ -35,23 +45,23 @@
   background-color: #141414;
   color: white;
   border: 0.1rem solid #141414;
-  border-radius: 0.5rem;
+  border-radius: var(--border-radius);
   padding: 0.5rem;
-  transition: transform 0.2s ease;
+  transition: var(--transition);
 }
 
 .register-button {
   background-color: #e0e0e0;
   color: black;
-  border: 0.1rem solid #e0e0e0;
-  border-radius: 0.5rem;
+  border: 0.1rem solid darkgray;
+  border-radius: var(--border-radius);
   padding: 0.5rem;
-  transition: transform 0.2s ease;
+  transition: var(--transition);
 }
 
 .login-button:hover,
 .register-button:hover {
-  transform: scale(1.05);
+  transform: var(--transform);
 }
 
 /* Hero link */
@@ -72,9 +82,9 @@
 }
 
 .container-benefit {
-  background-color: #ebebeb;
-  border: 0.1rem solid #ebebeb;
-  border-radius: 0.5rem;
+  background-color: var(--background-color);
+  border: var(--border);
+  border-radius: var(--border-radius);
   padding: 4rem;
 }
 
@@ -83,7 +93,7 @@
 .cart-icon,
 .shop-icon,
 .piggy-icon {
-  color: #f97316;
+  color: var(--representative-color);
   font-size: 2.5rem;
   margin-top: 2rem;
   display: block;
@@ -109,16 +119,16 @@
 /*---Plans section---*/
 
 .plan-container {
-  background-color: #ebebeb;
-  border: 0.1rem solid #ebebeb;
-  border-radius: 0.5rem;
+  background-color: var(--background-color);
+  border: var(--border);
+  border-radius: var(--border-radius);
   padding: 3rem;
   margin-top: 3rem;
   text-align: center;
 }
 
 .plan-container h5 {
-  color: #f97316;
+  color: var(--representative-color);
 }
 
 .plan-container p {
@@ -128,14 +138,14 @@
 }
 
 .plan-container button {
-  background-color: #f97316;
+  background-color: var(--representative-color);
   color: white;
-  border: 0.1rem solid #f97316;
-  border-radius: 0.5rem;
+  border: var(--border);
+  border-radius: var(--border-radius);
   padding: 0.5rem;
-  transition: transform 0.2s ease;
+  transition: var(--transition);
 }
 
 .plan-container button:hover {
-  transform: scale(1.05);
+  transform: var(--transform);
 }
