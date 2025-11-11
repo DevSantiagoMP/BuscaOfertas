@@ -1,0 +1,13 @@
+.user-button {
+  background-color: white;
+  border: none;
+}
+
+.user-icon {
+  font-size: 2rem;
+  color: orange;
+}
+
+.user-icon:hover {
+  color: red;
+}

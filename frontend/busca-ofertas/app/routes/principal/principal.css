@@ -1,0 +1,57 @@
+/* Header */
+
+.header {
+  padding: 1.4rem;
+}
+
+.header-button {
+  font-size: 0.8rem;
+  height: 1.8rem;
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 0.5rem 0.5rem 0.5rem 0.5rem;
+  padding: 0.2rem;
+}
+
+.header-button:hover {
+  background-color: green;
+}
+
+/* Principal section */
+
+.principal-section {
+  background-color: #ebebeb;
+  padding: 2rem;
+}
+
+.search-bar {
+  width: 70%;
+  background-color: white;
+  border: 0.1rem solid darkgray;
+  border-right: none; /* quita borde del lado derecho */
+  border-radius: 0.5rem 0 0 0.5rem; /* solo bordes izquierdos */
+  outline: none;
+  padding: 0.2rem;
+}
+
+.search-bar:focus,
+.search-button:focus {
+  border: 0.1rem solid gray;
+  outline: none;
+}
+
+.search-button {
+  background-color: white;
+  border: 0.1rem solid darkgray;
+  border-radius: 0 0.5rem 0.5rem 0; /* solo bordes derechos */
+  padding: 0.2rem;
+}
+
+.search-button:hover {
+  background-color: rgb(226, 231, 231);
+}
+
+.search-icon {
+  font-size: 1.3rem;
+}
