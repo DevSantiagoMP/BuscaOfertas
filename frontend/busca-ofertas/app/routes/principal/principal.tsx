@@ -1,11 +1,13 @@
 //Components
 import Logo from "../../components/Logo/Logo";
+
 //CSS
 import "./principal.css";
 
 const principal = () => {
   return (
     <>
+      {/* Header */}
       <header className="personal-header py-2">
         <div className="container-fluid">
           <div className="d-flex justify-content-between align-items-center">
@@ -27,7 +29,7 @@ const principal = () => {
               <button className="personal-header-button">
                 Administrar mi negocio
               </button>
-              <button className="close-button">Cerrar sesion</button>
+              <button className="close-section">Cerrar sesion</button>
             </div>
           </div>
         </div>
@@ -40,6 +42,8 @@ const principal = () => {
         aria-labelledby="mobileMenuLabel"
       >
         <div className="offcanvas-header">
+
+          {/* Al tocar el menu hamburguesa se muestra */}
           <h5 className="offcanvas-title" id="mobileMenuLabel">
             Menú
           </h5>
@@ -51,11 +55,18 @@ const principal = () => {
           ></button>
         </div>
 
+        {/* Logo usuario y correo */}
+        <div className="d-flex flex-column justify-content-center align-items-center">
+          <i className="bi bi-person-circle user-icon"></i>
+          <p>micorreo@ejemplo.co</p>
+        </div>
+
+        {/* Botones adicionales */}
         <div className="offcanvas-body d-flex flex-column gap-4">
           <button className="personal-header-button w-100">
             Administrar mi negocio
           </button>
-          <button className="close-button w-100">Cerrar sesion</button>
+          <button className="close-section w-100">Cerrar sesion</button>
         </div>
       </div>
 

@@ -14,7 +14,7 @@
   background-color: green;
 }
 
-.close-button{
+.close-section{
   font-size: 0.8rem;
   height: 1.8rem;
   background-color: rgb(179, 174, 174);
@@ -24,8 +24,22 @@
   padding: 0.2rem;
 }
 
-.close-button:hover {
+.close-section:hover {
   background-color: red;
+}
+
+.user-icon{
+  font-size: 2rem;
+  color: orange;
+}
+
+.user-icon:hover{
+  color: red;
+}
+
+.button-user-icon{
+  border: none;
+  background-color: white;
 }
 
 /* Principal section */
