@@ -1,0 +1,79 @@
+/* HEADER */
+.login-header {
+    background: #fff;
+    padding: 1rem 2rem;
+}
+
+/* Botón del header */
+.btn-register-header {
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: .4rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #000;
+    text-decoration: none;
+    transition: .2s;
+}
+
+.btn-register-header:hover {
+    background: #f4f4f4;
+}
+
+/* Fondo gris general */
+.principal-container {
+    background-color: #ebebeb;
+}
+
+/* Caja del login */
+.login-box {
+    background: transparent;
+    padding: 2rem;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+}
+
+/* Título */
+.login-title {
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-bottom: .5rem;
+}
+
+/* Inputs */
+.login-input {
+    width: 100%;
+    padding: .7rem;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+/* Link estilo naranja */
+.hero-link {
+    color: #EC6D13;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.hero-link:hover {
+    text-decoration: underline;
+}
+
+/* Botón */
+.btn-login {
+    width: 100%;
+    padding: .7rem;
+    background: #EC6D13;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.btn-login:hover {
+    background: #e66314;
+}

@@ -1,7 +1,3 @@
-.mi-navbar {
- margin-top: 1rem;
-}
-
 .search-bar {
   width: 70%;
   min-width: 250px;
@@ -16,10 +12,10 @@
 .search-bar:focus {
   outline: none;
   box-shadow: none;
-  border-color: #e0e0e0; 
+  border-color: #e0e0e0;
 }
 
- .button-search {
+.button-search {
   background-color: #f97316;
   padding: 0 1rem;
   border: 0.1rem solid #f97316;
@@ -31,6 +27,6 @@
   color: white;
 }
 
-.hamburger-menu:focus{
+.hamburger-menu:focus {
   box-shadow: none;
 }
