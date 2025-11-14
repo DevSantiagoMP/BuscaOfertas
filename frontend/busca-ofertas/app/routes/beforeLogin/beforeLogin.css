@@ -4,52 +4,40 @@
     padding: 1rem 2rem;
 }
 
+.principal-container {
+    background-color: #ebebeb;
+}
+
 /* Fondo gris general */
 .principal-container {
     background-color: #ebebeb;
 }
 
 /* Caja del login */
-.login-box {
-    background: transparent;
+.option-box {
+    background: white;
     padding: 2rem;
+    height: 300px;
     width: 100%;
     max-width: 420px;
     text-align: center;
+    border: none;
+    border-radius: 0.5rem 0.5rem 0.5rem 0.5rem;
 }
 
 /* Título */
 .login-title {
     font-size: 1.4rem;
-    font-weight: bold;
+    font-weight: 600;
     margin-bottom: .5rem;
 }
 
-/* Inputs */
-.login-input {
-    width: 100%;
-    padding: .7rem;
-    margin-bottom: 1rem;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-}
-
-/* Link estilo naranja */
-.hero-link {
-    color: #EC6D13;
-    font-size: 0.9rem;
-    text-decoration: none;
-}
-
-.hero-link:hover {
-    text-decoration: underline;
-}
 
 /* Botón */
 .btn-login {
     width: 100%;
     padding: .7rem;
-    background: #EC6D13;
+    background: #fa791e;
     border: none;
     border-radius: 6px;
     color: #fff;
@@ -61,11 +49,18 @@
     background: #e66314;
 }
 
-/* Error */
-.input-error {
-  color: #ff3b30;
-  font-size: 0.85rem;
-  margin-top: -0.5rem;
-  margin-bottom: 0.7rem;
-  text-align: left;
+.btn-google {
+    width: 100%;
+    padding: .7rem;
+    background: #ebebeb;
+    border: none;
+    border-radius: 6px;
+    color: black;
+    font-weight: bold;
 }
+
+.btn-google:hover {
+    border: 0.1rem solid black;
+}
+
+

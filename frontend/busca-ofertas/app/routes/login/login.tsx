@@ -1,5 +1,5 @@
-import Logo from "../../components/Logo/Logo";
 import { Link } from "react-router";
+import Logo from '../../components/Logo/Logo'
 
 // Para validacines
 import { useState } from "react";
@@ -7,7 +7,6 @@ import { useState } from "react";
 import "./login.css";
 
 const Login = () => {
-
   // --- Para validacines de correo electronico ---
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -65,7 +64,7 @@ const Login = () => {
   //Elementos html
   return (
     <>
-      <header className="login-header d-flex justify-content-between align-items-center">
+      <header className="personal-header d-flex justify-content-between align-items-center">
         <Logo />
       </header>
 
@@ -101,7 +100,7 @@ const Login = () => {
               validatePassword(e.target.value);
             }}
           />
-          
+
           {passwordError && <p className="input-error">{passwordError}</p>}
 
           <div className="text-end mb-3">
