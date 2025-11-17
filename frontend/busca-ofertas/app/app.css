@@ -9,3 +9,8 @@
 body {
   font-family: 'Inter', sans-serif;
 }
+
+/* Fondo principal */
+.principal-container {
+  background: #e4e1e1;
+}

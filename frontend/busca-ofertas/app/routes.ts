@@ -6,7 +6,9 @@ export default [
   route("/opciones-registro", "routes/beforeRegister/beforeRegister.tsx"),
   route("/login", "routes/login/login.tsx"),
   route("/registro", "routes/register/register.tsx"),
-  route("/principal", "routes/principal/principal.tsx"),        
+  route("/principal", "routes/principal/principal.tsx"), 
+  route("/plan-mensual", "routes/mensualPlan/mensualPlan.tsx"), 
+  route("/plan-anual", "routes/anualPlan/anualPlan.tsx")         
   // ejemplo de ruta route("/about", "routes/about.tsx"), 
 ] satisfies RouteConfig;
 

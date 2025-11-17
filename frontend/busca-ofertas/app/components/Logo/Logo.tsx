@@ -1,5 +1,4 @@
 import "./Logo.css";
-import { Link } from "react-router";
 
 const Logo = () => {
   return (

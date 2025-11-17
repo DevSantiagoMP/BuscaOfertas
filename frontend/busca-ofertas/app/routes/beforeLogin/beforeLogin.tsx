@@ -1,14 +1,12 @@
 import { Link } from "react-router";
-import Logo from "../../components/Logo/Logo";
+import Header from "../../components/Header/Header";
 import "./beforeLogin.css";
 
 const beforeRegister = () => {
   return (
     <>
-      <header className="personal-header d-flex justify-content-between align-items-center">
-        <Logo />
-      </header>
-
+      <Header/>
+       {/* Fondo (principal container definido en app.css) */}
       <main className="principal-container d-flex justify-content-center align-items-center min-vh-100">
         <div className="option-box">
           <h1 className="login-title mb-5">¿Como deseas ingresar?</h1>

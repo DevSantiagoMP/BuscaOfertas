@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import Logo from '../../components/Logo/Logo'
+import Header from "../../components/Header/Header";
 
 // Para validacines
 import { useState } from "react";
@@ -7,44 +7,6 @@ import { useState } from "react";
 import "./login.css";
 
 const Login = () => {
-  // --- Para validacines de correo electronico ---
-  const [email, setEmail] = useState("");
-  const [emailError, setEmailError] = useState("");
-
-  //validar que se escriba un correo
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setEmail(value);
-
-    // Si ya hay un error, lo quitamos cuando el usuario corrija
-    if (emailError) {
-      if (value.includes("@") && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        setEmailError("");
-      }
-    }
-  };
-
-  const validateEmail = () => {
-    if (!email.includes("@")) {
-      setEmailError("El correo debe contener un @");
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setEmailError("Correo electrónico inválido");
-    } else {
-      setEmailError("");
-    }
-  };
-
-  //Mostrar mensaje de error para que se corrigan
-  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    validateEmail();
-
-    if (emailError || email.trim() === "") {
-      alert("Por favor corrige los errores antes de continuar");
-      return;
-    }
-  };
-
   //--- Para validaciones de contraseña ---
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -64,10 +26,8 @@ const Login = () => {
   //Elementos html
   return (
     <>
-      <header className="personal-header d-flex justify-content-between align-items-center">
-        <Logo />
-      </header>
-
+      <Header/>
+      {/* Fondo (principal container definido en app.css) */}
       <main className="principal-container d-flex justify-content-center align-items-center min-vh-100">
         <div className="login-box">
           <div className="d-flex flex-column align-items-center">
@@ -75,43 +35,40 @@ const Login = () => {
 
             <div className="d-flex align-items-center gap-1 mb-3">
               <p>¿No tienes una cuenta?</p>
-              <Link to="/registro" className="hero-link">
+              <Link to="/registro" className="register-link">
                 <p>Regístrate</p>
               </Link>
             </div>
           </div>
 
-          <input
-            type="email"
-            placeholder="Correo electrónico"
-            className="login-input"
-            value={email}
-            onChange={handleEmailChange}
-            onBlur={validateEmail}
-          />
-          {emailError && <p className="input-error">{emailError}</p>}
+          <form>
+            <input
+              type="email"
+              placeholder="Correo electrónico"
+              className="login-input"
+              required
+            />
 
-          <input
-            type="password"
-            placeholder="Contraseña"
-            className="login-input"
-            onChange={(e) => {
-              setPassword(e.target.value);
-              validatePassword(e.target.value);
-            }}
-          />
+            <input
+              type="password"
+              placeholder="Contraseña"
+              className="login-input"
+              onChange={(e) => {
+                setPassword(e.target.value);
+                validatePassword(e.target.value);
+              }}
+            />
 
-          {passwordError && <p className="input-error">{passwordError}</p>}
+            {passwordError && <p className="input-error">{passwordError}</p>}
 
-          <div className="text-end mb-3">
-            <Link to="/recuperar-contraseña" className="hero-link">
-              ¿Olvidaste tu contraseña?
-            </Link>
-          </div>
+            <div className="text-end mb-3">
+              <Link to="/recuperar-contraseña" className="forgot-link">
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
 
-          <button className="btn-login" onClick={handleSubmit}>
-            Iniciar Sesión
-          </button>
+            <button className="btn-login">Iniciar Sesión</button>
+          </form>
         </div>
       </main>
     </>
