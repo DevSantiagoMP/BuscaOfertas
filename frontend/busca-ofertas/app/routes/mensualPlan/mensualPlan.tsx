@@ -40,7 +40,7 @@ const mensualPlan = () => {
     <>
       <Header />
 
-      <main className="principal-container d-flex justify-content-center align-items-center min-vh-100">
+      <main className="principal-background d-flex justify-content-center align-items-center min-vh-100">
         <div className="mensual-plan-card">
           <h2>Plan mensual</h2>
           <h3>10.000 COP</h3>

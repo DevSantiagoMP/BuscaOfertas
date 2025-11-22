@@ -7,7 +7,7 @@ const Register = () => {
     <>
       <Header/>
        {/* Fondo (principal container definido en app.css) */}
-      <main className="principal-container d-flex justify-content-center align-items-center min-vh-100">
+      <main className="principal-background d-flex justify-content-center align-items-center min-vh-100">
         <div className="register-box">
           <h1 className="register-title">Regístrate</h1>
 

@@ -41,7 +41,7 @@ const anualPlan = () => {
     <>
       <Header />
 
-      <main className="principal-container d-flex justify-content-center align-items-center min-vh-100">
+      <main className="principal-background d-flex justify-content-center align-items-center min-vh-100">
         <div className="anual-plan-card">
           <h2>Plan anual</h2>
           <h3>110.000 COP</h3>

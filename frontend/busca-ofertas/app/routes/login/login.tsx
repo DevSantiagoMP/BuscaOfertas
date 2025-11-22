@@ -28,7 +28,7 @@ const Login = () => {
     <>
       <Header/>
       {/* Fondo (principal container definido en app.css) */}
-      <main className="principal-container d-flex justify-content-center align-items-center min-vh-100">
+      <main className="principal-background d-flex justify-content-center align-items-center min-vh-100">
         <div className="login-box">
           <div className="d-flex flex-column align-items-center">
             <h1 className="login-title">Inicia sesión en tu cuenta</h1>
