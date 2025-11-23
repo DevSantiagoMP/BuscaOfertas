@@ -43,6 +43,16 @@
   background: white;
 }
 
+/* Mensaje de error */
+/* Error */
+.input-register-error {
+  color: #ff3b30;
+  font-size: 0.85rem;
+  margin-top: 0.2rem;
+  margin-bottom: 0.7rem;
+  text-align: left;
+}
+
 /* ---- BOTÓN ---- */
 .btn-register {
   width: 100%;

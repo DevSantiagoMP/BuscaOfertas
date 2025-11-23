@@ -50,7 +50,7 @@ const businessData = () => {
 
   return (
     <>
-      <div className="container section-container">
+      <div className="container section-container mb-5">
         <div className="row align-items-center">
           <div className="col-12 col-md-6">
             <h3 className="mb-4 mb-md-0">Datos del negocio</h3>
@@ -58,6 +58,7 @@ const businessData = () => {
 
           <div className="col-12 col-md-6 mb-3 d-flex justify-content-center justify-content-md-end">
             <button
+            className="button-section-container"
               onClick={() => {
                 if (!mostrar && datosGuardados) {
                   // Rellenar el formulario al presionar "Editar"
@@ -86,12 +87,12 @@ const businessData = () => {
           {mostrar && (
             <div className="box-inputs">
               <form onSubmit={handleSubmit}>
-                <label htmlFor="imagen" className="custom-file-upload">
+                <label htmlFor="imagenNegocio" className="custom-file-upload">
                   Toca aquí para añadir una foto (opcional)
                 </label>
                 <input
                   type="file"
-                  id="imagen"
+                  id="imagenNegocio"
                   accept="image/*"
                   onChange={(e) => {
                     if (e.target.files && e.target.files[0]) {
@@ -105,7 +106,7 @@ const businessData = () => {
                     <img
                       src={URL.createObjectURL(imagenNegocio)}
                       alt="Vista previa"
-                      className="preview-img"
+                      className="info-preview-img"
                     />
                   </div>
                 )}

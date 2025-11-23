@@ -1,33 +1,19 @@
 import { Link } from "react-router";
 import Header from "../../components/Header/Header";
-
-// Para validacines
 import { useState } from "react";
 
 import "./login.css";
 
 const Login = () => {
-  //--- Para validaciones de contraseña ---
-  const [password, setPassword] = useState("");
-  const [passwordError, setPasswordError] = useState("");
+  // --- Estados para recuperar contraseña ---
+  const [showRecoverBox, setShowRecoverBox] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [recoverEmail, setRecoverEmail] = useState("");
 
-  const validatePassword = (value: string) => {
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#_-]).{8,}$/;
-
-    if (!regex.test(value)) {
-      setPasswordError(
-        "La contraseña debe tener mayúsculas, minúsculas, un número y un carácter especial."
-      );
-    } else {
-      setPasswordError("");
-    }
-  };
-
-  //Elementos html
   return (
     <>
-      <Header/>
-      {/* Fondo (principal container definido en app.css) */}
+      <Header />
+
       <main className="principal-background d-flex justify-content-center align-items-center min-vh-100">
         <div className="login-box">
           <div className="d-flex flex-column align-items-center">
@@ -53,22 +39,70 @@ const Login = () => {
               type="password"
               placeholder="Contraseña"
               className="login-input"
-              onChange={(e) => {
-                setPassword(e.target.value);
-                validatePassword(e.target.value);
-              }}
+              required
             />
 
-            {passwordError && <p className="input-error">{passwordError}</p>}
-
             <div className="text-end mb-3">
-              <Link to="/recuperar-contraseña" className="forgot-link">
+              <p
+                className="forgot-link"
+                onClick={() => {
+                  setShowRecoverBox(true);
+                  setEmailSent(false);
+                }}
+                style={{ cursor: "pointer" }}
+              >
                 ¿Olvidaste tu contraseña?
-              </Link>
+              </p>
             </div>
 
             <button className="btn-login">Iniciar Sesión</button>
           </form>
+
+          {/* ------------------ CUADRO/MODAL DE RECUPERACIÓN ------------------ */}
+          {showRecoverBox && (
+            <div className="recover-overlay">
+              <div className="recover-modal">
+                {/* Botón cerrar */}
+                <button
+                  className="close-btn"
+                  onClick={() => setShowRecoverBox(false)}
+                >
+                  ✕
+                </button>
+
+                {!emailSent ? (
+                  <>
+                    <h3 className="recover-title">Recuperar contraseña</h3>
+
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        if (recoverEmail.trim() !== "") setEmailSent(true);
+                      }}
+                    >
+                      <input
+                        type="email"
+                        placeholder="Ingresa tu correo electrónico"
+                        className="login-input mb-2"
+                        value={recoverEmail}
+                        onChange={(e) => setRecoverEmail(e.target.value)}
+                        required
+                      />
+
+                      <button className="btn-login" type="submit">
+                        Continuar
+                      </button>
+                    </form>
+                  </>
+                ) : (
+                  <p className="recover-message mt-2">
+                    Te enviamos un enlace a tu correo para restablecer tu
+                    contraseña.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </>

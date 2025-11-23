@@ -1,18 +1,44 @@
 import { Link } from "react-router";
 import Header from "../../components/Header/Header";
+import { useState } from "react";
+import { validatePassword } from "../../utils/validatePassword";
 import "./register.css";
 
 const Register = () => {
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmError, setConfirmError] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const error = validatePassword(password);
+    setPasswordError(error);
+
+    if (password !== confirm) {
+      setConfirmError("Las contraseñas no coinciden.");
+      return;
+    }
+
+    setConfirmError("");
+
+    if (!error) {
+      console.log("Registrado con éxito");
+      // Aquí haces el POST al backend
+    }
+  };
+
   return (
     <>
-      <Header/>
-       {/* Fondo (principal container definido en app.css) */}
+      <Header />
       <main className="principal-background d-flex justify-content-center align-items-center min-vh-100">
         <div className="register-box">
           <h1 className="register-title">Regístrate</h1>
 
-          <form>
-            {/* Nombres y Apellidos */}
+          <form onSubmit={handleSubmit}>
+            {/* Nombres */}
             <div className="d-flex gap-2 names">
               <div className="d-flex flex-column w-100">
                 <label htmlFor="nombre">Nombre(s)</label>
@@ -38,7 +64,7 @@ const Register = () => {
             <label className="mt-3" htmlFor="rol">
               Selecciona tu rol
             </label>
-            <select id="rol">
+            <select id="rol" required>
               <option value="">Selecciona tu rol</option>
               <option value="usuario">Usuario</option>
               <option value="negocio">Negocio</option>
@@ -51,7 +77,7 @@ const Register = () => {
             <input
               id="correo"
               type="email"
-              placeholder="Escribe tu correo electrónico"
+              placeholder="Escribe tu correo"
               required
             />
 
@@ -64,9 +90,14 @@ const Register = () => {
               type="password"
               placeholder="Escribe tu contraseña"
               required
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setPasswordError(validatePassword(e.target.value));
+              }}
             />
+            {passwordError && <p className="input-error">{passwordError}</p>}
 
-            {/* Confirmar contraseña */}
+            {/* Confirmar */}
             <label className="mt-3" htmlFor="confirmar-contraseña">
               Confirma contraseña
             </label>
@@ -75,12 +106,25 @@ const Register = () => {
               type="password"
               placeholder="Escribe de nuevo tu contraseña"
               required
-            />
+              onChange={(e) => {
+                const value = e.target.value;
+                setConfirm(value);
 
-            <button className="btn-register mt-3" type="submit">Registrar</button>
+                if (password !== value) {
+                  setConfirmError("Las contraseñas no coinciden.");
+                } else {
+                  setConfirmError("");
+                }
+              }}
+            />
+            {confirmError && <p className="input-register-error">{confirmError}</p>}
+
+            <button className="btn-register mt-3" type="submit">
+              Registrar
+            </button>
 
             <div className="d-flex justify-content-center align-items-center gap-2 mt-2">
-              <p> ¿Ya tienes una cuenta? </p>
+              <p>¿Ya tienes una cuenta?</p>
               <Link to="/login" className="link-register">
                 <p>Inicia sesión</p>
               </Link>

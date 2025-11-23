@@ -99,7 +99,7 @@ const principal = () => {
                 <p>Filtrar por:</p>
 
                 {/* Category */}
-                <select className="select" defaultValue="">
+                <select className="filter-category" defaultValue="">
                   <option value="" disabled>
                     Categoría
                   </option>
@@ -109,7 +109,7 @@ const principal = () => {
                 </select>
 
                 {/* Price */}
-                <select className="select" defaultValue="">
+                <select className="filter-price" defaultValue="">
                   <option value="" disabled>
                     Precio
                   </option>

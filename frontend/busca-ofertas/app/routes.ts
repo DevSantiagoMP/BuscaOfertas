@@ -5,6 +5,7 @@ export default [
   route("/opciones-login", "routes/beforeLogin/beforeLogin.tsx"),
   route("/opciones-registro", "routes/beforeRegister/beforeRegister.tsx"),
   route("/login", "routes/login/login.tsx"),
+  route("/cambiar-contraseña", "routes/changePassword/changePassword.tsx"),
   route("/registro", "routes/register/register.tsx"),
   route("/principal", "routes/principal/principal.tsx"), 
   route("/plan-mensual", "routes/mensualPlan/mensualPlan.tsx"), 
