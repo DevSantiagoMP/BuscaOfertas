@@ -1,21 +1,24 @@
-import cors from "cors"; //para conectar con frontend
-import express from "express"; //para crear servidor
-import "dotenv/config"; //para variables de entorno
-import { connectDB } from "./config/dbconnection.js"; //conexion base de datos
+import "dotenv/config";
+import cors from "cors";
+import express from "express";
+
+import { connectDB } from "./config/dbConnection.js";
+import authRoutes from "./routes/userRoutes.js";
 
 const app = express();
 
-// Middlewares
 app.use(express.json());
 app.use(cors());
 
-// Conexion base de datos
-connectDB();
+// Conectar primero a la base
+const startServer = async () => {
+  await connectDB();
 
-// Puerto
-const PORT = 3000;
+  app.use("/api/auth", authRoutes);
 
-// Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
+  app.listen(3000, () => {
+    console.log("🚀 Servidor corriendo en puerto 3000");
+  });
+};
+
+startServer();
