@@ -1,5 +1,10 @@
-import bcrypt from "bcrypt"; // o bcrypt si te funciona
-import { findUserForLogin } from "../models/userLoginModel.js";
+import bcrypt from "bcrypt"; 
+import { 
+  findUserForLogin, 
+  updateFailedAttempts,
+  blockAccount,
+  resetLoginState,
+  updateLastLogin, } from "../models/userLoginModel.js";
 
 export const loginUser = async (req, res) => {
   try {
@@ -19,12 +24,53 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ message: "Correo o contraseña incorrectos" });
     }
 
+    // Verificar si el email está verificado
+    if (user.email_verificado !== 1) {
+      return res.status(403).json({
+        message: "Debes verificar tu correo antes de iniciar sesión",
+      });
+    }
+
+    // Verificar si está bloqueado
+    if (user.cuenta_bloqueada_hasta && new Date() < new Date(user.cuenta_bloqueada_hasta)) {
+      const faltanMinutos = Math.ceil(
+        (new Date(user.cuenta_bloqueada_hasta) - new Date()) / 60000
+      );
+      return res.status(403).json({
+        message: `Cuenta bloqueada. Inténtalo de nuevo en ${faltanMinutos} minutos.`,
+      });
+    }
+
     // 3. Verificar contraseña
     const isMatch = await bcrypt.compare(password, user.contrasena_hash);
 
+    // Numero de intentos
     if (!isMatch) {
-      return res.status(400).json({ message: "Correo o contraseña incorrectos" });
+      const nuevosIntentos = user.intentos_fallidos + 1;
+
+      if (nuevosIntentos >= 5) {
+        // Bloquear por 3 horas
+        await blockAccount(user.id_usuario);
+        await updateFailedAttempts(user.id_usuario, nuevosIntentos);
+
+        return res.status(403).json({
+          message: "Has superado el límite de intentos. Tu cuenta ha sido bloqueada por 3 horas.",
+        });
+      }
+
+      // Solo aumentar intentos
+      await updateFailedAttempts(user.id_usuario, nuevosIntentos);
+
+      return res.status(400).json({
+        message: `Correo o contraseña incorrectos. Intentos restantes: ${5 - nuevosIntentos}`,
+      });
     }
+
+    // Si la contraseña es correcta, resetear contador y bloqueo
+    await resetLoginState(user.id_usuario);
+
+    // Registrar último login
+    await updateLastLogin(user.id_usuario);
 
     // 4. Respuesta
     res.json({
