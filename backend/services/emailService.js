@@ -3,6 +3,7 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// ENVIAR CORREO DE VERIFICACION
 export const sendVerificationEmail = async (to, verificationLink) => {
   try {
     const response = await resend.emails.send({
@@ -19,6 +20,28 @@ export const sendVerificationEmail = async (to, verificationLink) => {
     return response;
   } catch (error) {
     console.error("Error enviando correo:", error);
+    throw error;
+  }
+};
+
+// ENVIAR CORREO DE RECUPERACIÓN
+export const sendPasswordResetEmail = async (to, resetLink) => {
+  try {
+    const response = await resend.emails.send({
+      from: "onboarding@resend.dev",
+      to,
+      subject: "Recupera tu contraseña - BuscaOfertas",
+      html: `
+        <h2>Recuperación de contraseña</h2>
+        <p>Has solicitado recuperar tu contraseña. Haz clic en el enlace para crear una nueva:</p>
+        <a href="${resetLink}" style="color: blue">Restablecer contraseña</a>
+        <p>Este enlace expirará en <strong>15 minutos</strong>.</p>
+      `,
+    });
+
+    return response;
+  } catch (error) {
+    console.error("Error enviando correo de recuperación:", error);
     throw error;
   }
 };
