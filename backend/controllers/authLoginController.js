@@ -4,7 +4,7 @@ import {
   updateFailedAttempts,
   blockAccount,
   resetLoginState,
-  updateLastLogin, } from "../models/userLoginModel.js";
+  updateLastLogin, } from "../models/authLoginModel.js";
 
 export const loginUser = async (req, res) => {
   try {

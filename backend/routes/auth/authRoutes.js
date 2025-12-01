@@ -1,13 +1,15 @@
 import express from "express";
-import { registerUser, verifyEmail, resendVerificationEmail   } from "../controllers/userRegisterController.js";
-import { loginUser } from "../controllers/userLoginController.js";
+import { registerUser, verifyEmail, resendVerificationEmail   } from "../../controllers/authRegisterController.js";
+import { loginUser } from "../../controllers/authLoginController.js";
 import {
     solicitarRecuperacion,
     validarToken,
     resetearContrasena
-} from "../controllers/recoverPasswordController.js";
+} from "../../controllers/recoverPasswordController.js";
 
 const router = express.Router();
+
+// REGISTRO Y LOGIN
 
 // Ruta para registrar usuario
 router.post("/register", registerUser);

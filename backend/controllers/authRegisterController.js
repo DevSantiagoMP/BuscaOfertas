@@ -1,12 +1,12 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import { db } from "../config/dbConnection.js";
 import {
   createUser,
   findUserByEmail,
   verifyUserEmail,
-} from "../models/userRegisterModel.js";
+} from "../models/authRegisterModel.js";
 import { sendVerificationEmail } from "../services/emailService.js";
-import { db } from "../config/dbConnection.js";
 
 
 export const registerUser = async (req, res) => {
