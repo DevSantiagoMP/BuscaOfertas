@@ -1,13 +1,27 @@
 import express from "express";
+import {
+  createOferta,
+  updateOferta,
+  deleteOferta,
+  getOfertas,
+  getOfertasPorCategoria,
+  getOfertasPorPrecio,
+} from "../../controllers/offersController.js";
+
 const router = express.Router();
 // OFERTAS
 
-//Ruta para registrar ofertas
-//Ruta para actualizar datos del ofertas
-//Ruta para borrar ofertas 
-//Ruta para obtener todos las ofertas
-//Ruta para obtener ofertas por categoria
-//Ruta para obtener todos las ofertas por precio menor
-//Ruta para obtener todos las ofertas por precio mayor
+//Ruta para registrar Ofertas
+router.post("/register-offers", createOferta);
+//Ruta para actualizar datos de la Oferta
+router.put("/:id", updateOferta);
+//Ruta para borrar Ofertas
+router.delete("/:id", deleteOferta);
+//Ruta para obtener todos las Ofertas
+router.get("/", getOfertas);
+//Ruta para obtener Ofertas por categoria
+router.get("/categoria/:categoriaId", getOfertasPorCategoria);
+//Ruta para obtener todos las Ofertas por precio
+router.get("/precio/:orden", getOfertasPorPrecio);
 
 export default router;

@@ -1,4 +1,11 @@
-import { crearProducto, actualizarProducto, eliminarProducto, obtenerProductos, obtenerProductosPorCategoria, obtenerProductosPorPrecio } from "../models/productsModel.js";
+import {
+  crearProducto,
+  actualizarProducto,
+  eliminarProducto,
+  obtenerProductos,
+  obtenerProductosPorCategoria,
+  obtenerProductosPorPrecio,
+} from "../models/productsModel.js";
 
 export const createProducto = async (req, res) => {
   try {
@@ -70,7 +77,6 @@ export const updateProducto = async (req, res) => {
       ok: true,
       msg: "Producto actualizado correctamente",
     });
-
   } catch (error) {
     console.error("Error en updateProducto:", error);
     return res.status(500).json({
@@ -97,7 +103,6 @@ export const deleteProducto = async (req, res) => {
       ok: true,
       msg: "Producto eliminado correctamente",
     });
-
   } catch (error) {
     console.error("Error en deleteProducto:", error);
     return res.status(500).json({
@@ -134,7 +139,6 @@ export const getProductosPorCategoria = async (req, res) => {
       ok: true,
       productos,
     });
-
   } catch (error) {
     console.error("Error en getProductosPorCategoria:", error);
     return res.status(500).json({
@@ -154,7 +158,6 @@ export const getProductosPorPrecio = async (req, res) => {
       ok: true,
       productos,
     });
-
   } catch (error) {
     console.error("Error en getProductosPorPrecio:", error);
     return res.status(500).json({
