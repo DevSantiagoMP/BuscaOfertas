@@ -1,8 +1,27 @@
 import express from "express";
+import {
+  createProducto,
+  updateProducto,
+  deleteProducto,
+  getProductos,
+  getProductosPorCategoria,
+  getProductosPorPrecio,
+} from "../../controllers/productsController.js";
+
 const router = express.Router();
 // PRODUCTOS
 
+//Ruta para registrar productos
+router.post("/register-product", createProducto);
+//Ruta para actualizar datos del producto
+router.put("/:id", updateProducto);
+//Ruta para borrar productos
+router.delete("/:id", deleteProducto);
 //Ruta para obtener todos los productos
-//Ruta para obtener todos los productos por precio menor 
-//Ruta para obtener todos los productos por precio mayor
+router.get("/", getProductos);
+//Ruta para obtener productos por categoria
+router.get("/categoria/:categoriaId", getProductosPorCategoria);
+//Ruta para obtener todos los productos por precio
+router.get("/precio/:orden", getProductosPorPrecio);
+
 export default router;
