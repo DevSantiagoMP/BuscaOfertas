@@ -7,16 +7,17 @@ import {
   getOfertasPorCategoria,
   getOfertasPorPrecio,
 } from "../../controllers/offersController.js";
+import { validarJWT } from "../../middlewares/auth.js";
 
 const router = express.Router();
 // OFERTAS
 
 //Ruta para registrar Ofertas
-router.post("/register-offers", createOferta);
+router.post("/register-offers", validarJWT, createOferta);
 //Ruta para actualizar datos de la Oferta
-router.put("/:id", updateOferta);
+router.put("/:id", validarJWT, updateOferta);
 //Ruta para borrar Ofertas
-router.delete("/:id", deleteOferta);
+router.delete("/:id", validarJWT, deleteOferta);
 //Ruta para obtener todos las Ofertas
 router.get("/", getOfertas);
 //Ruta para obtener Ofertas por categoria

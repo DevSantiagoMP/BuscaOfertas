@@ -5,6 +5,8 @@ import {
   blockAccount,
   resetLoginState,
   updateLastLogin, } from "../models/authLoginModel.js";
+import jwt from "jsonwebtoken";
+
 
 export const loginUser = async (req, res) => {
   try {
@@ -72,9 +74,20 @@ export const loginUser = async (req, res) => {
     // Registrar último login
     await updateLastLogin(user.id_usuario);
 
+    // Generar JWT para proteger rutas
+    const token = jwt.sign(
+      {
+        id: user.id_usuario,
+        rol: user.rol_id,
+      },
+      process.env.JWT_SECRET,  
+      { expiresIn: "24h" }
+    );
+
     // 4. Respuesta
     res.json({
       message: "Login exitoso",
+      token,
       user: {
         id: user.id_usuario,
         nombre: user.nombre,
