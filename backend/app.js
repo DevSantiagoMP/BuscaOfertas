@@ -4,7 +4,8 @@ import express from "express";
 
 import { connectDB } from "./config/dbConnection.js"; //importacion base de datos
 
-import authRoutes from "./routes/auth/authRoutes.js"; //importacion de ruta users
+import authRoutes from "./routes/auth/authRoutes.js"; //importacion de ruta autenticacion normal
+import authGoogleRoutes from "./routes/authGoogleRoutes.js"; //importacion de ruta autenticacion google
 import businessRoutes from "./routes/business/businessRoutes.js"; //importacion de ruta negocios
 import productsRoutes from "./routes/products/productsRoutes.js"; //importacion de ruta productos
 import offersRoutes from "./routes/offers/offersRoutes.js"; //importacion de ruta ofertas
@@ -14,6 +15,8 @@ const app = express();
 //middlewares
 app.use(express.json());
 app.use(cors());
+// Inicializar Passport sin sesiones
+app.use(passport.initialize());
 
 // Conectar primero a la base
 const startServer = async () => {
@@ -21,6 +24,7 @@ const startServer = async () => {
 
   // Rutas
   app.use("/api/auth", authRoutes);
+  app.use("/api/googleAuth", authGoogleRoutes);
   app.use("/api/business", businessRoutes);
   app.use("/api/products", productsRoutes);
   app.use("/api/offers", offersRoutes);
