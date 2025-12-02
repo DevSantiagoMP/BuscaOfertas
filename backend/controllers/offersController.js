@@ -3,8 +3,7 @@ import {
   actualizarOferta,
   eliminarOferta,
   obtenerOfertas,
-  obtenerOfertasPorCategoria,
-  obtenerOfertasPorPrecio,
+  obtenerOfertasFiltradas
 } from "../models/offersModel.js";
 
 export const createOferta = async (req, res) => {
@@ -129,40 +128,27 @@ export const getOfertas = async (req, res) => {
   }
 };
 
-export const getOfertasPorCategoria = async (req, res) => {
+export const getOfertasFiltradas = async (req, res) => {
   try {
-    const { categoriaId } = req.params;
+    const { categoriaId, orden } = req.query;
+    // /ofertas/filtrar?categoriaId=2&orden=asc
 
-    const ofertas = await obtenerOfertasPorCategoria(categoriaId);
+    const ofertas = await obtenerOfertasFiltradas({
+      categoria_id: categoriaId || null,
+      orden: orden || null,
+    });
 
     return res.status(200).json({
       ok: true,
       ofertas,
     });
+
   } catch (error) {
-    console.error("Error en getOfertasPorCategoria:", error);
+    console.error("Error en getOfertasFiltradas:", error);
     return res.status(500).json({
       ok: false,
-      msg: "Error al obtener las ofertas por categoría",
+      msg: "Error al obtener ofertas filtradas",
     });
   }
 };
 
-export const getOfertasPorPrecio = async (req, res) => {
-  try {
-    const { orden } = req.params; // "asc" o "desc"
-
-    const ofertas = await obtenerOfertasPorPrecio(orden);
-
-    return res.status(200).json({
-      ok: true,
-      ofertas,
-    });
-  } catch (error) {
-    console.error("Error en getOfertasPorPrecio:", error);
-    return res.status(500).json({
-      ok: false,
-      msg: "Error al obtener ofertas por precio",
-    });
-  }
-};

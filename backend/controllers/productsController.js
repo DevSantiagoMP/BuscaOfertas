@@ -3,8 +3,7 @@ import {
   actualizarProducto,
   eliminarProducto,
   obtenerProductos,
-  obtenerProductosPorCategoria,
-  obtenerProductosPorPrecio,
+  obtenerProductosFiltrados,
 } from "../models/productsModel.js";
 
 export const createProducto = async (req, res) => {
@@ -129,40 +128,28 @@ export const getProductos = async (req, res) => {
   }
 };
 
-export const getProductosPorCategoria = async (req, res) => {
+export const getProductosFiltrados = async (req, res) => {
   try {
-    const { categoriaId } = req.params;
+    const { categoriaId, orden } = req.query; 
+    // Ejemplo de URL:
+    // /productos/filtrar?categoriaId=1&orden=asc
 
-    const productos = await obtenerProductosPorCategoria(categoriaId);
+    const productos = await obtenerProductosFiltrados({
+      categoria_id: categoriaId || null,
+      orden: orden || null,
+    });
 
     return res.status(200).json({
       ok: true,
       productos,
     });
+
   } catch (error) {
-    console.error("Error en getProductosPorCategoria:", error);
+    console.error("Error en getProductosFiltrados:", error);
     return res.status(500).json({
       ok: false,
-      msg: "Error al obtener los productos por categoría",
+      msg: "Error al obtener productos filtrados",
     });
   }
 };
 
-export const getProductosPorPrecio = async (req, res) => {
-  try {
-    const { orden } = req.params; // "asc" o "desc"
-
-    const productos = await obtenerProductosPorPrecio(orden);
-
-    return res.status(200).json({
-      ok: true,
-      productos,
-    });
-  } catch (error) {
-    console.error("Error en getProductosPorPrecio:", error);
-    return res.status(500).json({
-      ok: false,
-      msg: "Error al obtener productos por precio",
-    });
-  }
-};

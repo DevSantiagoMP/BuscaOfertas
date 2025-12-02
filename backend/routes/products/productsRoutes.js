@@ -4,8 +4,7 @@ import {
   updateProducto,
   deleteProducto,
   getProductos,
-  getProductosPorCategoria,
-  getProductosPorPrecio,
+  getProductosFiltrados,
 } from "../../controllers/productsController.js";
 import { validarJWT } from "../../middlewares/auth.js";
 
@@ -21,9 +20,7 @@ router.put("/:id", validarJWT, updateProducto);
 router.delete("/:id", validarJWT, deleteProducto);
 //Ruta para obtener todos los productos
 router.get("/", getProductos);
-//Ruta para obtener productos por categoria
-router.get("/categoria/:categoriaId", getProductosPorCategoria);
-//Ruta para obtener todos los productos por precio
-router.get("/precio/:orden", getProductosPorPrecio);
+//Ruta para obtener productos por categoria y precio
+router.get("/filtrar", getProductosFiltrados);
 
 export default router;

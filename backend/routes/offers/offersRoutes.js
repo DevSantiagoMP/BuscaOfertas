@@ -4,8 +4,7 @@ import {
   updateOferta,
   deleteOferta,
   getOfertas,
-  getOfertasPorCategoria,
-  getOfertasPorPrecio,
+  getOfertasFiltradas,
 } from "../../controllers/offersController.js";
 import { validarJWT } from "../../middlewares/auth.js";
 
@@ -20,9 +19,7 @@ router.put("/:id", validarJWT, updateOferta);
 router.delete("/:id", validarJWT, deleteOferta);
 //Ruta para obtener todos las Ofertas
 router.get("/", getOfertas);
-//Ruta para obtener Ofertas por categoria
-router.get("/categoria/:categoriaId", getOfertasPorCategoria);
-//Ruta para obtener todos las Ofertas por precio
-router.get("/precio/:orden", getOfertasPorPrecio);
+//Ruta para obtener Ofertas por categoria y precio
+router.get("/filtrar", getOfertasFiltradas);
 
 export default router;

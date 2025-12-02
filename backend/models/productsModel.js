@@ -75,41 +75,34 @@ export const obtenerProductos = async () => {
   }
 };
 
-export const obtenerProductosPorCategoria = async (categoria_id) => {
+export const obtenerProductosFiltrados = async ({ categoria_id = null, orden = null }) => {
   try {
-    const query = `
+    let query = `
       SELECT p.*, n.nombre AS nombre_negocio, n.categoria_id
       FROM productos p
       INNER JOIN negocios n ON p.negocio_id = n.id_negocio
-      WHERE n.categoria_id = ?
+      WHERE 1 = 1
     `;
 
-    const [rows] = await db.execute(query, [categoria_id]);
+    const params = [];
+
+    // FILTRO POR CATEGORÍA
+    if (categoria_id) {
+      query += ` AND n.categoria_id = ?`;
+      params.push(categoria_id);
+    }
+
+    // FILTRO POR PRECIO (ASC / DESC)
+    if (orden) {
+      const orderBy = orden === "desc" ? "DESC" : "ASC";
+      query += ` ORDER BY p.precio ${orderBy}`;
+    }
+
+    const [rows] = await db.execute(query, params);
     return rows;
 
   } catch (error) {
-    console.error("Error en obtenerProductosPorCategoria:", error);
-    throw error;
-  }
-};
-
-export const obtenerProductosPorPrecio = async (orden) => {
-  try {
-    // Validar orden
-    const orderBy = orden === "desc" ? "DESC" : "ASC";
-
-    const query = `
-      SELECT p.*, n.nombre AS nombre_negocio
-      FROM productos p
-      INNER JOIN negocios n ON p.negocio_id = n.id_negocio
-      ORDER BY p.precio ${orderBy}
-    `;
-
-    const [rows] = await db.execute(query);
-    return rows;
-
-  } catch (error) {
-    console.error("Error en obtenerProductosPorPrecio:", error);
+    console.error("Error en obtenerProductosFiltrados:", error);
     throw error;
   }
 };

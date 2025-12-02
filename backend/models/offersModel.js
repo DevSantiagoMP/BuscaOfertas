@@ -75,41 +75,35 @@ export const obtenerOfertas = async () => {
   }
 };
 
-export const obtenerOfertasPorCategoria = async (categoria_id) => {
+export const obtenerOfertasFiltradas = async ({ categoria_id = null, orden = null }) => {
   try {
-    const query = `
+    let query = `
       SELECT o.*, n.nombre AS nombre_negocio, n.categoria_id
       FROM ofertas o
       INNER JOIN negocios n ON o.negocio_id = n.id_negocio
-      WHERE n.categoria_id = ?
+      WHERE 1 = 1
     `;
 
-    const [rows] = await db.execute(query, [categoria_id]);
+    const params = [];
+
+    // FILTRO POR CATEGORÍA
+    if (categoria_id) {
+      query += ` AND n.categoria_id = ?`;
+      params.push(categoria_id);
+    }
+
+    // FILTRO POR PRECIO (ASC / DESC)
+    if (orden) {
+      const orderBy = orden === "desc" ? "DESC" : "ASC";
+      query += ` ORDER BY o.precio_oferta ${orderBy}`;
+    }
+
+    const [rows] = await db.execute(query, params);
     return rows;
 
   } catch (error) {
-    console.error("Error en obtenerOfertasPorCategoria:", error);
+    console.error("Error en obtenerOfertasFiltradas:", error);
     throw error;
   }
 };
 
-export const obtenerOfertasPorPrecio = async (orden) => {
-  try {
-    // Validar orden
-    const orderBy = orden === "desc" ? "DESC" : "ASC";
-
-    const query = `
-      SELECT o.*, n.nombre AS nombre_negocio
-      FROM ofertas o
-      INNER JOIN negocios n ON o.negocio_id = n.id_negocio
-      ORDER BY o.precio_oferta ${orderBy}
-    `;
-
-    const [rows] = await db.execute(query);
-    return rows;
-
-  } catch (error) {
-    console.error("Error en obtenerOfertasPorPrecio:", error);
-    throw error;
-  }
-};
