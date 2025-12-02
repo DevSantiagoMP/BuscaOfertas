@@ -75,7 +75,11 @@ export const obtenerOfertas = async () => {
   }
 };
 
-export const obtenerOfertasFiltradas = async ({ categoria_id = null, orden = null }) => {
+export const obtenerOfertasFiltradas = async ({
+  nombre = null,
+  categoria_id = null,
+  orden = null,
+}) => {
   try {
     let query = `
       SELECT o.*, n.nombre AS nombre_negocio, n.categoria_id
@@ -85,6 +89,12 @@ export const obtenerOfertasFiltradas = async ({ categoria_id = null, orden = nul
     `;
 
     const params = [];
+
+    // FILTRO POR NOMBRE (coincidencia parcial)
+    if (nombre) {
+      query += ` AND o.nombre LIKE ?`;
+      params.push(`%${nombre}%`);
+    }
 
     // FILTRO POR CATEGORÍA
     if (categoria_id) {

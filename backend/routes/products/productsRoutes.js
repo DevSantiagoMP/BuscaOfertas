@@ -4,10 +4,9 @@ import {
   updateProducto,
   deleteProducto,
   getProductos,
-  getProductosFiltrados,
+  getProductosFiltrados
 } from "../../controllers/productsController.js";
 import { validarJWT } from "../../middlewares/auth.js";
-
 
 const router = express.Router();
 // PRODUCTOS

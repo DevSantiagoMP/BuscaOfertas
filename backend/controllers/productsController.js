@@ -3,7 +3,7 @@ import {
   actualizarProducto,
   eliminarProducto,
   obtenerProductos,
-  obtenerProductosFiltrados,
+  obtenerProductosFiltrados
 } from "../models/productsModel.js";
 
 export const createProducto = async (req, res) => {
@@ -130,11 +130,12 @@ export const getProductos = async (req, res) => {
 
 export const getProductosFiltrados = async (req, res) => {
   try {
-    const { categoriaId, orden } = req.query; 
-    // Ejemplo de URL:
-    // /productos/filtrar?categoriaId=1&orden=asc
+    const {nombre, categoriaId, orden } = req.query;
+    // Ejemplo:
+    // /productos/filtrar?categoriaId=1&nombre=pollo&orden=asc
 
     const productos = await obtenerProductosFiltrados({
+      nombre: nombre || null,
       categoria_id: categoriaId || null,
       orden: orden || null,
     });
@@ -152,4 +153,5 @@ export const getProductosFiltrados = async (req, res) => {
     });
   }
 };
+
 

@@ -3,12 +3,13 @@ import {
   actualizarOferta,
   eliminarOferta,
   obtenerOfertas,
-  obtenerOfertasFiltradas
+  obtenerOfertasFiltradas,
 } from "../models/offersModel.js";
 
 export const createOferta = async (req, res) => {
   try {
-    const { negocio_id, nombre, descripcion, precio_oferta, foto_url } = req.body;
+    const { negocio_id, nombre, descripcion, precio_oferta, foto_url } =
+      req.body;
 
     // Validación simple
     if (!negocio_id || !nombre || !precio_oferta) {
@@ -45,7 +46,8 @@ export const createOferta = async (req, res) => {
 export const updateOferta = async (req, res) => {
   try {
     const { id } = req.params;
-    const { negocio_id, nombre, descripcion, precio_oferta, foto_url } = req.body;
+    const { negocio_id, nombre, descripcion, precio_oferta, foto_url } =
+      req.body;
 
     // Validación mínima
     if (!negocio_id || !nombre || !precio_oferta) {
@@ -130,10 +132,10 @@ export const getOfertas = async (req, res) => {
 
 export const getOfertasFiltradas = async (req, res) => {
   try {
-    const { categoriaId, orden } = req.query;
-    // /ofertas/filtrar?categoriaId=2&orden=asc
+    const { nombre, categoriaId, orden } = req.query;
 
     const ofertas = await obtenerOfertasFiltradas({
+      nombre: nombre || null,
       categoria_id: categoriaId || null,
       orden: orden || null,
     });

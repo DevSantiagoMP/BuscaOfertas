@@ -75,7 +75,11 @@ export const obtenerProductos = async () => {
   }
 };
 
-export const obtenerProductosFiltrados = async ({ categoria_id = null, orden = null }) => {
+export const obtenerProductosFiltrados = async ({
+  nombre = null,
+  categoria_id = null,
+  orden = null,
+}) => {
   try {
     let query = `
       SELECT p.*, n.nombre AS nombre_negocio, n.categoria_id
@@ -86,13 +90,19 @@ export const obtenerProductosFiltrados = async ({ categoria_id = null, orden = n
 
     const params = [];
 
+    // FILTRO POR NOMBRE (LIKE, búsqueda parcial)
+    if (nombre) {
+      query += ` AND p.nombre LIKE ?`;
+      params.push(`%${nombre}%`);
+    }
+
     // FILTRO POR CATEGORÍA
     if (categoria_id) {
       query += ` AND n.categoria_id = ?`;
       params.push(categoria_id);
     }
 
-    // FILTRO POR PRECIO (ASC / DESC)
+    // ORDENAR POR PRECIO
     if (orden) {
       const orderBy = orden === "desc" ? "DESC" : "ASC";
       query += ` ORDER BY p.precio ${orderBy}`;
@@ -100,7 +110,6 @@ export const obtenerProductosFiltrados = async ({ categoria_id = null, orden = n
 
     const [rows] = await db.execute(query, params);
     return rows;
-
   } catch (error) {
     console.error("Error en obtenerProductosFiltrados:", error);
     throw error;
