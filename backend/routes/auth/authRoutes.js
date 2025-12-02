@@ -6,6 +6,8 @@ import {
     validarToken,
     resetearContrasena
 } from "../../controllers/recoverPasswordController.js";
+import { logoutManual } from "../../controllers/authLogoutController.js";
+import { validarJWT } from "../../middlewares/auth.js";
 
 const router = express.Router();
 
@@ -25,5 +27,7 @@ router.post("/recuperar", solicitarRecuperacion);
 router.get("/recuperar/:token", validarToken);
 // Ruta para crear nueva contraseña
 router.post("/recuperar/:token", resetearContrasena);
+// Ruta para logout manual
+router.post("/logout", validarJWT, logoutManual);
 
 export default router;
