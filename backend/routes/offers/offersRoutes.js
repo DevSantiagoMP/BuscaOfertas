@@ -5,6 +5,7 @@ import {
   deleteOferta,
   getOfertas,
   getOfertasFiltradas,
+  getOfertasByNegocio 
 } from "../../controllers/offersController.js";
 import { validarJWT } from "../../middlewares/auth.js";
 
@@ -21,5 +22,7 @@ router.delete("/:id", validarJWT, deleteOferta);
 router.get("/", getOfertas);
 //Ruta para obtener Ofertas por categoria y precio
 router.get("/filtrar", getOfertasFiltradas);
+//Ruta para obtener ofertas por id de negocio
+router.get("/:id_negocio/offers", getOfertasByNegocio);
 
 export default router;

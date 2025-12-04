@@ -4,7 +4,8 @@ import {
   updateProducto,
   deleteProducto,
   getProductos,
-  getProductosFiltrados
+  getProductosFiltrados,
+  getProductosByNegocio
 } from "../../controllers/productsController.js";
 import { validarJWT } from "../../middlewares/auth.js";
 
@@ -21,5 +22,7 @@ router.delete("/:id", validarJWT, deleteProducto);
 router.get("/", getProductos);
 //Ruta para obtener productos por categoria y precio
 router.get("/filtrar", getProductosFiltrados);
+// Ruta para obtener todos los productos por id de negocio
+router.get("/:id_negocio/products", getProductosByNegocio);
 
 export default router;

@@ -3,7 +3,8 @@ import {
   actualizarProducto,
   eliminarProducto,
   obtenerProductos,
-  obtenerProductosFiltrados
+  obtenerProductosFiltrados,
+  obtenerProductosPorNegocio 
 } from "../models/productsModel.js";
 
 export const createProducto = async (req, res) => {
@@ -26,15 +27,34 @@ export const createProducto = async (req, res) => {
       foto_url: foto_url || null,
     };
 
-    const result = await crearProducto(nuevoProducto);
+    // Llamada al modelo
+    const {
+      insertResult,
+      productos_actuales,
+      limite,
+      productos_restantes,
+    } = await crearProducto(nuevoProducto);
 
     return res.status(201).json({
       ok: true,
       msg: "Producto creado exitosamente",
-      id_producto: result.insertId,
+      id_producto: insertResult.insertId,
+      productos_actuales,
+      limite,
+      productos_restantes,
     });
+
   } catch (error) {
     console.error("Error en createProducto:", error);
+
+    // Si el error viene del modelo (por límite) lo mostramos tal cual
+    if (error.message.includes("plan") || error.message.includes("permite")) {
+      return res.status(403).json({
+        ok: false,
+        msg: error.message,
+      });
+    }
+
     return res.status(500).json({
       ok: false,
       msg: "Error al registrar el producto",
@@ -150,6 +170,39 @@ export const getProductosFiltrados = async (req, res) => {
     return res.status(500).json({
       ok: false,
       msg: "Error al obtener productos filtrados",
+    });
+  }
+};
+
+export const getProductosByNegocio = async (req, res) => {
+  try {
+    const { id_negocio } = req.params;
+
+    if (!id_negocio) {
+      return res.status(400).json({
+        ok: false,
+        message: "id_negocio es obligatorio",
+      });
+    }
+
+    const {
+      productos,
+      limite_aplicado
+    } = await obtenerProductosPorNegocio(id_negocio);
+
+    res.json({
+      ok: true,
+      negocio_id: id_negocio,
+      limite_aplicado,
+      total: productos.length,
+      productos
+    });
+
+  } catch (error) {
+    console.error("Error al obtener productos del negocio:", error);
+    res.status(500).json({
+      ok: false,
+      message: "Error al obtener productos"
     });
   }
 };

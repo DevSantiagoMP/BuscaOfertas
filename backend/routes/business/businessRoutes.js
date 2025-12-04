@@ -1,10 +1,11 @@
 import express from "express";
-import { crearNegocio, updateBusiness, updateBusinessPlan, getNegocios, getNegociosPorCategoria  } from "../../controllers/businessController.js";
+import { crearNegocio, updateBusiness, updateBusinessPlan, obtenerNegocio, getNegocios, getNegociosPorCategoria  } from "../../controllers/businessController.js";
 import { validarJWT } from "../../middlewares/auth.js";
 
 const router = express.Router();
 // NEGOCIOS
-
+// Ruta para obtener negocios
+router.get('/:id', obtenerNegocio);
 // Ruta para registrar negocios
 router.post("/register-business", validarJWT, crearNegocio);
 // Actualizar exclusivamente el plan del negocio

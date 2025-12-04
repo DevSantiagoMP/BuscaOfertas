@@ -4,12 +4,13 @@ import {
   eliminarOferta,
   obtenerOfertas,
   obtenerOfertasFiltradas,
+  obtenerOfertasPorNegocio 
 } from "../models/offersModel.js";
 
+// Crear ofertas con limite segun plan
 export const createOferta = async (req, res) => {
   try {
-    const { negocio_id, nombre, descripcion, precio_oferta, foto_url } =
-      req.body;
+    const { negocio_id, nombre, descripcion, precio_oferta, foto_url } = req.body;
 
     // Validación simple
     if (!negocio_id || !nombre || !precio_oferta) {
@@ -27,15 +28,34 @@ export const createOferta = async (req, res) => {
       foto_url: foto_url || null,
     };
 
-    const result = await crearOferta(nuevaOferta);
+    // Llamada al modelo
+    const {
+      insertResult,
+      ofertas_actuales,
+      limite,
+      ofertas_restantes,
+    } = await crearOferta(nuevaOferta);
 
     return res.status(201).json({
       ok: true,
       msg: "Oferta creada exitosamente",
-      id_oferta: result.insertId,
+      id_oferta: insertResult.insertId,
+      ofertas_actuales,
+      limite,
+      ofertas_restantes,
     });
+
   } catch (error) {
     console.error("Error en createOferta:", error);
+
+    // Si el error viene del modelo (límite alcanzado)
+    if (error.message.includes("plan") || error.message.includes("permite")) {
+      return res.status(403).json({
+        ok: false,
+        msg: error.message,
+      });
+    }
+
     return res.status(500).json({
       ok: false,
       msg: "Error al registrar la oferta",
@@ -43,6 +63,7 @@ export const createOferta = async (req, res) => {
   }
 };
 
+// Actualizar informacion de oferta
 export const updateOferta = async (req, res) => {
   try {
     const { id } = req.params;
@@ -87,6 +108,7 @@ export const updateOferta = async (req, res) => {
   }
 };
 
+// Borrar ofertas
 export const deleteOferta = async (req, res) => {
   try {
     const { id } = req.params;
@@ -113,6 +135,7 @@ export const deleteOferta = async (req, res) => {
   }
 };
 
+// Obtener todas las ofertas
 export const getOfertas = async (req, res) => {
   try {
     const ofertas = await obtenerOfertas();
@@ -130,6 +153,7 @@ export const getOfertas = async (req, res) => {
   }
 };
 
+// Obtener ofertas por filtro
 export const getOfertasFiltradas = async (req, res) => {
   try {
     const { nombre, categoriaId, orden } = req.query;
@@ -151,6 +175,31 @@ export const getOfertasFiltradas = async (req, res) => {
       ok: false,
       msg: "Error al obtener ofertas filtradas",
     });
+  }
+};
+
+// Obtener todas las ofertas de un negocio segun plan 
+export const getOfertasByNegocio = async (req, res) => {
+  try {
+    const { id_negocio } = req.params;
+
+    if (!id_negocio) {
+      return res.status(400).json({ message: "id_negocio es obligatorio" });
+    }
+
+    // Ahora obtenemos un objeto, no solo un arreglo
+    const { ofertas, limite_aplicado } = await obtenerOfertasPorNegocio(id_negocio);
+
+    res.json({
+      negocio_id: id_negocio,
+      limite_aplicado,
+      total: ofertas.length,
+      ofertas,
+    });
+
+  } catch (error) {
+    console.error("Error al obtener ofertas del negocio:", error);
+    res.status(500).json({ message: "Error al obtener ofertas" });
   }
 };
 
