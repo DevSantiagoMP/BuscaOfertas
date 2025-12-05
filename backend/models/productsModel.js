@@ -22,7 +22,7 @@ export const crearProducto = async (producto) => {
       1: 10,  // gratuito
       2: Infinity, // mensual
       3: Infinity, // anual
-      4: 30, // fundadores
+      4: Infinity, // fundadores
       5: 30, // primeros pasos
     };
 
@@ -139,7 +139,29 @@ export const obtenerProductos = async () => {
     `;
 
     const [rows] = await db.execute(query);
-    return rows;
+
+    // agrupar productos por negocio
+    const porNegocio = rows.reduce((acc, prod) => {
+      if (!acc[prod.negocio_id]) acc[prod.negocio_id] = [];
+      acc[prod.negocio_id].push(prod);
+      return acc;
+    }, {});
+
+    // aplicar límites por plan
+    const productosFiltrados = Object.values(porNegocio)
+      .flatMap(lista => {
+        const plan = lista[0].plan_id;
+
+        const limit =
+          plan === 1 ? 10 :         // gratuito
+          plan === 5 ? 30 :         // primeros pasos
+          Infinity;                 // mensual, anual, fundadores
+
+        return lista.slice(0, limit);
+      });
+
+    return productosFiltrados;
+
   } catch (error) {
     console.error("Error en obtenerProductos:", error);
     throw error;
@@ -208,7 +230,7 @@ export const obtenerProductosPorNegocio = async (negocio_id) => {
       1: 10,        // gratuito
       2: Infinity,  // mensual
       3: Infinity,  // anual
-      4: 30,        // fundadores
+      4: Infinity,        // fundadores
       5: 30,        // primeros pasos
     };
 

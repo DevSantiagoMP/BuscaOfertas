@@ -139,7 +139,29 @@ export const obtenerOfertas = async () => {
     `;
 
     const [rows] = await db.execute(query);
-    return rows;
+
+    // Agrupar ofertas por negocio
+    const porNegocio = rows.reduce((acc, oferta) => {
+      if (!acc[oferta.negocio_id]) acc[oferta.negocio_id] = [];
+      acc[oferta.negocio_id].push(oferta);
+      return acc;
+    }, {});
+
+    // Aplicar límites según el plan
+    const ofertasFiltradas = Object.values(porNegocio)
+      .flatMap(lista => {
+        const plan = lista[0].plan_id;
+
+        const limit =
+          plan === 1 ? 10 :        // gratuito
+          plan === 5 ? 30 :        // primeros pasos
+          Infinity;                // mensual, anual, fundadores
+
+        return lista.slice(0, limit);
+      });
+
+    return ofertasFiltradas;
+
   } catch (error) {
     console.error("Error en obtenerOfertas:", error);
     throw error;
@@ -209,7 +231,7 @@ export const obtenerOfertasPorNegocio = async (negocio_id) => {
       1: 10,        // gratuito
       2: Infinity,  // mensual
       3: Infinity,  // anual
-      4: 30,        // fundadores
+      4: Infinity,        // fundadores
       5: 30,        // primeros pasos
     };
 

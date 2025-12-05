@@ -116,20 +116,33 @@ export const actualizarNegocio = async (id_negocio, datos) => {
 };
 
 export const actualizarPlanNegocio = async (id_negocio, plan_id) => {
-
   let updateFecha = "";
   
   switch (parseInt(plan_id)) {
     case 2: // mensual
-      updateFecha = ", plan_expira = DATE_ADD(NOW(), INTERVAL 1 MONTH)";
+      updateFecha = `,
+        plan_expira = DATE_ADD(
+          COALESCE(
+            IF(plan_expira > NOW(), plan_expira, NOW()),
+            NOW()
+          ),
+          INTERVAL 1 MONTH
+        )`;
       break;
 
     case 3: // anual
-      updateFecha = ", plan_expira = DATE_ADD(NOW(), INTERVAL 1 YEAR)";
+      updateFecha = `,
+        plan_expira = DATE_ADD(
+          COALESCE(
+            IF(plan_expira > NOW(), plan_expira, NOW()),
+            NOW()
+          ),
+          INTERVAL 1 YEAR
+        )`;
       break;
 
     default:
-      updateFecha = ""; // no se modifica plan_expira
+      updateFecha = ""; // NO modifica plan_expira si no es 2 o 3
   }
 
   const query = `

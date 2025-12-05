@@ -134,10 +134,27 @@ export const updateBusinessPlan = async (req, res) => {
       return res.status(404).json({ message: "Negocio no encontrado" });
     }
 
-    res.json({ message: "Plan del negocio actualizado correctamente" });
+    // 🔥 Obtener los datos actualizados del negocio
+    const [rows] = await db.query(
+      `SELECT plan_id, plan_expira FROM negocios WHERE id_negocio = ?`,
+      [id]
+    );
+
+    const negocio = rows[0];
+
+    return res.json({
+      ok: true,
+      message: "Plan del negocio actualizado correctamente",
+      negocio: {
+        id_negocio: id,
+        nuevo_plan_id: negocio.plan_id,
+        plan_expira: negocio.plan_expira,
+      }
+    });
+
   } catch (error) {
     console.error("Error al actualizar plan del negocio:", error);
-    res.status(500).json({ message: "Error al actualizar plan" });
+    return res.status(500).json({ message: "Error al actualizar plan" });
   }
 };
 
