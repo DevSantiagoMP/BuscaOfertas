@@ -95,3 +95,35 @@
     gap: 1rem !important;
   }
 }
+
+.btn-cooldown {
+  position: relative;
+  overflow: hidden;
+  transition: opacity 0.3s ease;
+}
+
+.btn-cooldown:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-cooldown:disabled::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 150, 255, 0.2);
+  width: calc(100% - (100% * var(--cooldown) / 60));
+  height: 100%;
+  transition: width 1s linear;
+}
+
+.modal-button{
+  padding: 0.5rem;
+  background-color: #ff7b00;
+  border: none;
+  border-radius: 0.5rem 0.5rem 0.5rem 0.5rem;
+}
+
+.modal-button:hover{
+  background-color: orange;
+}

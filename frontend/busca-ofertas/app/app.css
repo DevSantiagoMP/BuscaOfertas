@@ -10,6 +10,16 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  box-shadow: 0 0 0 30px white inset !important;
+  background-color: white !important;
+  caret-color: black !important;
+}
+
 /* Fondo principal */
 .principal-background {
   background: #e4e1e1;
@@ -64,4 +74,36 @@ input[type="file"] {
   padding: 1rem;
 }
 
+/* Modales */
+/* Modal de envio de enlace */
+.modal-backdrop-custom {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+/* Caja del modal */
+.modal-custom {
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 420px;
+  text-align: center;
+  animation: modalPop 0.25s ease-out;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+.modal-title {
+  font-size: 1.6rem;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
 

@@ -1,14 +1,36 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Header from "../../components/Header/Header";
 import { useState } from "react";
+import { loginUser } from "../../../services/auth.service";
 
 import "./login.css";
 
 const Login = () => {
+  const navigate = useNavigate();
+  // --- Estados del login ---
+  const [correo, setCorreo] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+
   // --- Estados para recuperar contraseña ---
   const [showRecoverBox, setShowRecoverBox] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [recoverEmail, setRecoverEmail] = useState("");
+
+  // --- Manejar login ---
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg("");
+
+    try {
+      const res = await loginUser(correo, password);
+      console.log("Login exitoso:", res);
+      navigate("/principal");
+    } catch (err: any) {
+      const msg = err.response?.data?.message || "Error en el login";
+      setErrorMsg(msg);
+    }
+  };
 
   return (
     <>
@@ -27,11 +49,14 @@ const Login = () => {
             </div>
           </div>
 
-          <form>
+          {/* --- FORMULARIO LOGIN --- */}
+          <form onSubmit={handleLogin}>
             <input
               type="email"
               placeholder="Correo electrónico"
               className="login-input"
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
               required
             />
 
@@ -39,8 +64,19 @@ const Login = () => {
               type="password"
               placeholder="Contraseña"
               className="login-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
+
+            {errorMsg && (
+              <p
+                className="text-danger mt-1 mb-1"
+                style={{ fontSize: "0.9rem" }}
+              >
+                {errorMsg}
+              </p>
+            )}
 
             <div className="text-end mb-3">
               <p
@@ -55,7 +91,9 @@ const Login = () => {
               </p>
             </div>
 
-            <button className="btn-login">Iniciar Sesión</button>
+            <button className="btn-login" type="submit">
+              Iniciar Sesión
+            </button>
           </form>
 
           {/* ------------------ CUADRO/MODAL DE RECUPERACIÓN ------------------ */}
