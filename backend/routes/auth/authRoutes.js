@@ -1,6 +1,6 @@
 import express from "express";
 import { registerUser, verifyEmail, resendVerificationEmail   } from "../../controllers/authRegisterController.js";
-import { loginUser } from "../../controllers/authLoginController.js";
+import { loginUser, checkSession  } from "../../controllers/authLoginController.js";
 import {
     solicitarRecuperacion,
     validarToken,
@@ -21,6 +21,8 @@ router.get("/verify-email", verifyEmail);
 router.post("/resend-verification", resendVerificationEmail);
 // Ruta para logear usuario
 router.post("/login", loginUser);
+// Ruta para chequear sesión
+router.get("/check-session", validarJWT, checkSession);
 // Ruta para solicitar correo para enviar enlace de recuperacion de contraseña
 router.post("/recuperar", solicitarRecuperacion);
 // Ruta para validar token recuperacion de contraseña

@@ -7,52 +7,93 @@ import {
   verifyUserEmail,
 } from "../models/authRegisterModel.js";
 import { sendVerificationEmail } from "../services/emailService.js";
-
+import { validatePassword } from "../utils/validatePassword.js";
 
 export const registerUser = async (req, res) => {
   try {
     const { nombre, apellidos, rol_id, correo, password } = req.body;
 
+    // 🔵 Sanitizar entradas
+    const sanitize = (str) => String(str).trim();
+
+    const nombreSan = sanitize(nombre);
+    const apellidosSan = apellidos ? sanitize(apellidos) : null;
+    const correoSan = sanitize(correo).toLowerCase();
+    const rolSan = Number(rol_id); // ✔ corregido
+    const passwordSan = password; // ❗ no usar trim en contraseñas
+
     // 1. Validaciones básicas
-    if (!nombre || !rol_id || !correo || !password) {
+    if (!nombreSan || !rolSan || !correoSan || !passwordSan) {
       return res.status(400).json({
         message: "Los campos nombre, rol, correo y contraseña son obligatorios",
       });
     }
 
+    // Validar rol numérico
+    if (isNaN(rolSan)) {
+      return res.status(400).json({
+        message: "El rol debe ser un número válido",
+      });
+    }
+
+    // Validar formato de correo
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(correoSan)) {
+      return res.status(400).json({
+        message: "El formato del correo no es válido",
+      });
+    }
+
+    // Validar contraseña
+    if (!validatePassword(passwordSan)) {
+      return res.status(400).json({
+        message:
+          "La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula y un número",
+      });
+    }
+
     // 2. Verificar si el usuario ya existe
-    const userFound = await findUserByEmail(correo);
+    const userFound = await findUserByEmail(correoSan);
     if (userFound) {
       return res.status(400).json({ message: "El correo ya está registrado" });
     }
 
     // 3. Encriptar contraseña
     const salt = await bcrypt.genSalt(10);
-    const contrasena_hash = await bcrypt.hash(password, salt);
+    const contrasena_hash = await bcrypt.hash(passwordSan, salt);
 
-    // 👉 Generar token y expiración (1 hora)
+    // 4. Generar token y expiración (1 hora)
     const token = crypto.randomBytes(32).toString("hex");
-    const tokenExpiration = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+    const tokenExpiration = new Date(Date.now() + 60 * 60 * 1000);
 
-    // 4. Guardar usuario en BD
+    // 5. Crear usuario en base de datos
     const newUser = await createUser({
-      nombre,
-      apellidos: apellidos || null,
-      correo,
+      nombre: nombreSan,
+      apellidos: apellidosSan,
+      correo: correoSan,
       contrasena_hash,
-      rol_id,
+      rol_id: rolSan,
       token_verificacion: token,
       token_verificacion_expira: tokenExpiration,
     });
 
-    // 👉 Crear enlace de verificación
-    const verificationLink = `http://localhost:3000/api/auth/verify-email?token=${token}`;
+    // Enlace de verificación
+    const verificationLink = `${process.env.FRONTEND_URL}/verificar-correo?token=${token}&email=${correoSan}`;
 
-    // 👉 Enviar correo
-    await sendVerificationEmail(newUser.correo, verificationLink);
+    // 6. Enviar correo (manejar error de envío)
+    try {
+      await sendVerificationEmail(newUser.correo, verificationLink);
+    } catch (emailError) {
+      console.error("❌ Error enviando correo:", emailError);
 
-    // Respuesta
-    res.status(201).json({
+      return res.status(500).json({
+        message:
+          "Tu cuenta fue creada, pero hubo un error enviando el correo de verificación. Intenta reenviar el email desde la opción 'Reenviar verificación'.",
+      });
+    }
+
+    // 7. Respuesta final (❗ antes faltaba)
+    return res.status(201).json({
       message: "Usuario registrado. Revisa tu correo para verificar la cuenta.",
       user: {
         id: newUser.id_usuario,
@@ -99,9 +140,9 @@ export const resendVerificationEmail = async (req, res) => {
       return res.status(400).json({ message: "El correo ya está verificado" });
     }
 
-    // Generar nuevo token y expiración
+    // Generar nuevo token
     const token = crypto.randomBytes(32).toString("hex");
-    const expiration = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+    const expiration = new Date(Date.now() + 60 * 60 * 1000);
 
     // Guardar en BD
     await db.query(
@@ -114,15 +155,13 @@ export const resendVerificationEmail = async (req, res) => {
     );
 
     // Nuevo enlace
-    const verificationLink = `http://localhost:3000/api/auth/verify-email?token=${token}`;
+    const verificationLink = `${process.env.FRONTEND_URL}/verificar-correo?token=${token}&email=${correo}`;
 
-    // Enviar correo
     await sendVerificationEmail(correo, verificationLink);
 
     res.json({
-      message: "Se ha enviado un nuevo enlace de verificación a tu correo."
+      message: "Se ha enviado un nuevo enlace de verificación a tu correo.",
     });
-
   } catch (error) {
     console.error("Error en reenvío de verificación:", error);
     res.status(500).json({ message: "Error interno del servidor" });

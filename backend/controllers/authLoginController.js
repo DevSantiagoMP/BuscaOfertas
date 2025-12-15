@@ -1,12 +1,12 @@
-import bcrypt from "bcrypt"; 
-import { 
-  findUserForLogin, 
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import {
+  findUserForLogin,
   updateFailedAttempts,
   blockAccount,
   resetLoginState,
-  updateLastLogin, } from "../models/authLoginModel.js";
-import jwt from "jsonwebtoken";
-
+  updateLastLogin,
+} from "../models/authLoginModel.js";
 
 export const loginUser = async (req, res) => {
   try {
@@ -19,11 +19,21 @@ export const loginUser = async (req, res) => {
       });
     }
 
+    // Validar formato de correo
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(correo)) {
+      return res.status(400).json({
+        message: "El formato del correo no es válido",
+      });
+    }
+
     // 2. Buscar usuario
     const user = await findUserForLogin(correo);
 
     if (!user) {
-      return res.status(400).json({ message: "Correo o contraseña incorrectos" });
+      return res
+        .status(400)
+        .json({ message: "Correo o contraseña incorrectos" });
     }
 
     // Verificar si el email está verificado
@@ -34,7 +44,10 @@ export const loginUser = async (req, res) => {
     }
 
     // Verificar si está bloqueado
-    if (user.cuenta_bloqueada_hasta && new Date() < new Date(user.cuenta_bloqueada_hasta)) {
+    if (
+      user.cuenta_bloqueada_hasta &&
+      new Date() < new Date(user.cuenta_bloqueada_hasta)
+    ) {
       const faltanMinutos = Math.ceil(
         (new Date(user.cuenta_bloqueada_hasta) - new Date()) / 60000
       );
@@ -56,7 +69,8 @@ export const loginUser = async (req, res) => {
         await updateFailedAttempts(user.id_usuario, nuevosIntentos);
 
         return res.status(403).json({
-          message: "Has superado el límite de intentos. Tu cuenta ha sido bloqueada por 3 horas.",
+          message:
+            "Has superado el límite de intentos. Tu cuenta ha sido bloqueada por 3 horas.",
         });
       }
 
@@ -64,7 +78,9 @@ export const loginUser = async (req, res) => {
       await updateFailedAttempts(user.id_usuario, nuevosIntentos);
 
       return res.status(400).json({
-        message: `Correo o contraseña incorrectos. Intentos restantes: ${5 - nuevosIntentos}`,
+        message: `Correo o contraseña incorrectos. Intentos restantes: ${
+          5 - nuevosIntentos
+        }`,
       });
     }
 
@@ -80,14 +96,28 @@ export const loginUser = async (req, res) => {
         id: user.id_usuario,
         rol: user.rol_id,
       },
-      process.env.JWT_SECRET,  
+      process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
 
-    // 4. Respuesta
+    // Enviar token como cookie segura
+    try {
+      res.cookie("access_token", token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 24 * 60 * 60 * 1000,
+      });
+    } catch (err) {
+      console.error("❌ Error enviando cookie:", err);
+      return res.status(500).json({
+        message: "Error al generar la sesión del usuario",
+      });
+    }
+
+    // No enviar el token al frontend
     res.json({
       message: "Login exitoso",
-      token,
       user: {
         id: user.id_usuario,
         nombre: user.nombre,
@@ -95,9 +125,25 @@ export const loginUser = async (req, res) => {
         rol_id: user.rol_id,
       },
     });
-
   } catch (error) {
     console.error("Error en login:", error);
     res.status(500).json({ message: "Error interno del servidor" });
+  }
+};
+
+export const checkSession = (req, res) => {
+  try {
+    // Si llegó aquí, validarJWT ya verificó el token
+    const usuario = req.user; // viene del JWT decodificado
+
+    return res.json({
+      ok: true,
+      usuario,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ok: false,
+      message: "Error al verificar la sesión",
+    });
   }
 };
