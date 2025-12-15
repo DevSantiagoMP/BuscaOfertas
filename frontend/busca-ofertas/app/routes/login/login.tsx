@@ -1,12 +1,33 @@
+// =======================
+// LOADER (SERVER)
+// =======================
+import { redirect } from "react-router";
+import type { Route } from "./+types/login";
+import { checkSessionServer } from "../../../services/auth.server";
+// =======================
+// CLIENT
+// =======================
 import { Link, useNavigate } from "react-router";
 import Header from "../../components/Header/Header";
 import { useState } from "react";
-import { loginUser } from "../../../services/auth.service";
+import { loginUser } from "../../../services/auth.client";
 
 import "./login.css";
 
+// 🔐 Loader: guest-only
+export async function loader({ request }: Route.LoaderArgs) {
+  const isAuthenticated = await checkSessionServer(request);
+
+  if (isAuthenticated) {
+    throw redirect("/principal");
+  }
+
+  return null;
+}
+
 const Login = () => {
   const navigate = useNavigate();
+
   // --- Estados del login ---
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
@@ -23,12 +44,11 @@ const Login = () => {
     setErrorMsg("");
 
     try {
-      const res = await loginUser(correo, password);
-      console.log("Login exitoso:", res);
+      await loginUser(correo, password);
       navigate("/principal");
     } catch (err: any) {
-      const msg = err.response?.data?.message || "Error en el login";
-      setErrorMsg(msg);
+      // fetch → no existe err.response
+      setErrorMsg(err?.message || "Error en el login");
     }
   };
 
@@ -100,7 +120,6 @@ const Login = () => {
           {showRecoverBox && (
             <div className="recover-overlay">
               <div className="recover-modal">
-                {/* Botón cerrar */}
                 <button
                   className="close-btn"
                   onClick={() => setShowRecoverBox(false)}

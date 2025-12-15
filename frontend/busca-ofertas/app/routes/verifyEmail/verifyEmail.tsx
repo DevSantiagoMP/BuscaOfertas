@@ -1,6 +1,6 @@
 import Header from "../../components/Header/Header";
 import { useEffect, useState } from "react";
-import { verifyEmail } from "../../../services/auth.service";
+import { verifyEmail } from "../../../services/auth.client";
 
 const VerifyEmail = () => {
   const [message, setMessage] = useState("Verificando tu cuenta...");

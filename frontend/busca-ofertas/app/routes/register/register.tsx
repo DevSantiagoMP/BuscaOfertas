@@ -2,7 +2,10 @@ import { Link } from "react-router";
 import Header from "../../components/Header/Header";
 import { useState, useEffect } from "react";
 import { validatePassword } from "../../utils/validatePassword";
-import { registerUser, resendVerification } from "../../../services/auth.service";
+import {
+  registerUser,
+  resendVerification,
+} from "../../../services/auth.client";
 import "./register.css";
 
 const Register = () => {
@@ -37,9 +40,9 @@ const Register = () => {
       await resendVerification(correoGuardado);
       setSuccessMessage("Hemos enviado un nuevo enlace a tu correo.");
       setCooldown(60);
-    } catch (err) {
-      console.error(err);
-      setSuccessMessage("No se pudo reenviar el enlace. Intenta más tarde.");
+    } catch (err: any) {
+      console.error(err.message);
+      setSuccessMessage(err.message || "No se pudo reenviar el enlace.");
     }
   };
 
@@ -57,9 +60,12 @@ const Register = () => {
     if (error) return;
 
     // Obtener valores del formulario
-    const nombre = (document.getElementById("nombre") as HTMLInputElement).value;
-    const apellidos = (document.getElementById("apellidos") as HTMLInputElement).value;
-    const correo = (document.getElementById("correo") as HTMLInputElement).value;
+    const nombre = (document.getElementById("nombre") as HTMLInputElement)
+      .value;
+    const apellidos = (document.getElementById("apellidos") as HTMLInputElement)
+      .value;
+    const correo = (document.getElementById("correo") as HTMLInputElement)
+      .value;
     const rol = (document.getElementById("rol") as HTMLSelectElement).value;
 
     const rol_id = rol === "usuario" ? 1 : 2;
@@ -77,11 +83,14 @@ const Register = () => {
       setCorreoGuardado(correo);
       setCooldown(60);
 
-      setSuccessMessage("Hemos enviado un enlace a tu correo electrónico para verificar tu cuenta.");
+      setSuccessMessage(
+        "Hemos enviado un enlace a tu correo electrónico para verificar tu cuenta."
+      );
       setShowModal(true);
-
     } catch (err: any) {
-      console.error("Error al registrar:", err.response?.data || err);
+      console.error("Error al registrar:", err.message);
+      setSuccessMessage(err.message || "Error al registrar usuario");
+      setShowModal(true);
     }
   };
 
@@ -97,17 +106,28 @@ const Register = () => {
             <div className="d-flex gap-2 names">
               <div className="d-flex flex-column w-100">
                 <label htmlFor="nombre">Nombre(s)</label>
-                <input id="nombre" type="text" placeholder="Escribe tu nombre" required />
+                <input
+                  id="nombre"
+                  type="text"
+                  placeholder="Escribe tu nombre"
+                  required
+                />
               </div>
 
               <div className="d-flex flex-column w-100">
                 <label htmlFor="apellidos">Apellido(s)</label>
-                <input id="apellidos" type="text" placeholder="Escribe tus apellidos" />
+                <input
+                  id="apellidos"
+                  type="text"
+                  placeholder="Escribe tus apellidos"
+                />
               </div>
             </div>
 
             {/* Rol */}
-            <label className="mt-3" htmlFor="rol">Selecciona tu rol</label>
+            <label className="mt-3" htmlFor="rol">
+              Selecciona tu rol
+            </label>
             <select id="rol" required>
               <option value="">Selecciona tu rol</option>
               <option value="usuario">Usuario</option>
@@ -115,11 +135,20 @@ const Register = () => {
             </select>
 
             {/* Correo */}
-            <label className="mt-3" htmlFor="correo">Correo electrónico</label>
-            <input id="correo" type="email" placeholder="Escribe tu correo" required />
+            <label className="mt-3" htmlFor="correo">
+              Correo electrónico
+            </label>
+            <input
+              id="correo"
+              type="email"
+              placeholder="Escribe tu correo"
+              required
+            />
 
             {/* Contraseña */}
-            <label className="mt-3" htmlFor="contraseña">Contraseña</label>
+            <label className="mt-3" htmlFor="contraseña">
+              Contraseña
+            </label>
             <input
               id="contraseña"
               type="password"
@@ -130,10 +159,14 @@ const Register = () => {
                 setPasswordError(validatePassword(e.target.value));
               }}
             />
-            {passwordError && <p className="input-register-error">{passwordError}</p>}
+            {passwordError && (
+              <p className="input-register-error">{passwordError}</p>
+            )}
 
             {/* Confirmar contraseña */}
-            <label className="mt-3" htmlFor="confirmar-contraseña">Confirma contraseña</label>
+            <label className="mt-3" htmlFor="confirmar-contraseña">
+              Confirma contraseña
+            </label>
             <input
               id="confirmar-contraseña"
               type="password"
@@ -150,9 +183,13 @@ const Register = () => {
                 }
               }}
             />
-            {confirmError && <p className="input-register-error">{confirmError}</p>}
+            {confirmError && (
+              <p className="input-register-error">{confirmError}</p>
+            )}
 
-            <button className="btn-register mt-3" type="submit">Registrar</button>
+            <button className="btn-register mt-3" type="submit">
+              Registrar
+            </button>
 
             <div className="d-flex justify-content-center align-items-center gap-2 mt-2">
               <p>¿Ya tienes una cuenta?</p>

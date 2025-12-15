@@ -1,8 +1,27 @@
-import axios from "axios";
+// src/services/api.ts
+const API_URL = "http://localhost:3000/api";
 
-const api = axios.create({
-  baseURL: "http://localhost:3000/api",
-  withCredentials: true, // permite cookies httpOnly
-});
+type FetchOptions = RequestInit & {
+  token?: string;
+};
 
-export default api;
+export async function apiFetch(
+  endpoint: string,
+  options: FetchOptions = {}
+) {
+  const res = await fetch(`${API_URL}${endpoint}`, {
+    credentials: "include", // 👈 cookies httpOnly
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+    ...options,
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.message || "Error en la petición");
+  }
+
+  return res.json();
+}
