@@ -1,10 +1,43 @@
 //Components
 import Logo from "../../components/Logo/Logo";
 
+import { useEffect, useState } from "react";
+
+import { Link } from "react-router";
+
 //CSS
 import "./principal.css";
 
 const principal = () => {
+  // Estado para boton administrar negocio
+  const [rolId, setRolId] = useState<number | null>(null);
+  // Estado para correo
+  const [correo, setCorreo] = useState<string | null>(null);
+
+  useEffect(() => {
+  const fetchSession = async () => {
+    try {
+      const res = await fetch(
+        "http://localhost:3000/api/auth/check-session",
+        {
+          credentials: "include",
+        }
+      );
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+
+      setRolId(data.usuario.rol);
+      setCorreo(data.usuario.correo);
+    } catch (err) {
+      console.error("Error obteniendo sesión", err);
+    }
+  };
+
+  fetchSession();
+}, []);
+
   return (
     <>
       {/* Header */}
@@ -15,7 +48,7 @@ const principal = () => {
 
             {/* Botón hamburguesa */}
             <button
-              className="btn border-0 d-md-none"
+              className="btn border-0"
               type="button"
               data-bs-toggle="offcanvas"
               data-bs-target="#mobileMenu"
@@ -23,14 +56,6 @@ const principal = () => {
             >
               <i className="bi bi-list" style={{ fontSize: "1.8rem" }}></i>
             </button>
-
-            {/* En desktop se siguen mostrando los botones normales */}
-            <div className="d-none d-md-flex align-items-center gap-2">
-              <button className="personal-header-button">
-                Administrar mi negocio
-              </button>
-              <button className="close-section">Cerrar sesion</button>
-            </div>
           </div>
         </div>
       </header>
@@ -42,7 +67,6 @@ const principal = () => {
         aria-labelledby="mobileMenuLabel"
       >
         <div className="offcanvas-header">
-
           {/* Al tocar el menu hamburguesa se muestra */}
           <h5 className="offcanvas-title" id="mobileMenuLabel">
             Menú
@@ -58,14 +82,18 @@ const principal = () => {
         {/* Logo usuario y correo */}
         <div className="d-flex flex-column justify-content-center align-items-center">
           <i className="bi bi-person-circle user-icon"></i>
-          <p>micorreo@ejemplo.co</p>
+          <p>{correo ?? "Cargando..."}</p>
         </div>
 
         {/* Botones adicionales */}
         <div className="offcanvas-body d-flex flex-column gap-4">
-          <button className="personal-header-button w-100">
-            Administrar mi negocio
-          </button>
+          {rolId === 2 && (
+            <Link to="/administrar-negocio">
+              <button className="personal-header-button w-100">
+                Administrar mi negocio
+              </button>
+            </Link>
+          )}
           <button className="close-section w-100">Cerrar sesion</button>
         </div>
       </div>
@@ -96,7 +124,7 @@ const principal = () => {
           <div className="row">
             <div className="col-12">
               <div className="filters-container d-flex flex-wrap gap-2 flex-column flex-md-row">
-                <p>Filtrar por:</p>
+                <p className="text-filters-container">Filtrar por:</p>
 
                 {/* Category */}
                 <select className="filter-category" defaultValue="">

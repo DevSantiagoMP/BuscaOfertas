@@ -33,10 +33,6 @@
   color: orange;
 }
 
-.user-icon:hover{
-  color: red;
-}
-
 .button-user-icon{
   border: none;
   background-color: white;
@@ -87,7 +83,7 @@
   flex-wrap: wrap;
 }
 
-.filters-container p{
+.text-filters-container{
   margin: 0;
 }
 

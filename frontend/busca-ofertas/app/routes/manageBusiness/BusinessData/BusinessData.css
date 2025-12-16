@@ -1,5 +1,5 @@
-.box-inputs input,
-select {
+.input-box-input,
+.select-box-input {
   width: 100%;
   border: none;
   margin-bottom: 0.8rem;

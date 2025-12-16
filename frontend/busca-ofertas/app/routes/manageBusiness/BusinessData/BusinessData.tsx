@@ -91,6 +91,7 @@ const businessData = () => {
                   Toca aquí para añadir una foto (opcional)
                 </label>
                 <input
+                  className="input-box-input"
                   type="file"
                   id="imagenNegocio"
                   accept="image/*"
@@ -112,7 +113,7 @@ const businessData = () => {
                 )}
 
                 <input
-                  className="d-block"
+                  className="d-block input-box-input"
                   type="text"
                   placeholder="Escriba el nombre del negocio"
                   onChange={(e) => setNombreNegocio(e.target.value)}
@@ -120,14 +121,14 @@ const businessData = () => {
                   required
                 />
                 <input
-                  className="d-block"
+                  className="d-block input-box-input"
                   type="area"
                   placeholder="Descripcion (opcional)"
                   onChange={(e) => setDescripcionNegocio(e.target.value)}
                   value={descripcionNegocio}
                 />
                 <input
-                  className="d-block"
+                  className="d-block input-box-input"
                   type="text"
                   placeholder="Ciudad"
                   onChange={(e) => setCiudad(e.target.value)}
@@ -135,7 +136,7 @@ const businessData = () => {
                   required
                 />
                 <input
-                  className="d-block"
+                  className="d-block input-box-input"
                   type="text"
                   placeholder="Dirección"
                   onChange={(e) => setDireccion(e.target.value)}
@@ -143,7 +144,7 @@ const businessData = () => {
                   required
                 />
                 <input
-                  className="d-block"
+                  className="d-block input-box-input"
                   type="number"
                   placeholder="Telefono o numero de celular"
                   onChange={(e) => setTelefono(e.target.value)}
@@ -151,6 +152,7 @@ const businessData = () => {
                   required
                 />
                 <select
+                  className="select-box-input"
                   value={categoria}
                   onChange={(e) => setCategoria(e.target.value)}
                   required
