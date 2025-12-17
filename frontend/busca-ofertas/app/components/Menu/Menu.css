@@ -1,0 +1,32 @@
+.menu-button {
+  font-size: 0.8rem;
+  height: 1.8rem;
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 0.5rem 0.5rem 0.5rem 0.5rem;
+  padding: 0.2rem;
+}
+
+.menu-button:hover {
+  background-color: green;
+}
+
+.user-icon{
+  font-size: 2rem;
+  color: orange;
+}
+
+.close-section{
+  font-size: 0.8rem;
+  height: 1.8rem;
+  background-color: rgb(179, 174, 174);
+  color: black;
+  border: none;
+  border-radius: 0.5rem 0.5rem 0.5rem 0.5rem;
+  padding: 0.2rem;
+}
+
+.close-section:hover {
+  background-color: red;
+}

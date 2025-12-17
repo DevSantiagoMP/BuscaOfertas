@@ -11,8 +11,8 @@ const PrivateHeader = () => {
             className="btn border-0"
             type="button"
             data-bs-toggle="offcanvas"
-            data-bs-target="#mobileMenu"
-            aria-controls="mobileMenu"
+            data-bs-target="#menu"
+            aria-controls="menu"
           >
             <i className="bi bi-list" style={{ fontSize: "1.8rem" }} />
           </button>

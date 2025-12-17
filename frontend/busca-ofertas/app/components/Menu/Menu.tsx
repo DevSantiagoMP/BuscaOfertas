@@ -1,15 +1,20 @@
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
+import "./Menu.css";
 
-interface MobileMenuProps {
+interface MenuProps {
   rolId: number | null;
   correo: string | null;
   onLogout: () => void;
 }
 
-const MobileMenu = ({ rolId, correo, onLogout }: MobileMenuProps) => {
+const Menu = ({ rolId, correo, onLogout }: MenuProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleLogoutClick = async () => {
+  const isPrincipal = location.pathname === "/principal";
+  const isAdmin = location.pathname === "/administrar-negocio";
+
+  const handleLogoutClick = () => {
     onLogout();
     navigate("/login");
   };
@@ -18,12 +23,12 @@ const MobileMenu = ({ rolId, correo, onLogout }: MobileMenuProps) => {
     <div
       className="offcanvas offcanvas-end"
       tabIndex={-1}
-      id="mobileMenu"
-      aria-labelledby="mobileMenuLabel"
+      id="menu"
+      aria-labelledby="menuLabel"
       data-bs-backdrop="false"
     >
       <div className="offcanvas-header">
-        <h5 className="offcanvas-title" id="mobileMenuLabel">
+        <h5 className="offcanvas-title" id="menuLabel">
           Menú
         </h5>
         <button
@@ -42,10 +47,18 @@ const MobileMenu = ({ rolId, correo, onLogout }: MobileMenuProps) => {
 
       {/* Acciones */}
       <div className="offcanvas-body d-flex flex-column gap-4">
-        {rolId === 2 && (
+        {rolId === 2 && isPrincipal && (
           <Link to="/administrar-negocio">
-            <button className="personal-header-button w-100">
+            <button className="menu-button w-100">
               Administrar mi negocio
+            </button>
+          </Link>
+        )}
+
+        {rolId === 2 && isAdmin && (
+          <Link to="/principal">
+            <button className="menu-button w-100">
+              Página principal
             </button>
           </Link>
         )}
@@ -58,4 +71,4 @@ const MobileMenu = ({ rolId, correo, onLogout }: MobileMenuProps) => {
   );
 };
 
-export default MobileMenu;
+export default Menu;
