@@ -1,12 +1,8 @@
-// =======================
-// LOADER (SERVER)
-// =======================
+// LOADER
 import { redirect } from "react-router";
 import type { Route } from "./+types/login";
 import { checkSessionServer } from "../../../services/auth.server";
-// =======================
-// CLIENT
-// =======================
+
 import { Link, useNavigate } from "react-router";
 import Header from "../../components/Header/Header";
 import { useState } from "react";
@@ -14,7 +10,7 @@ import { loginUser } from "../../../services/auth.client";
 
 import "./login.css";
 
-// 🔐 Loader: guest-only
+//Loader
 export async function loader({ request }: Route.LoaderArgs) {
   const isAuthenticated = await checkSessionServer(request);
 
@@ -44,10 +40,18 @@ const Login = () => {
     setErrorMsg("");
 
     try {
-      await loginUser(correo, password);
-      navigate("/principal");
+      const data = await loginUser(correo, password);
+
+      const rolId = data.user.rol_id;
+
+      if (rolId === 2) {
+        navigate("/administrar-negocio");
+      } else if (rolId === 1) {
+        navigate("/principal");
+      } else {
+        navigate("/");
+      }
     } catch (err: any) {
-      // fetch → no existe err.response
       setErrorMsg(err?.message || "Error en el login");
     }
   };
