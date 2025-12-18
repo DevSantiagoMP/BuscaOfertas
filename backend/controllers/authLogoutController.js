@@ -36,11 +36,10 @@ export const logoutManual = async (req, res) => {
     res.clearCookie("access_token", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax",
     });
 
     return res.json({ message: "Logout exitoso. Sesión cerrada." });
-
   } catch (error) {
     console.error("Error en logout:", error);
     res.status(500).json({ message: "Error interno del servidor" });

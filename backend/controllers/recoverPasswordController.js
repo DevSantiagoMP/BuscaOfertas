@@ -26,7 +26,7 @@ export const solicitarRecuperacion = async (req, res) => {
 
     await guardarTokenRecuperacion(usuario.id_usuario, token, expira);
 
-    const enlace = `${process.env.FRONTEND_URL}/cambiar-contraseña/${token}`;
+    const enlace = `${process.env.FRONTEND_URL}/cambiar-contrasena?token=${token}`;
 
     await sendPasswordResetEmail(usuario.correo, enlace);
 
