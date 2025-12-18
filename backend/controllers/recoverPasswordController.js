@@ -15,16 +15,20 @@ export const solicitarRecuperacion = async (req, res) => {
     const usuario = await buscarPorCorreo(correo);
 
     if (!usuario) {
-      return res
-        .status(404)
-        .json({ mensaje: "No existe un usuario con ese correo" });
+      return res.json({
+        mensaje: "Si el correo existe, recibirás un enlace",
+      });
     }
 
     // Crear token
     const token = crypto.randomBytes(40).toString("hex");
+
+    // 🔐 Hash del token (esto es lo que se guarda)
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+
     const expira = new Date(Date.now() + 1000 * 60 * 15); // 15 minutos
 
-    await guardarTokenRecuperacion(usuario.id_usuario, token, expira);
+    await guardarTokenRecuperacion(usuario.id_usuario, tokenHash, expira);
 
     const enlace = `${process.env.FRONTEND_URL}/cambiar-contrasena?token=${token}`;
 
@@ -43,7 +47,9 @@ export const validarToken = async (req, res) => {
   const { token } = req.params;
 
   try {
-    const usuario = await buscarPorTokenRecuperacion(token);
+    // 🔐 Hashear token recibido
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    const usuario = await buscarPorTokenRecuperacion(tokenHash);
 
     if (!usuario) {
       return res.status(400).json({ mensaje: "Token inválido o expirado" });
@@ -61,7 +67,9 @@ export const resetearContrasena = async (req, res) => {
   const { nuevaContrasena } = req.body;
 
   try {
-    const usuario = await buscarPorTokenRecuperacion(token);
+    // 🔐 Hashear token recibido
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    const usuario = await buscarPorTokenRecuperacion(tokenHash);
 
     if (!usuario) {
       return res.status(400).json({ mensaje: "Token inválido o expirado" });
