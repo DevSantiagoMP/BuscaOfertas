@@ -1,16 +1,43 @@
 import Header from "../../components/Header/Header";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { validatePassword } from "../../utils/validatePassword";
+import { useNavigate, useLocation } from "react-router";
+import {
+  validateRecoverToken,
+  updatePassword,
+} from "../../../services/auth.client";
 import "./changePassword.css";
 
 const ChangePassword = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // 🔑 Obtener token desde query param (?token=...)
+  const searchParams = new URLSearchParams(location.search);
+  const token = searchParams.get("token");
+
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
 
   const [passwordError, setPasswordError] = useState("");
   const [confirmError, setConfirmError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // 🔒 Validar token al cargar la página
+  useEffect(() => {
+    if (!token) {
+      alert("Token inválido o inexistente");
+      navigate("/login");
+      return;
+    }
+
+    validateRecoverToken(token).catch(() => {
+      alert("Token inválido o expirado");
+      navigate("/login");
+    });
+  }, [token, navigate]);
+
+  // 🔄 Enviar nueva contraseña
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const error = validatePassword(password);
@@ -23,9 +50,14 @@ const ChangePassword = () => {
 
     setConfirmError("");
 
-    if (!error) {
-      console.log("Contraseña cambiada con éxito");
-      // Aquí mandas el POST al backend
+    if (!error && token) {
+      try {
+        await updatePassword(token, password);
+        alert("Contraseña actualizada con éxito");
+        navigate("/login");
+      } catch (err: any) {
+        alert(err.message || "Error al cambiar la contraseña");
+      }
     }
   };
 
@@ -43,6 +75,7 @@ const ChangePassword = () => {
               placeholder="Contraseña nueva"
               required
               className="password-input"
+              value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
                 setPasswordError(validatePassword(e.target.value));
@@ -58,6 +91,7 @@ const ChangePassword = () => {
               placeholder="Repetir contraseña"
               required
               className="password-input"
+              value={confirm}
               onChange={(e) => {
                 const value = e.target.value;
                 setConfirm(value);

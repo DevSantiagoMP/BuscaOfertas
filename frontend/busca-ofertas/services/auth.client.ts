@@ -45,6 +45,38 @@ export const loginUser = async (correo: string, password: string) => {
 };
 
 // ------------------------------
+// Recuperar contraseña - enviar correo
+// ------------------------------
+export const recoverPassword = async (correo: string) => {
+  return apiFetch("/auth/recuperar", {
+    method: "POST",
+    body: JSON.stringify({ correo }),
+  });
+};
+
+// ------------------------------
+// Validar token de recuperación
+// ------------------------------
+export const validateRecoverToken = async (token: string) => {
+  return apiFetch(`/auth/recuperar/${token}`, {
+    method: "GET",
+  });
+};
+
+// ------------------------------
+// Actualizar contraseña
+// ------------------------------
+export const updatePassword = async (
+  token: string,
+  nuevaContrasena: string
+) => {
+  return apiFetch(`/auth/recuperar/${token}`, {
+    method: "POST",
+    body: JSON.stringify({ nuevaContrasena }),
+  });
+};
+
+// ------------------------------
 // Logout
 // ------------------------------
 export const logoutUser = async () => {
