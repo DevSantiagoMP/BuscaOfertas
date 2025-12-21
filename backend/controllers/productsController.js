@@ -9,25 +9,24 @@ import {
 
 export const createProducto = async (req, res) => {
   try {
-    const { negocio_id, nombre, descripcion, precio, foto_url } = req.body;
+    const negocio = req.negocio; // 👈 seguro
+    const { nombre, descripcion, precio, foto_url } = req.body;
 
-    // Validación simple
-    if (!negocio_id || !nombre || !precio) {
+    if (!nombre || precio == null) {
       return res.status(400).json({
         ok: false,
-        msg: "negocio_id, nombre y precio son obligatorios",
+        msg: "nombre y precio son obligatorios",
       });
     }
 
     const nuevoProducto = {
-      negocio_id,
+      negocio_id: negocio.id_negocio,
       nombre,
-      descripcion: descripcion || null,
+      descripcion: descripcion ?? null,
       precio,
-      foto_url: foto_url || null,
+      foto_url: foto_url ?? null,
     };
 
-    // Llamada al modelo
     const {
       insertResult,
       productos_actuales,
@@ -43,12 +42,13 @@ export const createProducto = async (req, res) => {
       limite,
       productos_restantes,
     });
-
   } catch (error) {
     console.error("Error en createProducto:", error);
 
-    // Si el error viene del modelo (por límite) lo mostramos tal cual
-    if (error.message.includes("plan") || error.message.includes("permite")) {
+    if (
+      error.message.includes("plan") ||
+      error.message.includes("permite")
+    ) {
       return res.status(403).json({
         ok: false,
         msg: error.message,
@@ -64,33 +64,25 @@ export const createProducto = async (req, res) => {
 
 export const updateProducto = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { negocio_id, nombre, descripcion, precio, foto_url } = req.body;
+    const producto = req.producto; // 👈 validado por middleware
+    const { nombre, descripcion, precio, foto_url } = req.body;
 
     // Validación mínima
-    if (!negocio_id || !nombre || !precio) {
+    if (!nombre || precio == null) {
       return res.status(400).json({
         ok: false,
-        msg: "negocio_id, nombre y precio son obligatorios",
+        msg: "nombre y precio son obligatorios",
       });
     }
 
     const datosActualizados = {
-      negocio_id,
       nombre,
-      descripcion: descripcion || null,
+      descripcion: descripcion ?? null,
       precio,
-      foto_url: foto_url || null,
+      foto_url: foto_url ?? null,
     };
 
-    const result = await actualizarProducto(id, datosActualizados);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        ok: false,
-        msg: "Producto no encontrado",
-      });
-    }
+    await actualizarProducto(producto.id_producto, datosActualizados);
 
     return res.status(200).json({
       ok: true,
@@ -107,16 +99,9 @@ export const updateProducto = async (req, res) => {
 
 export const deleteProducto = async (req, res) => {
   try {
-    const { id } = req.params;
+    const producto = req.producto; // 👈 viene validado
 
-    const result = await eliminarProducto(id);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        ok: false,
-        msg: "Producto no encontrado",
-      });
-    }
+    await eliminarProducto(producto.id_producto);
 
     return res.status(200).json({
       ok: true,
@@ -176,33 +161,25 @@ export const getProductosFiltrados = async (req, res) => {
 
 export const getProductosByNegocio = async (req, res) => {
   try {
-    const { id_negocio } = req.params;
-
-    if (!id_negocio) {
-      return res.status(400).json({
-        ok: false,
-        message: "id_negocio es obligatorio",
-      });
-    }
+    const negocio = req.negocio; // 👈 viene del middleware
 
     const {
       productos,
       limite_aplicado
-    } = await obtenerProductosPorNegocio(id_negocio);
+    } = await obtenerProductosPorNegocio(negocio.id_negocio);
 
-    res.json({
+    return res.json({
       ok: true,
-      negocio_id: id_negocio,
+      negocio_id: negocio.id_negocio,
       limite_aplicado,
       total: productos.length,
-      productos
+      productos,
     });
-
   } catch (error) {
-    console.error("Error al obtener productos del negocio:", error);
-    res.status(500).json({
+    console.error("Error al obtener mis productos:", error);
+    return res.status(500).json({
       ok: false,
-      message: "Error al obtener productos"
+      message: "Error al obtener productos",
     });
   }
 };

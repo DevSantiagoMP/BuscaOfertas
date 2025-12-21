@@ -1,19 +1,28 @@
 import { db } from "../config/dbConnection.js";
+import cloudinary from "../config/cloudinary.js";
 
 import {
   registrarNegocio,
-  obtenerNegocioPorId,
   actualizarNegocio,
   actualizarPlanNegocio,
   obtenerTodosLosNegocios,
   obtenerNegociosPorCategoria,
+  findBusinessByUserId,
 } from "../models/businessModel.js";
 
 export const crearNegocio = async (req, res) => {
   try {
+    const usuario_id = req.user.id; // 👈 viene del JWT
+
+    // 🔥 VALIDAR SI YA TIENE NEGOCIO
+    const negocioExistente = await findBusinessByUserId(usuario_id);
+    if (negocioExistente) {
+      return res.status(409).json({
+        message: "El usuario ya tiene un negocio registrado",
+      });
+    }
+
     const {
-      usuario_id,
-      foto_url,
       nombre,
       descripcion,
       ciudad,
@@ -22,20 +31,38 @@ export const crearNegocio = async (req, res) => {
       categoria_id,
     } = req.body;
 
-    // Validaciones según la tabla actual
+    // VALIDACIONES
     if (!usuario_id)
       return res.status(400).json({ message: "usuario_id es obligatorio" });
 
     if (!nombre)
       return res.status(400).json({ message: "El nombre es obligatorio" });
 
+    if (!ciudad)
+      return res.status(400).json({ message: "La ciudad es obligatoria" });
+
     if (!direccion)
       return res.status(400).json({ message: "La dirección es obligatoria" });
+
+    if (!telefono)
+      return res.status(400).json({ message: "El teléfono es obligatorio" });
 
     if (!categoria_id)
       return res.status(400).json({ message: "categoria_id es obligatorio" });
 
-    // 1. Contar cuántos negocios existen actualmente
+    // 🟢 IMAGEN OPCIONAL
+    let foto_url = null;
+    let foto_public_id = null;
+
+    if (req.file) {
+      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+        folder: "negocios",
+      });
+      foto_url = uploadResult.secure_url;
+      foto_public_id = uploadResult.public_id;
+    }
+
+    // CONTAR NEGOCIOS
     const [countRows] = await db.query(
       "SELECT COUNT(*) AS total FROM negocios"
     );
@@ -43,19 +70,18 @@ export const crearNegocio = async (req, res) => {
 
     let finalPlanId;
     let planExpira = new Date();
-    planExpira.setFullYear(planExpira.getFullYear() + 1); // Expira en 1 año
+    planExpira.setFullYear(planExpira.getFullYear() + 1);
 
-    // 2. Asignar plan según cantidad de negocios
     if (totalNegocios < 500) {
-      finalPlanId = 4; // plan fundadores
+      finalPlanId = 4;
     } else {
-      finalPlanId = 5; // plan primeros pasos
+      finalPlanId = 5;
     }
 
-    // 3. Registrar negocio
+    // REGISTRAR NEGOCIO
     const nuevoId = await registrarNegocio({
       usuario_id,
-      foto_url,
+      foto_url, // puede ser null
       nombre,
       descripcion,
       ciudad,
@@ -79,82 +105,81 @@ export const crearNegocio = async (req, res) => {
   }
 };
 
-export const obtenerNegocio = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const negocio = await obtenerNegocioPorId(id);
-    if (!negocio)
-      return res.status(404).json({ message: "Negocio no encontrado" });
-
-    res.json(negocio);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error al obtener negocio" });
-  }
-};
-
 export const updateBusiness = async (req, res) => {
   try {
-    const { id } = req.params;
+    const negocio = req.negocio; // 🔑
 
-    if (!id) {
-      return res
-        .status(400)
-        .json({ message: "El id del negocio es obligatorio" });
+    const datos = { ...req.body };
+
+    if (req.file) {
+      if (negocio.foto_public_id) {
+        await cloudinary.uploader.destroy(negocio.foto_public_id);
+      }
+
+      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+        folder: "negocios",
+      });
+
+      datos.foto_url = uploadResult.secure_url;
+      datos.foto_public_id = uploadResult.public_id;
     }
 
-    const datos = req.body;
-
-    const result = await actualizarNegocio(id, datos);
+    const result = await actualizarNegocio(negocio.id_negocio, datos);
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Negocio no encontrado" });
+      return res.status(404).json({
+        message: "Negocio no encontrado",
+      });
     }
 
-    res.json({ message: "Negocio actualizado correctamente" });
+    return res.json({
+      ok: true,
+      message: "Negocio actualizado correctamente",
+    });
   } catch (error) {
     console.error("Error al actualizar negocio:", error);
-    res.status(500).json({ message: "Error al actualizar negocio" });
+    return res.status(500).json({
+      message: "Error al actualizar negocio",
+    });
   }
 };
 
 export const updateBusinessPlan = async (req, res) => {
   try {
-    const { id } = req.params;
     const { plan_id } = req.body;
+    const negocio = req.negocio;
 
     if (!plan_id) {
-      return res.status(400).json({ message: "plan_id es obligatorio" });
+      return res.status(400).json({
+        message: "plan_id es obligatorio",
+      });
     }
 
-    const result = await actualizarPlanNegocio(id, plan_id);
+    await actualizarPlanNegocio(negocio.id_negocio, plan_id);
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Negocio no encontrado" });
-    }
-
-    // 🔥 Obtener los datos actualizados del negocio
     const [rows] = await db.query(
-      `SELECT plan_id, plan_expira FROM negocios WHERE id_negocio = ?`,
-      [id]
+      `
+      SELECT plan_id, plan_expira
+      FROM negocios
+      WHERE id_negocio = ?
+      `,
+      [negocio.id_negocio]
     );
-
-    const negocio = rows[0];
 
     return res.json({
       ok: true,
       message: "Plan del negocio actualizado correctamente",
       negocio: {
-        id_negocio: id,
-        nuevo_plan_id: negocio.plan_id,
-        plan_expira: negocio.plan_expira,
-      }
+        id_negocio: negocio.id_negocio,
+        nuevo_plan_id: rows[0].plan_id,
+        plan_expira: rows[0].plan_expira,
+      },
     });
-
   } catch (error) {
     console.error("Error al actualizar plan del negocio:", error);
-    return res.status(500).json({ message: "Error al actualizar plan" });
+    return res.status(500).json({
+      message: "Error al actualizar plan",
+    });
   }
 };
 
@@ -188,3 +213,22 @@ export const getNegociosPorCategoria = async (req, res) => {
       .json({ message: "Error al obtener negocios por categoría" });
   }
 };
+
+export const getMyBusiness = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const negocio = await findBusinessByUserId(userId);
+
+    if (!negocio) {
+      return res.status(404).json({
+        message: "El usuario no tiene un negocio registrado",
+      });
+    }
+
+    res.json(negocio);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al obtener el negocio" });
+  }
+}

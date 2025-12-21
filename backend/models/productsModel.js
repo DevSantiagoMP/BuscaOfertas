@@ -1,11 +1,27 @@
 import { db } from "../config/dbConnection.js";
 
-// Crear productos con limite segun plan
+/* =====================================================
+   UTILIDAD: límites por plan (centralizado)
+===================================================== */
+const LIMITES_POR_PLAN = {
+  1: 10,        // gratuito
+  2: Infinity,  // mensual
+  3: Infinity,  // anual
+  4: Infinity,  // fundadores
+  5: 30,        // primeros pasos
+};
+
+const obtenerLimitePorPlan = (planId) =>
+  LIMITES_POR_PLAN[planId] ?? 0;
+
+/* =====================================================
+   CREAR PRODUCTO
+===================================================== */
 export const crearProducto = async (producto) => {
   try {
     const { negocio_id, nombre, descripcion, precio, foto_url } = producto;
 
-    // 1. Obtener el plan del negocio
+    // 1. Obtener plan del negocio
     const [negocioRows] = await db.execute(
       "SELECT plan_id FROM negocios WHERE id_negocio = ?",
       [negocio_id]
@@ -16,19 +32,9 @@ export const crearProducto = async (producto) => {
     }
 
     const planId = negocioRows[0].plan_id;
+    const limiteProductos = obtenerLimitePorPlan(planId);
 
-    // 2. Definir límites por plan
-    const limites = {
-      1: 10,  // gratuito
-      2: Infinity, // mensual
-      3: Infinity, // anual
-      4: Infinity, // fundadores
-      5: 30, // primeros pasos
-    };
-
-    const limiteProductos = limites[planId];
-
-    // 3. Contar productos existentes
+    // 2. Contar productos actuales
     const [productosRows] = await db.execute(
       "SELECT COUNT(*) AS total FROM productos WHERE negocio_id = ?",
       [negocio_id]
@@ -36,66 +42,69 @@ export const crearProducto = async (producto) => {
 
     const totalProductos = productosRows[0].total;
 
-    // 4. Validar límite
+    // 3. Validar límite
     if (totalProductos >= limiteProductos) {
       throw new Error(
         `Este plan solo permite registrar ${limiteProductos} productos`
       );
     }
 
-    // 5. Insertar producto
-    const query = `
+    // 4. Insertar producto
+    const [result] = await db.execute(
+      `
       INSERT INTO productos (negocio_id, nombre, descripcion, precio, foto_url)
       VALUES (?, ?, ?, ?, ?)
-    `;
+      `,
+      [
+        negocio_id,
+        nombre,
+        descripcion ?? null,
+        precio,
+        foto_url ?? null,
+      ]
+    );
 
-    const [result] = await db.execute(query, [
-      negocio_id,
-      nombre,
-      descripcion,
-      precio,
-      foto_url,
-    ]);
-
-    // 6. Calcular productos restantes
-    let productos_restantes =
-      limiteProductos === Infinity
-        ? "ilimitado"
-        : limiteProductos - (totalProductos + 1);
-
-    // 7. Retornar toda la info
+    // 5. Retornar info
     return {
       insertResult: result,
       productos_actuales: totalProductos + 1,
       limite: limiteProductos,
-      productos_restantes,
+      productos_restantes:
+        limiteProductos === Infinity
+          ? "ilimitado"
+          : limiteProductos - (totalProductos + 1),
     };
-
   } catch (error) {
     console.error("Error en crearProducto:", error);
     throw error;
   }
 };
 
-// Actualizar producto por ID
+/* =====================================================
+   ACTUALIZAR PRODUCTO (SIN cambiar negocio)
+===================================================== */
 export const actualizarProducto = async (id_producto, datos) => {
   try {
-    const { negocio_id, nombre, descripcion, precio, foto_url } = datos;
+    const { nombre, descripcion, precio, foto_url } = datos;
 
-    const query = `
+    const [result] = await db.execute(
+      `
       UPDATE productos
-      SET negocio_id = ?, nombre = ?, descripcion = ?, precio = ?, foto_url = ?
+      SET
+        nombre = ?,
+        descripcion = ?,
+        precio = ?,
+        foto_url = ?
       WHERE id_producto = ?
-    `;
-
-    const [result] = await db.execute(query, [
-      negocio_id,
-      nombre,
-      descripcion,
-      precio,
-      foto_url,
-      id_producto,
-    ]);
+      `,
+      [
+        nombre,
+        descripcion ?? null,
+        precio,
+        foto_url ?? null,
+        id_producto,
+      ]
+    );
 
     return result;
   } catch (error) {
@@ -104,11 +113,15 @@ export const actualizarProducto = async (id_producto, datos) => {
   }
 };
 
-// Eliminar producto por ID
+/* =====================================================
+   ELIMINAR PRODUCTO
+===================================================== */
 export const eliminarProducto = async (id_producto) => {
   try {
-    const query = `DELETE FROM productos WHERE id_producto = ?`;
-    const [result] = await db.execute(query, [id_producto]);
+    const [result] = await db.execute(
+      "DELETE FROM productos WHERE id_producto = ?",
+      [id_producto]
+    );
     return result;
   } catch (error) {
     console.error("Error en eliminarProducto:", error);
@@ -116,10 +129,12 @@ export const eliminarProducto = async (id_producto) => {
   }
 };
 
-// Obtener todos los productos con prioridad por plan
+/* =====================================================
+   OBTENER PRODUCTOS (prioridad por plan)
+===================================================== */
 export const obtenerProductos = async () => {
   try {
-    const query = `
+    const [rows] = await db.execute(`
       SELECT 
         p.*, 
         n.nombre AS nombre_negocio,
@@ -128,47 +143,37 @@ export const obtenerProductos = async () => {
       INNER JOIN negocios n ON p.negocio_id = n.id_negocio
       ORDER BY 
         CASE n.plan_id
-          WHEN 2 THEN 1   -- mensual
-          WHEN 3 THEN 2   -- anual
-          WHEN 4 THEN 3   -- fundadores
-          WHEN 5 THEN 4   -- primeros pasos
-          WHEN 1 THEN 5   -- gratuito
+          WHEN 2 THEN 1
+          WHEN 3 THEN 2
+          WHEN 4 THEN 3
+          WHEN 5 THEN 4
+          WHEN 1 THEN 5
           ELSE 6
         END,
-        p.id_producto DESC;
-    `;
+        p.id_producto DESC
+    `);
 
-    const [rows] = await db.execute(query);
-
-    // agrupar productos por negocio
+    // Agrupar por negocio
     const porNegocio = rows.reduce((acc, prod) => {
       if (!acc[prod.negocio_id]) acc[prod.negocio_id] = [];
       acc[prod.negocio_id].push(prod);
       return acc;
     }, {});
 
-    // aplicar límites por plan
-    const productosFiltrados = Object.values(porNegocio)
-      .flatMap(lista => {
-        const plan = lista[0].plan_id;
-
-        const limit =
-          plan === 1 ? 10 :         // gratuito
-          plan === 5 ? 30 :         // primeros pasos
-          Infinity;                 // mensual, anual, fundadores
-
-        return lista.slice(0, limit);
-      });
-
-    return productosFiltrados;
-
+    // Aplicar límites por plan
+    return Object.values(porNegocio).flatMap((lista) => {
+      const limite = obtenerLimitePorPlan(lista[0].plan_id);
+      return limite === Infinity ? lista : lista.slice(0, limite);
+    });
   } catch (error) {
     console.error("Error en obtenerProductos:", error);
     throw error;
   }
 };
 
-// Obtener productos por filtro
+/* =====================================================
+   OBTENER PRODUCTOS FILTRADOS
+===================================================== */
 export const obtenerProductosFiltrados = async ({
   nombre = null,
   categoria_id = null,
@@ -184,22 +189,18 @@ export const obtenerProductosFiltrados = async ({
 
     const params = [];
 
-    // FILTRO POR NOMBRE (LIKE, búsqueda parcial)
     if (nombre) {
-      query += ` AND p.nombre LIKE ?`;
+      query += " AND p.nombre LIKE ?";
       params.push(`%${nombre}%`);
     }
 
-    // FILTRO POR CATEGORÍA
     if (categoria_id) {
-      query += ` AND n.categoria_id = ?`;
+      query += " AND n.categoria_id = ?";
       params.push(categoria_id);
     }
 
-    // ORDENAR POR PRECIO
     if (orden) {
-      const orderBy = orden === "desc" ? "DESC" : "ASC";
-      query += ` ORDER BY p.precio ${orderBy}`;
+      query += ` ORDER BY p.precio ${orden === "desc" ? "DESC" : "ASC"}`;
     }
 
     const [rows] = await db.execute(query, params);
@@ -210,10 +211,11 @@ export const obtenerProductosFiltrados = async ({
   }
 };
 
-// Obtener productos de un negocio con límite según plan
+/* =====================================================
+   OBTENER PRODUCTOS POR NEGOCIO
+===================================================== */
 export const obtenerProductosPorNegocio = async (negocio_id) => {
   try {
-    // 1. Obtener el plan del negocio
     const [negocioRows] = await db.execute(
       "SELECT plan_id FROM negocios WHERE id_negocio = ?",
       [negocio_id]
@@ -223,40 +225,23 @@ export const obtenerProductosPorNegocio = async (negocio_id) => {
       throw new Error("El negocio no existe");
     }
 
-    const planId = negocioRows[0].plan_id;
-
-    // 2. Definir límites por plan
-    const limites = {
-      1: 10,        // gratuito
-      2: Infinity,  // mensual
-      3: Infinity,  // anual
-      4: Infinity,        // fundadores
-      5: 30,        // primeros pasos
-    };
-
-    const limite = limites[planId];
+    const limite = obtenerLimitePorPlan(negocioRows[0].plan_id);
 
     let query =
       "SELECT * FROM productos WHERE negocio_id = ? ORDER BY id_producto ASC";
 
-    // 3. Si el plan tiene límite, aplicar LIMIT en SQL
     if (limite !== Infinity) {
       query += ` LIMIT ${limite}`;
     }
 
-    // 4. Ejecutar consulta
-    const [rows] = await db.query(query, [negocio_id]);
+    const [rows] = await db.execute(query, [negocio_id]);
 
-    // 5. Retornar productos y también el límite aplicado (útil para frontend o Postman)
     return {
-      ok: true,
       productos: rows,
       limite_aplicado: limite === Infinity ? "ilimitado" : limite,
     };
-
   } catch (error) {
     console.error("Error en obtenerProductosPorNegocio:", error);
     throw error;
   }
 };
-

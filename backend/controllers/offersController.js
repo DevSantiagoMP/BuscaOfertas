@@ -7,28 +7,26 @@ import {
   obtenerOfertasPorNegocio 
 } from "../models/offersModel.js";
 
-// Crear ofertas con limite segun plan
 export const createOferta = async (req, res) => {
   try {
-    const { negocio_id, nombre, descripcion, precio_oferta, foto_url } = req.body;
+    const negocio = req.negocio;
+    const { nombre, descripcion, precio_oferta, foto_url } = req.body;
 
-    // Validación simple
-    if (!negocio_id || !nombre || !precio_oferta) {
+    if (!nombre || precio_oferta == null) {
       return res.status(400).json({
         ok: false,
-        msg: "negocio_id, nombre y precio_oferta son obligatorios",
+        msg: "nombre y precio_oferta son obligatorios",
       });
     }
 
     const nuevaOferta = {
-      negocio_id,
+      negocio_id: negocio.id_negocio,
       nombre,
-      descripcion: descripcion || null,
+      descripcion: descripcion ?? null,
       precio_oferta,
-      foto_url: foto_url || null,
+      foto_url: foto_url ?? null,
     };
 
-    // Llamada al modelo
     const {
       insertResult,
       ofertas_actuales,
@@ -48,12 +46,8 @@ export const createOferta = async (req, res) => {
   } catch (error) {
     console.error("Error en createOferta:", error);
 
-    // Si el error viene del modelo (límite alcanzado)
-    if (error.message.includes("plan") || error.message.includes("permite")) {
-      return res.status(403).json({
-        ok: false,
-        msg: error.message,
-      });
+    if (error.message.includes("plan")) {
+      return res.status(403).json({ ok: false, msg: error.message });
     }
 
     return res.status(500).json({
@@ -67,23 +61,20 @@ export const createOferta = async (req, res) => {
 export const updateOferta = async (req, res) => {
   try {
     const { id } = req.params;
-    const { negocio_id, nombre, descripcion, precio_oferta, foto_url } =
-      req.body;
+    const { nombre, descripcion, precio_oferta, foto_url } = req.body;
 
-    // Validación mínima
-    if (!negocio_id || !nombre || !precio_oferta) {
+    if (!nombre || precio_oferta == null) {
       return res.status(400).json({
         ok: false,
-        msg: "negocio_id, nombre y precio_oferta son obligatorios",
+        msg: "nombre y precio_oferta son obligatorios",
       });
     }
 
     const datosActualizados = {
-      negocio_id,
       nombre,
-      descripcion: descripcion || null,
+      descripcion: descripcion ?? null,
       precio_oferta,
-      foto_url: foto_url || null,
+      foto_url: foto_url ?? null,
     };
 
     const result = await actualizarOferta(id, datosActualizados);
@@ -99,6 +90,7 @@ export const updateOferta = async (req, res) => {
       ok: true,
       msg: "Oferta actualizada correctamente",
     });
+
   } catch (error) {
     console.error("Error en updateOferta:", error);
     return res.status(500).json({
@@ -126,6 +118,7 @@ export const deleteOferta = async (req, res) => {
       ok: true,
       msg: "Oferta eliminada correctamente",
     });
+
   } catch (error) {
     console.error("Error en deleteOferta:", error);
     return res.status(500).json({
@@ -181,17 +174,14 @@ export const getOfertasFiltradas = async (req, res) => {
 // Obtener todas las ofertas de un negocio segun plan 
 export const getOfertasByNegocio = async (req, res) => {
   try {
-    const { id_negocio } = req.params;
+    const negocio = req.negocio;
 
-    if (!id_negocio) {
-      return res.status(400).json({ message: "id_negocio es obligatorio" });
-    }
+    const { ofertas, limite_aplicado } =
+      await obtenerOfertasPorNegocio(negocio.id_negocio);
 
-    // Ahora obtenemos un objeto, no solo un arreglo
-    const { ofertas, limite_aplicado } = await obtenerOfertasPorNegocio(id_negocio);
-
-    res.json({
-      negocio_id: id_negocio,
+    return res.json({
+      ok: true,
+      negocio_id: negocio.id_negocio,
       limite_aplicado,
       total: ofertas.length,
       ofertas,
@@ -199,7 +189,10 @@ export const getOfertasByNegocio = async (req, res) => {
 
   } catch (error) {
     console.error("Error al obtener ofertas del negocio:", error);
-    res.status(500).json({ message: "Error al obtener ofertas" });
+    return res.status(500).json({
+      ok: false,
+      msg: "Error al obtener ofertas",
+    });
   }
 };
 

@@ -7,22 +7,53 @@ import {
   getProductosFiltrados,
   getProductosByNegocio
 } from "../../controllers/productsController.js";
+
 import { validarJWT } from "../../middlewares/auth.js";
+import { cargarMiNegocio } from "../../middlewares/tieneNegocio.js";
+import { esDuenoDelRecurso } from "../../middlewares/esDuenoDelRecurso.js";
 
 const router = express.Router();
-// PRODUCTOS
 
-//Ruta para registrar productos
-router.post("/register-product", validarJWT, createProducto);
-//Ruta para actualizar datos del producto
-router.put("/:id", validarJWT, updateProducto);
-//Ruta para borrar productos
-router.delete("/:id", validarJWT, deleteProducto);
-//Ruta para obtener todos los productos
+/* ===============================
+   PRODUCTOS
+================================ */
+
+// Crear producto (mi negocio)
+router.post(
+  "/",
+  validarJWT,
+  cargarMiNegocio,
+  createProducto
+);
+
+// Actualizar producto
+router.put(
+  "/:id",
+  validarJWT,
+  esDuenoDelRecurso("productos", "id_producto"),
+  updateProducto
+);
+
+// Eliminar producto
+router.delete(
+  "/:id",
+  validarJWT,
+  esDuenoDelRecurso("productos", "id_producto"),
+  deleteProducto
+);
+
+// Obtener todos los productos (público)
 router.get("/", getProductos);
-//Ruta para obtener productos por categoria y precio
+
+// Obtener productos filtrados (público)
 router.get("/filtrar", getProductosFiltrados);
-// Ruta para obtener todos los productos por id de negocio
-router.get("/:id_negocio/products", getProductosByNegocio);
+
+// Obtener MIS productos (negocio del usuario)
+router.get(
+  "/mios",
+  validarJWT,
+  cargarMiNegocio,
+  getProductosByNegocio
+);
 
 export default router;

@@ -15,7 +15,6 @@ export const findUserByEmail = async (correo) => {
 
 // Crear usuario nuevo
 export const createUser = async (userData) => {
-  console.log(">> Datos recibidos en createUser:", userData);
   try {
     const [results] = await db.query(
       `INSERT INTO usuarios 

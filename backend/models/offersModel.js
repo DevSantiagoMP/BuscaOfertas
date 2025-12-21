@@ -77,19 +77,17 @@ export const crearOferta = async (oferta) => {
   }
 };
 
-// Actualizar oferta por ID
 export const actualizarOferta = async (id_oferta, datos) => {
   try {
-    const { negocio_id, nombre, descripcion, precio_oferta, foto_url } = datos;
+    const { nombre, descripcion, precio_oferta, foto_url } = datos;
 
     const query = `
       UPDATE ofertas
-      SET negocio_id = ?, nombre = ?, descripcion = ?, precio_oferta = ?, foto_url = ?
+      SET nombre = ?, descripcion = ?, precio_oferta = ?, foto_url = ?
       WHERE id_oferta = ?
     `;
 
     const [result] = await db.execute(query, [
-      negocio_id,
       nombre,
       descripcion,
       precio_oferta,
