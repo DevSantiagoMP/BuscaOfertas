@@ -4,14 +4,16 @@ import {
   eliminarProducto,
   obtenerProductos,
   obtenerProductosFiltrados,
-  obtenerProductosPorNegocio 
+  obtenerProductosPorNegocio,
 } from "../models/productsModel.js";
+import cloudinary from "../config/cloudinary.js";
 
 export const createProducto = async (req, res) => {
   try {
-    const negocio = req.negocio; // 👈 seguro
-    const { nombre, descripcion, precio, foto_url } = req.body;
+    const negocio = req.negocio; // 👈 viene del middleware
+    const { nombre, descripcion, precio } = req.body;
 
+    // VALIDACIONES
     if (!nombre || precio == null) {
       return res.status(400).json({
         ok: false,
@@ -19,25 +21,36 @@ export const createProducto = async (req, res) => {
       });
     }
 
+    // 🟢 IMAGEN OPCIONAL
+    let foto_url = null;
+    let foto_public_id = null;
+
+    if (req.file) {
+      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+        folder: "productos",
+      });
+
+      foto_url = uploadResult.secure_url;
+      foto_public_id = uploadResult.public_id;
+    }
+
     const nuevoProducto = {
       negocio_id: negocio.id_negocio,
       nombre,
       descripcion: descripcion ?? null,
       precio,
-      foto_url: foto_url ?? null,
+      foto_url, // 👈 URL de Cloudinary
+      foto_public_id, // opcional (recomendado para eliminar luego)
     };
 
-    const {
-      insertResult,
-      productos_actuales,
-      limite,
-      productos_restantes,
-    } = await crearProducto(nuevoProducto);
+    const { insertResult, productos_actuales, limite, productos_restantes } =
+      await crearProducto(nuevoProducto);
 
     return res.status(201).json({
       ok: true,
       msg: "Producto creado exitosamente",
       id_producto: insertResult.insertId,
+      foto_url,
       productos_actuales,
       limite,
       productos_restantes,
@@ -45,10 +58,7 @@ export const createProducto = async (req, res) => {
   } catch (error) {
     console.error("Error en createProducto:", error);
 
-    if (
-      error.message.includes("plan") ||
-      error.message.includes("permite")
-    ) {
+    if (error.message.includes("plan") || error.message.includes("permite")) {
       return res.status(403).json({
         ok: false,
         msg: error.message,
@@ -64,8 +74,8 @@ export const createProducto = async (req, res) => {
 
 export const updateProducto = async (req, res) => {
   try {
-    const producto = req.producto; // 👈 validado por middleware
-    const { nombre, descripcion, precio, foto_url } = req.body;
+    const producto = req.recurso; // 👈 validado por middleware
+    const { nombre, descripcion, precio } = req.body;
 
     // Validación mínima
     if (!nombre || precio == null) {
@@ -79,8 +89,24 @@ export const updateProducto = async (req, res) => {
       nombre,
       descripcion: descripcion ?? null,
       precio,
-      foto_url: foto_url ?? null,
     };
+
+    // 🟢 IMAGEN OPCIONAL
+    if (req.file) {
+      // 1️⃣ Subir nueva imagen
+      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+        folder: "productos",
+      });
+
+      // 2️⃣ Eliminar imagen anterior SOLO si la nueva subió bien
+      if (producto.foto_public_id) {
+        await cloudinary.uploader.destroy(producto.foto_public_id);
+      }
+
+      // 3️⃣ Guardar nueva info
+      datosActualizados.foto_url = uploadResult.secure_url;
+      datosActualizados.foto_public_id = uploadResult.public_id;
+    }
 
     await actualizarProducto(producto.id_producto, datosActualizados);
 
@@ -99,8 +125,21 @@ export const updateProducto = async (req, res) => {
 
 export const deleteProducto = async (req, res) => {
   try {
-    const producto = req.producto; // 👈 viene validado
+    const producto = req.recurso; // 👈 viene validado por middleware
 
+    // 🟢 Intentar eliminar imagen en Cloudinary (NO bloqueante)
+    if (producto.foto_public_id) {
+      try {
+        await cloudinary.uploader.destroy(producto.foto_public_id);
+      } catch (cloudinaryError) {
+        console.error(
+          "Error al eliminar imagen de Cloudinary:",
+          cloudinaryError
+        );
+      }
+    }
+
+    // 🗑️ Eliminar producto de la base de datos
     await eliminarProducto(producto.id_producto);
 
     return res.status(200).json({
@@ -135,7 +174,7 @@ export const getProductos = async (req, res) => {
 
 export const getProductosFiltrados = async (req, res) => {
   try {
-    const {nombre, categoriaId, orden } = req.query;
+    const { nombre, categoriaId, orden } = req.query;
     // Ejemplo:
     // /productos/filtrar?categoriaId=1&nombre=pollo&orden=asc
 
@@ -149,7 +188,6 @@ export const getProductosFiltrados = async (req, res) => {
       ok: true,
       productos,
     });
-
   } catch (error) {
     console.error("Error en getProductosFiltrados:", error);
     return res.status(500).json({
@@ -163,10 +201,9 @@ export const getProductosByNegocio = async (req, res) => {
   try {
     const negocio = req.negocio; // 👈 viene del middleware
 
-    const {
-      productos,
-      limite_aplicado
-    } = await obtenerProductosPorNegocio(negocio.id_negocio);
+    const { productos, limite_aplicado } = await obtenerProductosPorNegocio(
+      negocio.id_negocio
+    );
 
     return res.json({
       ok: true,
@@ -183,5 +220,3 @@ export const getProductosByNegocio = async (req, res) => {
     });
   }
 };
-
-

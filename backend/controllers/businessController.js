@@ -112,14 +112,17 @@ export const updateBusiness = async (req, res) => {
     const datos = { ...req.body };
 
     if (req.file) {
-      if (negocio.foto_public_id) {
-        await cloudinary.uploader.destroy(negocio.foto_public_id);
-      }
-
+      // 1️⃣ Subir primero la nueva imagen
       const uploadResult = await cloudinary.uploader.upload(req.file.path, {
         folder: "negocios",
       });
 
+      // 2️⃣ Eliminar la imagen anterior SOLO si la nueva subió bien
+      if (negocio.foto_public_id) {
+        await cloudinary.uploader.destroy(negocio.foto_public_id);
+      }
+
+      // 3️⃣ Guardar nueva info
       datos.foto_url = uploadResult.secure_url;
       datos.foto_public_id = uploadResult.public_id;
     }

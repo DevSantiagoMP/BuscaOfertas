@@ -6,12 +6,15 @@ import {
   obtenerOfertasFiltradas,
   obtenerOfertasPorNegocio 
 } from "../models/offersModel.js";
+import cloudinary from "../config/cloudinary.js";
 
+// Crear oferta
 export const createOferta = async (req, res) => {
   try {
-    const negocio = req.negocio;
-    const { nombre, descripcion, precio_oferta, foto_url } = req.body;
+    const negocio = req.negocio; // 👈 validado por middleware
+    const { nombre, descripcion, precio_oferta } = req.body;
 
+    // VALIDACIONES
     if (!nombre || precio_oferta == null) {
       return res.status(400).json({
         ok: false,
@@ -19,12 +22,26 @@ export const createOferta = async (req, res) => {
       });
     }
 
+    // 🟢 IMAGEN OPCIONAL
+    let foto_url = null;
+    let foto_public_id = null;
+
+    if (req.file) {
+      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+        folder: "ofertas",
+      });
+
+      foto_url = uploadResult.secure_url;
+      foto_public_id = uploadResult.public_id;
+    }
+
     const nuevaOferta = {
       negocio_id: negocio.id_negocio,
       nombre,
       descripcion: descripcion ?? null,
       precio_oferta,
-      foto_url: foto_url ?? null,
+      foto_url,        // 👈 URL de Cloudinary
+      foto_public_id,  // 👈 para eliminar / actualizar luego
     };
 
     const {
@@ -38,16 +55,19 @@ export const createOferta = async (req, res) => {
       ok: true,
       msg: "Oferta creada exitosamente",
       id_oferta: insertResult.insertId,
+      foto_url,
       ofertas_actuales,
       limite,
       ofertas_restantes,
     });
-
   } catch (error) {
     console.error("Error en createOferta:", error);
 
     if (error.message.includes("plan")) {
-      return res.status(403).json({ ok: false, msg: error.message });
+      return res.status(403).json({
+        ok: false,
+        msg: error.message,
+      });
     }
 
     return res.status(500).json({
@@ -60,8 +80,8 @@ export const createOferta = async (req, res) => {
 // Actualizar informacion de oferta
 export const updateOferta = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { nombre, descripcion, precio_oferta, foto_url } = req.body;
+    const oferta = req.recurso; // 👈 middleware genérico
+    const { nombre, descripcion, precio_oferta } = req.body;
 
     if (!nombre || precio_oferta == null) {
       return res.status(400).json({
@@ -74,10 +94,28 @@ export const updateOferta = async (req, res) => {
       nombre,
       descripcion: descripcion ?? null,
       precio_oferta,
-      foto_url: foto_url ?? null,
+      foto_url: null,        // 👈 SIEMPRE definido
+      foto_public_id: null,  // 👈 SIEMPRE definido
     };
 
-    const result = await actualizarOferta(id, datosActualizados);
+    // 🟢 IMAGEN OPCIONAL
+    if (req.file) {
+      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+        folder: "ofertas",
+      });
+
+      if (oferta.foto_public_id) {
+        await cloudinary.uploader.destroy(oferta.foto_public_id);
+      }
+
+      datosActualizados.foto_url = uploadResult.secure_url;
+      datosActualizados.foto_public_id = uploadResult.public_id;
+    }
+
+    const result = await actualizarOferta(
+      oferta.id_oferta,
+      datosActualizados
+    );
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
@@ -90,7 +128,6 @@ export const updateOferta = async (req, res) => {
       ok: true,
       msg: "Oferta actualizada correctamente",
     });
-
   } catch (error) {
     console.error("Error en updateOferta:", error);
     return res.status(500).json({
@@ -103,9 +140,22 @@ export const updateOferta = async (req, res) => {
 // Borrar ofertas
 export const deleteOferta = async (req, res) => {
   try {
-    const { id } = req.params;
+    const oferta = req.recurso; // 👈 viene validada por middleware
 
-    const result = await eliminarOferta(id);
+    // 🟢 Intentar eliminar imagen en Cloudinary (NO bloqueante)
+    if (oferta.foto_public_id) {
+      try {
+        await cloudinary.uploader.destroy(oferta.foto_public_id);
+      } catch (cloudinaryError) {
+        console.error(
+          "Error al eliminar imagen de Cloudinary:",
+          cloudinaryError
+        );
+      }
+    }
+
+    // 🗑️ Eliminar oferta de la base de datos
+    const result = await eliminarOferta(oferta.id_oferta);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({
@@ -118,7 +168,6 @@ export const deleteOferta = async (req, res) => {
       ok: true,
       msg: "Oferta eliminada correctamente",
     });
-
   } catch (error) {
     console.error("Error en deleteOferta:", error);
     return res.status(500).json({

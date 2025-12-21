@@ -31,7 +31,7 @@ export const esDuenoDelRecurso = (tabla, idCampo) => {
       }
 
       // 🔑 AQUÍ ESTÁ LA CLAVE
-      req.producto = rows[0];
+      req.recurso = rows[0];
 
       next();
     } catch (error) {
