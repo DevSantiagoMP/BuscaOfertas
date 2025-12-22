@@ -2,12 +2,14 @@ import { Link, useNavigate, useLocation } from "react-router";
 import "./Menu.css";
 
 interface MenuProps {
+  open: boolean;
+  onClose: () => void;
   rolId: number | null;
   correo: string | null;
   onLogout: () => void;
 }
 
-const Menu = ({ rolId, correo, onLogout }: MenuProps) => {
+const Menu = ({ open, onClose, rolId, correo, onLogout }: MenuProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -17,57 +19,48 @@ const Menu = ({ rolId, correo, onLogout }: MenuProps) => {
   const handleLogoutClick = () => {
     onLogout();
     navigate("/login");
+    onClose();
   };
 
   return (
-    <div
-      className="offcanvas offcanvas-end"
-      tabIndex={-1}
-      id="menu"
-      aria-labelledby="menuLabel"
-      data-bs-backdrop="false"
-    >
-      <div className="offcanvas-header">
-        <h5 className="offcanvas-title" id="menuLabel">
-          Menú
-        </h5>
-        <button
-          type="button"
-          className="btn-close"
-          data-bs-dismiss="offcanvas"
-          aria-label="Close"
-        ></button>
-      </div>
+    <>
+      {/* Backdrop */}
+      {open && <div className="menu-backdrop" onClick={onClose} />}
 
-      {/* Usuario */}
-      <div className="d-flex flex-column justify-content-center align-items-center">
-        <i className="bi bi-person-circle user-icon"></i>
-        <p>{correo ?? "Cargando..."}</p>
-      </div>
+      <aside className={`menu-offcanvas ${open ? "open" : ""}`}>
+        <div className="offcanvas-header p-2">
+          <h5>Menú</h5>
+          <button className="btn-close" onClick={onClose} />
+        </div>
 
-      {/* Acciones */}
-      <div className="offcanvas-body d-flex flex-column gap-4">
-        {rolId === 2 && isPrincipal && (
-          <Link to="/administrar-negocio">
-            <button className="menu-button w-100">
-              Administrar mi negocio
-            </button>
-          </Link>
-        )}
+        <div className="d-flex flex-column justify-content-center align-items-center">
+          <i className="bi bi-person-circle user-icon"></i>
+          <p>{correo ?? "Cargando..."}</p>
+        </div>
 
-        {rolId === 2 && isAdmin && (
-          <Link to="/principal">
-            <button className="menu-button w-100">
-              Página principal
-            </button>
-          </Link>
-        )}
+        <div className="offcanvas-body d-flex flex-column gap-4">
+          {rolId === 2 && isPrincipal && (
+            <Link to="/administrar-negocio" onClick={onClose}>
+              <button className="menu-button w-100">
+                Administrar mi negocio
+              </button>
+            </Link>
+          )}
 
-        <button className="close-section w-100" onClick={handleLogoutClick}>
-          Cerrar sesión
-        </button>
-      </div>
-    </div>
+          {rolId === 2 && isAdmin && (
+            <Link to="/principal" onClick={onClose}>
+              <button className="menu-button w-100">
+                Página principal
+              </button>
+            </Link>
+          )}
+
+          <button className="close-section w-100" onClick={handleLogoutClick}>
+            Cerrar sesión
+          </button>
+        </div>
+      </aside>
+    </>
   );
 };
 

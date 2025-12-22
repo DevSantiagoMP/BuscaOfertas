@@ -1,6 +1,10 @@
 import Logo from "../Logo/Logo";
 
-const PrivateHeader = () => {
+interface PrivateHeaderProps {
+  onMenuClick: () => void;
+}
+
+const PrivateHeader = ({ onMenuClick }: PrivateHeaderProps) => {
   return (
     <header className="personal-header py-2">
       <div className="container-fluid">
@@ -10,9 +14,8 @@ const PrivateHeader = () => {
           <button
             className="btn border-0"
             type="button"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#menu"
-            aria-controls="menu"
+            onClick={onMenuClick}
+            aria-label="Abrir menú"
           >
             <i className="bi bi-list" style={{ fontSize: "1.8rem" }} />
           </button>
