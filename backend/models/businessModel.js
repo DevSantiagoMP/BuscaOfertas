@@ -58,10 +58,10 @@ export const actualizarPlanAFree = async (id_negocio) => {
   );
 };
 
-// Actualizar negocio por id
 export const actualizarNegocio = async (id_negocio, datos) => {
   const {
     foto_url,
+    foto_public_id,
     nombre,
     descripcion,
     ciudad,
@@ -74,6 +74,7 @@ export const actualizarNegocio = async (id_negocio, datos) => {
     UPDATE negocios
     SET 
       foto_url = ?,
+      foto_public_id = ?,
       nombre = ?,
       descripcion = ?,
       ciudad = ?,
@@ -85,13 +86,14 @@ export const actualizarNegocio = async (id_negocio, datos) => {
 
   const values = [
     foto_url,
+    foto_public_id,
     nombre,
     descripcion,
     ciudad,
     direccion,
     telefono,
     categoria_id,
-    id_negocio
+    id_negocio,
   ];
 
   const [result] = await db.query(query, values);
@@ -205,7 +207,8 @@ export const findBusinessByUserId = async (userId) => {
       direccion,
       telefono,
       categoria_id,
-      foto_url
+      foto_url,
+      foto_public_id
     FROM negocios
     WHERE usuario_id = ?
     LIMIT 1

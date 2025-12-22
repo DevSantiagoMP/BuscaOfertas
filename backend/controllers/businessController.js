@@ -82,6 +82,7 @@ export const crearNegocio = async (req, res) => {
     const nuevoId = await registrarNegocio({
       usuario_id,
       foto_url, // puede ser null
+      foto_public_id,
       nombre,
       descripcion,
       ciudad,
@@ -107,26 +108,36 @@ export const crearNegocio = async (req, res) => {
 
 export const updateBusiness = async (req, res) => {
   try {
-    const negocio = req.negocio; // 🔑
+    const negocio = req.negocio;
 
-    const datos = { ...req.body };
+    // Solo campos editables
+    const datos = {
+      nombre: req.body.nombre,
+      descripcion: req.body.descripcion,
+      ciudad: req.body.ciudad,
+      direccion: req.body.direccion,
+      telefono: req.body.telefono,
+      categoria_id: req.body.categoria_id,
+    };
 
+    // Si llega una nueva imagen
     if (req.file) {
-      // 1️⃣ Subir primero la nueva imagen
+      // Subir nueva imagen
       const uploadResult = await cloudinary.uploader.upload(req.file.path, {
         folder: "negocios",
       });
 
-      // 2️⃣ Eliminar la imagen anterior SOLO si la nueva subió bien
+      // Eliminar imagen anterior si existe
       if (negocio.foto_public_id) {
         await cloudinary.uploader.destroy(negocio.foto_public_id);
       }
 
-      // 3️⃣ Guardar nueva info
+      // Guardar nueva información
       datos.foto_url = uploadResult.secure_url;
       datos.foto_public_id = uploadResult.public_id;
     }
 
+    // Actualizar negocio
     const result = await actualizarNegocio(negocio.id_negocio, datos);
 
     if (result.affectedRows === 0) {
