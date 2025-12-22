@@ -4,20 +4,28 @@ import Menu from "../../components/Menu/Menu";
 
 // Hooks
 import { useAuth } from "../../hooks/useAuth";
+import { useState } from "react";
 
 // CSS
 import "./principal.css";
 
 const principal = () => {
-  const { rolId, correo, logout } = useAuth();
+ const { rolId, correo, logout } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <>
       {/* Header privado */}
-      <PrivateHeader />
+      <PrivateHeader onMenuClick={() => setMenuOpen(true)} />
 
       {/* Menú hamburguesa */}
-      <Menu rolId={rolId} correo={correo} onLogout={logout} />
+      <Menu
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        rolId={rolId}
+        correo={correo}
+        onLogout={logout}
+      />
 
       {/* Principal-section */}
       <main className="principal-section min-vh-100">

@@ -1,90 +1,185 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import {
+  registerBusiness,
+  getMyBusiness,
+  updateMyBusiness
+} from "../../../../services/business.client";
 import "./businessData.css";
 
 // Interfaz para tipar los datos del negocio
 interface DatosNegocio {
-  imagenNegocio: File | null;
+  idNegocio?: number;
   nombreNegocio: string;
   descripcionNegocio: string;
   ciudad: string;
   direccion: string;
   telefono: string;
-  categoria: string;
+  categoriaId: number;
+  fotoPreview?: string;
 }
 
-const businessData = () => {
-  // Estado para mostrar inputs de datos del negocio
+const CATEGORIAS: Record<number, string> = {
+  1: "Comida y bebidas",
+  2: "Ropa y Accesorios",
+  3: "Belleza y Cuidado Personal",
+  4: "Hogar y Decoración",
+  5: "Tecnología",
+  6: "Mascotas",
+  7: "Salud y Bienestar",
+  8: "Vehículos y Talleres",
+  9: "Deportes y Fitness",
+  10: "Educación",
+  11: "Bebés y Niños",
+  12: "Arte y Entretenimiento",
+  13: "Otra",
+};
+
+const BusinessData = () => {
   const [mostrar, setMostrar] = useState(false);
 
-  // Estados de inputs de datos del negocio
   const [imagenNegocio, setImagenNegocio] = useState<File | null>(null);
   const [nombreNegocio, setNombreNegocio] = useState("");
   const [descripcionNegocio, setDescripcionNegocio] = useState("");
   const [ciudad, setCiudad] = useState("");
   const [direccion, setDireccion] = useState("");
   const [telefono, setTelefono] = useState("");
-  const [categoria, setCategoria] = useState("");
+  const [categoria, setCategoria] = useState<number | "">("");
 
-  // Estado para guardar los datos del negocio
   const [datosGuardados, setDatosGuardados] = useState<DatosNegocio | null>(
     null
   );
 
-  // Envío del formulario de datos del negocio
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  // 🔹 CARGAR NEGOCIO
+  useEffect(() => {
+    const fetchMyBusiness = async () => {
+      try {
+        const data = await getMyBusiness();
 
-    const datos: DatosNegocio = {
-      imagenNegocio,
-      nombreNegocio,
-      descripcionNegocio,
-      ciudad,
-      direccion,
-      telefono,
-      categoria,
+        setDatosGuardados({
+          idNegocio: data.id_negocio,
+          nombreNegocio: data.nombre,
+          descripcionNegocio: data.descripcion,
+          ciudad: data.ciudad,
+          direccion: data.direccion,
+          telefono: data.telefono,
+          categoriaId: data.categoria_id,
+          fotoPreview: data.foto_url,
+        });
+
+        setNombreNegocio(data.nombre);
+        setDescripcionNegocio(data.descripcion);
+        setCiudad(data.ciudad);
+        setDireccion(data.direccion);
+        setTelefono(data.telefono);
+        setCategoria(data.categoria_id);
+      } catch {
+        console.log("El usuario aún no tiene negocio");
+      }
     };
 
-    setDatosGuardados(datos);
+    fetchMyBusiness();
+  }, []);
+
+  // 🔹 ENVIAR FORMULARIO
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+
+  if (categoria === "") return;
+
+  try {
+    // 🔹 ACTUALIZAR
+    if (datosGuardados) {
+      await updateMyBusiness({
+        nombre: nombreNegocio,
+        descripcion: descripcionNegocio,
+        ciudad,
+        direccion,
+        telefono,
+        categoria_id: categoria,
+        foto: imagenNegocio, // puede ser null
+      });
+
+      setDatosGuardados({
+        ...datosGuardados,
+        nombreNegocio,
+        descripcionNegocio,
+        ciudad,
+        direccion,
+        telefono,
+        categoriaId: categoria,
+        fotoPreview: imagenNegocio
+          ? URL.createObjectURL(imagenNegocio)
+          : datosGuardados.fotoPreview,
+      });
+    }
+    // 🔹 CREAR
+    else {
+      const response = await registerBusiness({
+        nombre: nombreNegocio,
+        descripcion: descripcionNegocio,
+        ciudad,
+        direccion,
+        telefono,
+        categoria_id: categoria,
+        foto: imagenNegocio,
+      });
+
+      setDatosGuardados({
+        idNegocio: response.id_negocio,
+        nombreNegocio,
+        descripcionNegocio,
+        ciudad,
+        direccion,
+        telefono,
+        categoriaId: categoria,
+        fotoPreview: imagenNegocio
+          ? URL.createObjectURL(imagenNegocio)
+          : undefined,
+      });
+    }
+
     setMostrar(false);
-  };
+  } catch (error: any) {
+    alert(error.message || "Error al guardar la información");
+  }
+};
+
 
   return (
-    <>
-      <div className="container section-container mb-5">
-        <div className="row align-items-center">
-          <div className="col-12 col-md-6">
-            <h3 className="mb-4 mb-md-0">Datos del negocio</h3>
-          </div>
-
-          <div className="col-12 col-md-6 mb-3 d-flex justify-content-center justify-content-md-end">
-            <button
-            className="button-section-container"
-              onClick={() => {
-                if (!mostrar && datosGuardados) {
-                  // Rellenar el formulario al presionar "Editar"
-                  setNombreNegocio(datosGuardados.nombreNegocio);
-                  setDescripcionNegocio(datosGuardados.descripcionNegocio);
-                  setCiudad(datosGuardados.ciudad);
-                  setDireccion(datosGuardados.direccion);
-                  setTelefono(datosGuardados.telefono);
-                  setCategoria(datosGuardados.categoria);
-                }
-
-                setMostrar((prev) => !prev);
-              }}
-            >
-              {mostrar
-                ? "Cancelar"
-                : datosGuardados
-                  ? "Editar información"
-                  : "Agregar información"}
-            </button>
-          </div>
+    <div className="container section-container mb-5">
+      <div className="row align-items-center">
+        <div className="col-12 col-md-6">
+          <h3 className="mb-4 mb-md-0">Datos del negocio</h3>
         </div>
 
-        <div className="row">
-          {/* Al click se muestra card con inputs */}
-          {mostrar && (
+        <div className="col-12 col-md-6 mb-3 d-flex justify-content-center justify-content-md-end">
+          <button
+            className="button-section-container"
+            onClick={() => {
+              if (!mostrar && datosGuardados) {
+                setNombreNegocio(datosGuardados.nombreNegocio);
+                setDescripcionNegocio(datosGuardados.descripcionNegocio);
+                setCiudad(datosGuardados.ciudad);
+                setDireccion(datosGuardados.direccion);
+                setTelefono(datosGuardados.telefono);
+                setCategoria(datosGuardados.categoriaId);
+              }
+              setMostrar((prev) => !prev);
+            }}
+          >
+            {mostrar
+              ? "Cancelar"
+              : datosGuardados
+              ? "Editar información"
+              : "Agregar información"}
+          </button>
+        </div>
+      </div>
+
+      {/* ✅ CORRECCIÓN AQUÍ */}
+      <div className="row">
+        {mostrar && (
+          <div className="col-12">
             <div className="box-inputs">
               <form onSubmit={handleSubmit}>
                 <label htmlFor="imagenNegocio" className="custom-file-upload">
@@ -101,9 +196,9 @@ const businessData = () => {
                     }
                   }}
                 />
-                {/* Vista previa de imagen en el formulario */}
+
                 {imagenNegocio && (
-                  <div className="mb-3 d-flex justify-content-center align-items-center">
+                  <div className="mb-3 d-flex justify-content-center">
                     <img
                       src={URL.createObjectURL(imagenNegocio)}
                       alt="Vista previa"
@@ -116,109 +211,99 @@ const businessData = () => {
                   className="d-block input-box-input"
                   type="text"
                   placeholder="Escriba el nombre del negocio"
-                  onChange={(e) => setNombreNegocio(e.target.value)}
                   value={nombreNegocio}
+                  onChange={(e) => setNombreNegocio(e.target.value)}
                   required
                 />
+
                 <input
                   className="d-block input-box-input"
-                  type="area"
+                  type="text"
                   placeholder="Descripcion (opcional)"
-                  onChange={(e) => setDescripcionNegocio(e.target.value)}
                   value={descripcionNegocio}
+                  onChange={(e) => setDescripcionNegocio(e.target.value)}
                 />
+
                 <input
                   className="d-block input-box-input"
                   type="text"
                   placeholder="Ciudad"
-                  onChange={(e) => setCiudad(e.target.value)}
                   value={ciudad}
+                  onChange={(e) => setCiudad(e.target.value)}
                   required
                 />
+
                 <input
                   className="d-block input-box-input"
                   type="text"
                   placeholder="Dirección"
-                  onChange={(e) => setDireccion(e.target.value)}
                   value={direccion}
+                  onChange={(e) => setDireccion(e.target.value)}
                   required
                 />
+
                 <input
                   className="d-block input-box-input"
                   type="number"
                   placeholder="Telefono o numero de celular"
-                  onChange={(e) => setTelefono(e.target.value)}
                   value={telefono}
+                  onChange={(e) => setTelefono(e.target.value)}
                   required
                 />
+
                 <select
                   className="select-box-input"
                   value={categoria}
-                  onChange={(e) => setCategoria(e.target.value)}
+                  onChange={(e) => setCategoria(Number(e.target.value))}
                   required
                 >
                   <option value="">Categoria negocio</option>
-                  <option value="Comida">Comida</option>
-                  <option value="Belleza">Belleza</option>
+                  {Object.entries(CATEGORIAS).map(([id, nombre]) => (
+                    <option key={id} value={id}>
+                      {nombre}
+                    </option>
+                  ))}
                 </select>
+
                 <button type="submit" className="save-button">
                   Guardar información
                 </button>
               </form>
             </div>
-          )}
-        </div>
-
-        {/* Mostrar datos guardados */}
-        {datosGuardados && !mostrar && (
-          <div className="mt-4">
-            <div className="row align-items-center">
-              {/* Imagen */}
-              {datosGuardados.imagenNegocio && (
-                <div className="col-12 col-md-4 text-center mb-3 mb-md-0">
-                  <img
-                    src={URL.createObjectURL(datosGuardados.imagenNegocio!)}
-                    alt="Imagen del negocio"
-                    className="img-fluid rounded preview-img"
-                    style={{ maxWidth: "250px" }}
-                  />
-                </div>
-              )}
-
-              {/* Datos */}
-              <div
-                className={
-                  datosGuardados.imagenNegocio
-                    ? "col-12 col-md-8" // Si hay imagen
-                    : "col-12 col-md-12" // Si NO hay imagen → ocupar todo el ancho
-                }
-              >
-                <p>
-                  <strong>Nombre:</strong> {datosGuardados.nombreNegocio}
-                </p>
-                <p>
-                  <strong>Descripción:</strong>{" "}
-                  {datosGuardados.descripcionNegocio}
-                </p>
-                <p>
-                  <strong>Ciudad:</strong> {datosGuardados.ciudad}
-                </p>
-                <p>
-                  <strong>Dirección:</strong> {datosGuardados.direccion}
-                </p>
-                <p>
-                  <strong>Teléfono:</strong> {datosGuardados.telefono}
-                </p>
-                <p>
-                  <strong>Categoría:</strong> {datosGuardados.categoria}
-                </p>
-              </div>
-            </div>
           </div>
         )}
       </div>
-    </>
+
+      {datosGuardados && !mostrar && (
+        <div className="mt-4">
+          <div className="row align-items-center">
+            {datosGuardados.fotoPreview && (
+              <div className="col-12 col-md-4 text-center mb-3">
+                <img
+                  src={datosGuardados.fotoPreview}
+                  alt="Imagen del negocio"
+                  className="img-fluid rounded preview-img"
+                  style={{ maxWidth: "250px" }}
+                />
+              </div>
+            )}
+
+            <div className="col-12 col-md-8">
+              <p><strong>Nombre:</strong> {datosGuardados.nombreNegocio}</p>
+              <p><strong>Descripción:</strong> {datosGuardados.descripcionNegocio}</p>
+              <p><strong>Ciudad:</strong> {datosGuardados.ciudad}</p>
+              <p><strong>Dirección:</strong> {datosGuardados.direccion}</p>
+              <p><strong>Teléfono:</strong> {datosGuardados.telefono}</p>
+              <p>
+                <strong>Categoría:</strong>{" "}
+                {CATEGORIAS[datosGuardados.categoriaId] || "Sin categoría"}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
-export default businessData;
+export default BusinessData;
