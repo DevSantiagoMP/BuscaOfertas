@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import {
   registerBusiness,
   getMyBusiness,
-  updateMyBusiness
+  updateMyBusiness,
 } from "../../../../services/business.client";
+import { uploadImageToCloudinary } from "../../../../services/cloudinary.client";
 import "./businessData.css";
 
 // Interfaz para tipar los datos del negocio
@@ -49,6 +50,10 @@ const BusinessData = () => {
     null
   );
 
+  // Estado de spinner de carga
+  const [loading, setLoading] = useState(false);
+
+
   // 🔹 CARGAR NEGOCIO
   useEffect(() => {
     const fetchMyBusiness = async () => {
@@ -82,68 +87,78 @@ const BusinessData = () => {
 
   // 🔹 ENVIAR FORMULARIO
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (categoria === "") return;
+    if (categoria === "") return;
 
-  try {
-    // 🔹 ACTUALIZAR
-    if (datosGuardados) {
-      await updateMyBusiness({
-        nombre: nombreNegocio,
-        descripcion: descripcionNegocio,
-        ciudad,
-        direccion,
-        telefono,
-        categoria_id: categoria,
-        foto: imagenNegocio, // puede ser null
-      });
+    try {
+      setLoading(true); // 🔥 INICIA SPINNER
+      let foto_url: string | null = null;
+      let foto_public_id: string | null = null;
 
-      setDatosGuardados({
-        ...datosGuardados,
-        nombreNegocio,
-        descripcionNegocio,
-        ciudad,
-        direccion,
-        telefono,
-        categoriaId: categoria,
-        fotoPreview: imagenNegocio
-          ? URL.createObjectURL(imagenNegocio)
-          : datosGuardados.fotoPreview,
-      });
+      // 🔥 1️⃣ SUBIR IMAGEN DIRECTO A CLOUDINARY (SI EXISTE)
+      if (imagenNegocio) {
+        const uploadResult = await uploadImageToCloudinary(imagenNegocio);
+        foto_url = uploadResult.secure_url;
+        foto_public_id = uploadResult.public_id;
+      }
+
+      // 🔹 ACTUALIZAR NEGOCIO
+      if (datosGuardados) {
+        await updateMyBusiness({
+          nombre: nombreNegocio,
+          descripcion: descripcionNegocio,
+          ciudad,
+          direccion,
+          telefono,
+          categoria_id: categoria,
+          foto_url,
+          foto_public_id,
+        });
+
+        setDatosGuardados({
+          ...datosGuardados,
+          nombreNegocio,
+          descripcionNegocio,
+          ciudad,
+          direccion,
+          telefono,
+          categoriaId: categoria,
+          fotoPreview: foto_url || datosGuardados.fotoPreview,
+        });
+      }
+      // 🔹 CREAR NEGOCIO
+      else {
+        const response = await registerBusiness({
+          nombre: nombreNegocio,
+          descripcion: descripcionNegocio,
+          ciudad,
+          direccion,
+          telefono,
+          categoria_id: categoria,
+          foto_url,
+          foto_public_id,
+        });
+
+        setDatosGuardados({
+          idNegocio: response.id_negocio,
+          nombreNegocio,
+          descripcionNegocio,
+          ciudad,
+          direccion,
+          telefono,
+          categoriaId: categoria,
+          fotoPreview: foto_url || undefined,
+        });
+      }
+
+      setMostrar(false);
+    } catch (error: any) {
+      alert(error.message || "Error al guardar la información");
+    } finally {
+      setLoading(false); // 🔥 DETIENE SPINNER
     }
-    // 🔹 CREAR
-    else {
-      const response = await registerBusiness({
-        nombre: nombreNegocio,
-        descripcion: descripcionNegocio,
-        ciudad,
-        direccion,
-        telefono,
-        categoria_id: categoria,
-        foto: imagenNegocio,
-      });
-
-      setDatosGuardados({
-        idNegocio: response.id_negocio,
-        nombreNegocio,
-        descripcionNegocio,
-        ciudad,
-        direccion,
-        telefono,
-        categoriaId: categoria,
-        fotoPreview: imagenNegocio
-          ? URL.createObjectURL(imagenNegocio)
-          : undefined,
-      });
-    }
-
-    setMostrar(false);
-  } catch (error: any) {
-    alert(error.message || "Error al guardar la información");
-  }
-};
-
+  };
 
   return (
     <div className="container section-container mb-5">
@@ -170,8 +185,8 @@ const BusinessData = () => {
             {mostrar
               ? "Cancelar"
               : datosGuardados
-              ? "Editar información"
-              : "Agregar información"}
+                ? "Editar información"
+                : "Agregar información"}
           </button>
         </div>
       </div>
@@ -265,8 +280,19 @@ const BusinessData = () => {
                   ))}
                 </select>
 
-                <button type="submit" className="save-button">
-                  Guardar información
+                <button
+                  type="submit"
+                  className="save-button"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <span className="spinner"></span>
+                      <span style={{ marginLeft: 8 }}>Guardando...</span>
+                    </>
+                  ) : (
+                    "Guardar información"
+                  )}
                 </button>
               </form>
             </div>
@@ -289,11 +315,22 @@ const BusinessData = () => {
             )}
 
             <div className="col-12 col-md-8">
-              <p><strong>Nombre:</strong> {datosGuardados.nombreNegocio}</p>
-              <p><strong>Descripción:</strong> {datosGuardados.descripcionNegocio}</p>
-              <p><strong>Ciudad:</strong> {datosGuardados.ciudad}</p>
-              <p><strong>Dirección:</strong> {datosGuardados.direccion}</p>
-              <p><strong>Teléfono:</strong> {datosGuardados.telefono}</p>
+              <p>
+                <strong>Nombre:</strong> {datosGuardados.nombreNegocio}
+              </p>
+              <p>
+                <strong>Descripción:</strong>{" "}
+                {datosGuardados.descripcionNegocio}
+              </p>
+              <p>
+                <strong>Ciudad:</strong> {datosGuardados.ciudad}
+              </p>
+              <p>
+                <strong>Dirección:</strong> {datosGuardados.direccion}
+              </p>
+              <p>
+                <strong>Teléfono:</strong> {datosGuardados.telefono}
+              </p>
               <p>
                 <strong>Categoría:</strong>{" "}
                 {CATEGORIAS[datosGuardados.categoriaId] || "Sin categoría"}
