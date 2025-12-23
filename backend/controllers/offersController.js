@@ -94,8 +94,8 @@ export const updateOferta = async (req, res) => {
       nombre,
       descripcion: descripcion ?? null,
       precio_oferta,
-      foto_url: null,        // 👈 SIEMPRE definido
-      foto_public_id: null,  // 👈 SIEMPRE definido
+      foto_url: null,        
+      foto_public_id: null,  
     };
 
     // 🟢 IMAGEN OPCIONAL
