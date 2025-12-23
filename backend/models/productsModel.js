@@ -19,7 +19,14 @@ const obtenerLimitePorPlan = (planId) =>
 ===================================================== */
 export const crearProducto = async (producto) => {
   try {
-    const { negocio_id, nombre, descripcion, precio, foto_url } = producto;
+    const {
+      negocio_id,
+      nombre,
+      descripcion,
+      precio,
+      foto_url,
+      foto_public_id,
+    } = producto;
 
     // 1. Obtener plan del negocio
     const [negocioRows] = await db.execute(
@@ -52,8 +59,15 @@ export const crearProducto = async (producto) => {
     // 4. Insertar producto
     const [result] = await db.execute(
       `
-      INSERT INTO productos (negocio_id, nombre, descripcion, precio, foto_url)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO productos (
+        negocio_id,
+        nombre,
+        descripcion,
+        precio,
+        foto_url,
+        foto_public_id
+      )
+      VALUES (?, ?, ?, ?, ?, ?)
       `,
       [
         negocio_id,
@@ -61,6 +75,7 @@ export const crearProducto = async (producto) => {
         descripcion ?? null,
         precio,
         foto_url ?? null,
+        foto_public_id ?? null,
       ]
     );
 
@@ -85,7 +100,13 @@ export const crearProducto = async (producto) => {
 ===================================================== */
 export const actualizarProducto = async (id_producto, datos) => {
   try {
-    const { nombre, descripcion, precio, foto_url } = datos;
+    const {
+      nombre,
+      descripcion,
+      precio,
+      foto_url,
+      foto_public_id,
+    } = datos;
 
     const [result] = await db.execute(
       `
@@ -94,7 +115,8 @@ export const actualizarProducto = async (id_producto, datos) => {
         nombre = ?,
         descripcion = ?,
         precio = ?,
-        foto_url = ?
+        foto_url = ?,
+        foto_public_id = ?
       WHERE id_producto = ?
       `,
       [
@@ -102,6 +124,7 @@ export const actualizarProducto = async (id_producto, datos) => {
         descripcion ?? null,
         precio,
         foto_url ?? null,
+        foto_public_id ?? null,
         id_producto,
       ]
     );

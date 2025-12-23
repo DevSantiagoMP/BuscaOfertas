@@ -1,7 +1,6 @@
 import express from "express";
 import { validarJWT } from "../../middlewares/auth.js";
 import { cargarMiNegocio } from "../../middlewares/tieneNegocio.js";
-import upload from "../../middlewares/upload.js";
 import {
   crearNegocio,
   updateBusiness,
@@ -18,7 +17,6 @@ const router = express.Router();
 router.post(
   "/register-business",
   validarJWT,
-  upload.single("foto"),
   crearNegocio
 );
 
@@ -27,7 +25,6 @@ router.put(
   "/mi-negocio",
   validarJWT,
   cargarMiNegocio,
-  upload.single("foto"),
   updateBusiness
 );
 

@@ -12,6 +12,7 @@ import { validarJWT } from "../../middlewares/auth.js";
 import { cargarMiNegocio } from "../../middlewares/tieneNegocio.js";
 import { esDuenoDelRecurso } from "../../middlewares/esDuenoDelRecurso.js";
 
+
 const router = express.Router();
 
 /* ===============================

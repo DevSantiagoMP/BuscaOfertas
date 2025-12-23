@@ -12,7 +12,7 @@ import {
 
 export const crearNegocio = async (req, res) => {
   try {
-    const usuario_id = req.user.id; // 👈 viene del JWT
+    const usuario_id = req.user.id;
 
     // 🔥 VALIDAR SI YA TIENE NEGOCIO
     const negocioExistente = await findBusinessByUserId(usuario_id);
@@ -29,12 +29,11 @@ export const crearNegocio = async (req, res) => {
       direccion,
       telefono,
       categoria_id,
+      foto_url = null,
+      foto_public_id = null,
     } = req.body;
 
-    // VALIDACIONES
-    if (!usuario_id)
-      return res.status(400).json({ message: "usuario_id es obligatorio" });
-
+    // 🔒 VALIDACIONES
     if (!nombre)
       return res.status(400).json({ message: "El nombre es obligatorio" });
 
@@ -50,38 +49,22 @@ export const crearNegocio = async (req, res) => {
     if (!categoria_id)
       return res.status(400).json({ message: "categoria_id es obligatorio" });
 
-    // 🟢 IMAGEN OPCIONAL
-    let foto_url = null;
-    let foto_public_id = null;
-
-    if (req.file) {
-      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-        folder: "negocios",
-      });
-      foto_url = uploadResult.secure_url;
-      foto_public_id = uploadResult.public_id;
-    }
-
-    // CONTAR NEGOCIOS
+    // 📊 CONTAR NEGOCIOS
     const [countRows] = await db.query(
       "SELECT COUNT(*) AS total FROM negocios"
     );
     const totalNegocios = countRows[0].total;
 
-    let finalPlanId;
-    let planExpira = new Date();
+    // 🏷️ PLAN AUTOMÁTICO
+    const planExpira = new Date();
     planExpira.setFullYear(planExpira.getFullYear() + 1);
 
-    if (totalNegocios < 500) {
-      finalPlanId = 4;
-    } else {
-      finalPlanId = 5;
-    }
+    const finalPlanId = totalNegocios < 500 ? 4 : 5;
 
-    // REGISTRAR NEGOCIO
+    // 💾 REGISTRAR NEGOCIO
     const nuevoId = await registrarNegocio({
       usuario_id,
-      foto_url, // puede ser null
+      foto_url,
       foto_public_id,
       nombre,
       descripcion,
@@ -93,7 +76,8 @@ export const crearNegocio = async (req, res) => {
       plan_expira: planExpira,
     });
 
-    res.status(201).json({
+    // ✅ RESPUESTA
+    return res.status(201).json({
       message: "Negocio registrado correctamente",
       id_negocio: nuevoId,
       plan_asignado: finalPlanId,
@@ -101,8 +85,10 @@ export const crearNegocio = async (req, res) => {
       primeros_500: totalNegocios < 500,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error al registrar negocio" });
+    console.error("Error al registrar negocio:", error);
+    return res.status(500).json({
+      message: "Error al registrar negocio",
+    });
   }
 };
 
@@ -110,34 +96,36 @@ export const updateBusiness = async (req, res) => {
   try {
     const negocio = req.negocio;
 
-    // Solo campos editables
+    const {
+      nombre,
+      descripcion,
+      ciudad,
+      direccion,
+      telefono,
+      categoria_id,
+      foto_url = null,
+      foto_public_id = null,
+    } = req.body;
+
     const datos = {
-      nombre: req.body.nombre,
-      descripcion: req.body.descripcion,
-      ciudad: req.body.ciudad,
-      direccion: req.body.direccion,
-      telefono: req.body.telefono,
-      categoria_id: req.body.categoria_id,
+      nombre,
+      descripcion,
+      ciudad,
+      direccion,
+      telefono,
+      categoria_id,
     };
 
-    // Si llega una nueva imagen
-    if (req.file) {
-      // Subir nueva imagen
-      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-        folder: "negocios",
-      });
-
-      // Eliminar imagen anterior si existe
+    // 🔥 SI VIENE NUEVA IMAGEN, BORRAR LA ANTERIOR
+    if (foto_url && foto_public_id) {
       if (negocio.foto_public_id) {
         await cloudinary.uploader.destroy(negocio.foto_public_id);
       }
 
-      // Guardar nueva información
-      datos.foto_url = uploadResult.secure_url;
-      datos.foto_public_id = uploadResult.public_id;
+      datos.foto_url = foto_url;
+      datos.foto_public_id = foto_public_id;
     }
 
-    // Actualizar negocio
     const result = await actualizarNegocio(negocio.id_negocio, datos);
 
     if (result.affectedRows === 0) {

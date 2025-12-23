@@ -10,10 +10,17 @@ import cloudinary from "../config/cloudinary.js";
 
 export const createProducto = async (req, res) => {
   try {
-    const negocio = req.negocio; // 👈 viene del middleware
-    const { nombre, descripcion, precio } = req.body;
+    const negocio = req.negocio; // viene del middleware
 
-    // VALIDACIONES
+    const {
+      nombre,
+      descripcion,
+      precio,
+      foto_url = null,
+      foto_public_id = null,
+    } = req.body;
+
+    // 🔒 VALIDACIONES
     if (!nombre || precio == null) {
       return res.status(400).json({
         ok: false,
@@ -21,30 +28,21 @@ export const createProducto = async (req, res) => {
       });
     }
 
-    // 🟢 IMAGEN OPCIONAL
-    let foto_url = null;
-    let foto_public_id = null;
-
-    if (req.file) {
-      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-        folder: "productos",
-      });
-
-      foto_url = uploadResult.secure_url;
-      foto_public_id = uploadResult.public_id;
-    }
-
     const nuevoProducto = {
       negocio_id: negocio.id_negocio,
       nombre,
       descripcion: descripcion ?? null,
       precio,
-      foto_url, // 👈 URL de Cloudinary
-      foto_public_id, // opcional (recomendado para eliminar luego)
+      foto_url,
+      foto_public_id,
     };
 
-    const { insertResult, productos_actuales, limite, productos_restantes } =
-      await crearProducto(nuevoProducto);
+    const {
+      insertResult,
+      productos_actuales,
+      limite,
+      productos_restantes,
+    } = await crearProducto(nuevoProducto);
 
     return res.status(201).json({
       ok: true,
@@ -58,7 +56,11 @@ export const createProducto = async (req, res) => {
   } catch (error) {
     console.error("Error en createProducto:", error);
 
-    if (error.message.includes("plan") || error.message.includes("permite")) {
+    if (
+      error.message &&
+      (error.message.includes("plan") ||
+        error.message.includes("permite"))
+    ) {
       return res.status(403).json({
         ok: false,
         msg: error.message,
@@ -74,10 +76,17 @@ export const createProducto = async (req, res) => {
 
 export const updateProducto = async (req, res) => {
   try {
-    const producto = req.recurso; // 👈 validado por middleware
-    const { nombre, descripcion, precio } = req.body;
+    const producto = req.recurso; // viene del middleware
 
-    // Validación mínima
+    const {
+      nombre,
+      descripcion,
+      precio,
+      foto_url = null,
+      foto_public_id = null,
+    } = req.body;
+
+    // 🔒 VALIDACIÓN
     if (!nombre || precio == null) {
       return res.status(400).json({
         ok: false,
@@ -91,21 +100,14 @@ export const updateProducto = async (req, res) => {
       precio,
     };
 
-    // 🟢 IMAGEN OPCIONAL
-    if (req.file) {
-      // 1️⃣ Subir nueva imagen
-      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-        folder: "productos",
-      });
-
-      // 2️⃣ Eliminar imagen anterior SOLO si la nueva subió bien
+    // 🔥 SI VIENE NUEVA IMAGEN → BORRAR LA ANTERIOR
+    if (foto_url && foto_public_id) {
       if (producto.foto_public_id) {
         await cloudinary.uploader.destroy(producto.foto_public_id);
       }
 
-      // 3️⃣ Guardar nueva info
-      datosActualizados.foto_url = uploadResult.secure_url;
-      datosActualizados.foto_public_id = uploadResult.public_id;
+      datosActualizados.foto_url = foto_url;
+      datosActualizados.foto_public_id = foto_public_id;
     }
 
     await actualizarProducto(producto.id_producto, datosActualizados);
@@ -116,6 +118,7 @@ export const updateProducto = async (req, res) => {
     });
   } catch (error) {
     console.error("Error en updateProducto:", error);
+
     return res.status(500).json({
       ok: false,
       msg: "Error al actualizar el producto",
