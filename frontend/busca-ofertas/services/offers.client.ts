@@ -4,29 +4,29 @@ import { apiFetch } from "./api";
    Tipos
 ===================== */
 
-export interface ProductoPayload {
+export interface OfertaPayload {
   nombre: string;
   descripcion?: string;
-  precio: number;
+  precio_oferta: number;
   foto_url?: string | null;
   foto_public_id?: string | null;
 }
 
-export interface ProductoUpdatePayload extends ProductoPayload {
+export interface OfertaUpdatePayload extends OfertaPayload {
   id: number;
 }
 
 /* =====================
-   Crear producto
-   POST /products
+   Crear oferta
+   POST /offers/register-offers
 ===================== */
-export const crearProducto = async (data: ProductoPayload) => {
-  return apiFetch("/products", {
+export const crearOferta = async (data: OfertaPayload) => {
+  return apiFetch("/offers/register-offers", {
     method: "POST",
     body: JSON.stringify({
       nombre: data.nombre,
       descripcion: data.descripcion ?? null,
-      precio: data.precio,
+      precio_oferta: data.precio_oferta,
       foto_url: data.foto_url ?? null,
       foto_public_id: data.foto_public_id ?? null,
     }),
@@ -34,16 +34,16 @@ export const crearProducto = async (data: ProductoPayload) => {
 };
 
 /* =====================
-   Actualizar producto
-   PUT /products/:id
+   Actualizar oferta
+   PUT /offers/:id
 ===================== */
-export const actualizarProducto = async (data: ProductoUpdatePayload) => {
-  return apiFetch(`/products/${data.id}`, {
+export const actualizarOferta = async (data: OfertaUpdatePayload) => {
+  return apiFetch(`/offers/${data.id}`, {
     method: "PUT",
     body: JSON.stringify({
       nombre: data.nombre,
       descripcion: data.descripcion ?? null,
-      precio: data.precio,
+      precio_oferta: data.precio_oferta,
       foto_url: data.foto_url ?? null,
       foto_public_id: data.foto_public_id ?? null,
     }),
@@ -51,21 +51,21 @@ export const actualizarProducto = async (data: ProductoUpdatePayload) => {
 };
 
 /* =====================
-   Eliminar producto
-   DELETE /products/:id
+   Eliminar oferta
+   DELETE /offers/:id
 ===================== */
-export const eliminarProductoApi = async (id: number) => {
-  return apiFetch(`/products/${id}`, {
+export const eliminarOfertaApi = async (id: number) => {
+  return apiFetch(`/offers/${id}`, {
     method: "DELETE",
   });
 };
 
 /* =====================
-   Obtener productos del negocio
-   GET /products/mios
+   Obtener ofertas del negocio
+   GET /offers/mis-ofertas
 ===================== */
-export const obtenerMisProductos = async () => {
-  return apiFetch("/products/mios", {
+export const obtenerMisOfertas = async () => {
+  return apiFetch("/offers/mis-ofertas", {
     method: "GET",
   });
 };
