@@ -284,7 +284,7 @@ const BusinessProducts = () => {
 
                   <textarea
                     className="form-control mb-3"
-                    placeholder="Descripción"
+                    placeholder="Descripción (opcional)"
                     value={producto.descripcion}
                     onChange={(e) =>
                       actualizarCampo(

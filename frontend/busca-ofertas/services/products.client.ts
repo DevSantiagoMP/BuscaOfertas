@@ -12,6 +12,18 @@ export interface ProductoPayload {
   foto_public_id?: string | null;
 }
 
+// Tipo para obtener productos
+export interface Producto {
+  id_producto: number;
+  negocio_id: number;
+  nombre: string;
+  descripcion?: string;
+  precio: string;
+  foto_url?: string | null;
+  nombre_negocio: string;
+  plan_id: number;
+}
+
 export interface ProductoUpdatePayload extends ProductoPayload {
   id: number;
 }
@@ -66,6 +78,15 @@ export const eliminarProductoApi = async (id: number) => {
 ===================== */
 export const obtenerMisProductos = async () => {
   return apiFetch("/products/mios", {
+    method: "GET",
+  });
+};
+
+/* =====================
+   Obtener todos los productos
+===================== */
+export const obtenerProductos = async () => {
+  return apiFetch("/products", {
     method: "GET",
   });
 };

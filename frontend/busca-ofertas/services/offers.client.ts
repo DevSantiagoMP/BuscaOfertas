@@ -16,6 +16,19 @@ export interface OfertaUpdatePayload extends OfertaPayload {
   id: number;
 }
 
+// Tipo para obtener ofertas
+export interface Oferta {
+  id_oferta: number;
+  negocio_id: number;
+  nombre: string;
+  descripcion?: string;
+  precio_oferta: string;
+  foto_url?: string | null;
+  nombre_negocio: string;
+  plan_id: number;
+}
+
+
 /* =====================
    Crear oferta
    POST /offers/register-offers
@@ -66,6 +79,13 @@ export const eliminarOfertaApi = async (id: number) => {
 ===================== */
 export const obtenerMisOfertas = async () => {
   return apiFetch("/offers/mis-ofertas", {
+    method: "GET",
+  });
+};
+
+// Obtener todas las ofertas
+export const obtenerOfertas = async () => {
+  return apiFetch("/offers", {
     method: "GET",
   });
 };

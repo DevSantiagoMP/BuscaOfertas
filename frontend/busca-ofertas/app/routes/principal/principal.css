@@ -99,3 +99,23 @@
 }
 
 /* Barra de scroll oculta */
+.slider-wrapper {
+  overflow: hidden;
+  width: 100%;
+}
+
+/* Fila horizontal */
+.slider-wrapper {
+  overflow: hidden;
+}
+
+.slider-row {
+  display: flex;
+  gap: 1rem;
+  overflow-x: hidden;
+}
+
+.slider-item {
+  min-width: 280px;
+  flex-shrink: 0;
+}
