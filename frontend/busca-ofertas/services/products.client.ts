@@ -28,6 +28,13 @@ export interface ProductoUpdatePayload extends ProductoPayload {
   id: number;
 }
 
+// Parámetros para filtrar productos
+export interface FiltroProductosParams {
+  nombre?: string;
+  categoriaId?: number;
+  orden?: "asc" | "desc";
+}
+
 /* =====================
    Crear producto
    POST /products
@@ -87,6 +94,27 @@ export const obtenerMisProductos = async () => {
 ===================== */
 export const obtenerProductos = async () => {
   return apiFetch("/products", {
+    method: "GET",
+  });
+};
+
+/* =====================
+   🔥 Filtrar productos
+   GET /products/filtrar
+===================== */
+
+export const filtrarProductos = async ({
+  nombre,
+  categoriaId,
+  orden = "asc",
+}: FiltroProductosParams) => {
+  const params = new URLSearchParams();
+
+  if (nombre) params.append("nombre", nombre);
+  if (categoriaId) params.append("categoriaId", String(categoriaId));
+  if (orden) params.append("orden", orden);
+
+  return apiFetch(`/products/filtrar?${params.toString()}`, {
     method: "GET",
   });
 };

@@ -12,28 +12,11 @@
   flex: 1;
   background-color: white;
   border: 0.1rem solid darkgray;
-  border-right: none;
-  border-radius: 0.5rem 0 0 0.5rem;
+  border-radius: 0.5rem 0.5rem 0.5rem 0.5rem;
   outline: none;
   padding: 0.2rem;
   font-size: 1.1rem;
   min-width: 0; /* evita overflow horizontal */
-}
-
-.personal-search-button {
-  background-color: white;
-  border-left: none;
-  border: 0.1rem solid darkgray;
-  border-radius: 0 0.5rem 0.5rem 0;
-  padding: 0.2rem;
-}
-
-.personal-search-button:hover {
-  background-color: rgb(226, 231, 231);
-}
-
-.search-icon {
-  font-size: 1.1rem;
 }
 
 /* Filters */

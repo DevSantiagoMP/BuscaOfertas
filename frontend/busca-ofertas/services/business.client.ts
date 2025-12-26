@@ -62,3 +62,13 @@ export const obtenerNegocios = async () => {
     method: "GET",
   });
 };
+
+/* =====================
+   🔥 Obtener negocios por categoría
+   GET /business/categoria/:categoriaId
+===================== */
+export const obtenerNegociosPorCategoria = async (categoriaId: number) => {
+  return apiFetch(`/business/categoria/${categoriaId}`, {
+    method: "GET",
+  });
+};

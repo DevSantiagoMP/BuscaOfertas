@@ -2,16 +2,24 @@ import type { Business } from "../../../services/business.client";
 import type { Producto } from "../../../services/products.client";
 import type { Oferta } from "../../../services/offers.client";
 
-import { obtenerNegocios } from "../../../services/business.client";
-import { obtenerProductos } from "../../../services/products.client";
-import { obtenerOfertas } from "../../../services/offers.client";
+import {
+  obtenerNegocios,
+  obtenerNegociosPorCategoria,
+} from "../../../services/business.client";
+import { filtrarProductos } from "../../../services/products.client";
+import { filtrarOfertas } from "../../../services/offers.client";
 
 // Components
 import PrivateHeader from "../../components/PrivateHeader/PrivateHeader";
 import Menu from "../../components/Menu/Menu";
 import SlicerButtons from "../../components/SlicerButtons/SlicerButtons";
 
-// util
+// Cards
+import BusinessCard from "../../components/cards/BusinessCard";
+import ProductCard from "../../components/cards/ProductCard";
+import OfferCard from "../../components/cards/OfferCard";
+
+// utils
 import { scrollSlider } from "../../utils/scrollSlider";
 
 // Hooks
@@ -21,77 +29,129 @@ import { useEffect, useState, useRef } from "react";
 // CSS
 import "./principal.css";
 
-const principal = () => {
-  // Estados para ontener todos los negocios
-  const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [loading, setLoading] = useState(true);
+/* =====================
+  Utils
+===================== */
+const mapOrdenPrecio = (
+  orden?: "economico" | "costoso"
+): "asc" | "desc" | undefined => {
+  if (orden === "economico") return "asc";
+  if (orden === "costoso") return "desc";
+  return undefined;
+};
 
-  // Estados para obtener productos y ofertas
+const Principal = () => {
+  /* =====================
+    Estados
+  ===================== */
+  const [businesses, setBusinesses] = useState<Business[]>([]);
   const [productos, setProductos] = useState<Producto[]>([]);
   const [ofertas, setOfertas] = useState<Oferta[]>([]);
 
-  const [loadingProductos, setLoadingProductos] = useState(true);
-  const [loadingOfertas, setLoadingOfertas] = useState(true);
+  const [loading, setLoading] = useState({
+    negocios: false,
+    productos: false,
+    ofertas: false,
+  });
 
   const { rolId, correo, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // UseRef para mover cards
+  // Filtros
+  const [search, setSearch] = useState("");
+  const [categoriaId, setCategoriaId] = useState<number | undefined>();
+  const [ordenPrecio, setOrdenPrecio] = useState<
+    "economico" | "costoso" | undefined
+  >();
+
+  // Sliders
   const negociosRef = useRef<HTMLDivElement>(null);
   const productosRef = useRef<HTMLDivElement>(null);
   const ofertasRef = useRef<HTMLDivElement>(null);
 
+  /* =====================
+    Fetch
+  ===================== */
+  const fetchNegocios = async () => {
+    setLoading((l) => ({ ...l, negocios: true }));
+    try {
+      const res = categoriaId
+        ? await obtenerNegociosPorCategoria(categoriaId)
+        : await obtenerNegocios();
+
+      setBusinesses(Array.isArray(res) ? res : []);
+    } catch (e) {
+      console.error("Negocios:", e);
+      setBusinesses([]);
+    } finally {
+      setLoading((l) => ({ ...l, negocios: false }));
+    }
+  };
+
+  const fetchProductos = async () => {
+    setLoading((l) => ({ ...l, productos: true }));
+    try {
+      const res = await filtrarProductos({
+        nombre: search || undefined,
+        categoriaId,
+        orden: mapOrdenPrecio(ordenPrecio),
+      });
+
+      setProductos(res.productos ?? []);
+    } catch (e) {
+      console.error("Productos:", e);
+      setProductos([]);
+    } finally {
+      setLoading((l) => ({ ...l, productos: false }));
+    }
+  };
+
+  const fetchOfertas = async () => {
+    setLoading((l) => ({ ...l, ofertas: true }));
+    try {
+      const res = await filtrarOfertas({
+        nombre: search || undefined,
+        categoriaId,
+        orden: mapOrdenPrecio(ordenPrecio),
+      });
+
+      setOfertas(res.ofertas ?? []);
+    } catch (e) {
+      console.error("Ofertas:", e);
+      setOfertas([]);
+    } finally {
+      setLoading((l) => ({ ...l, ofertas: false }));
+    }
+  };
+
+  const aplicarFiltros = async () => {
+    await Promise.all([fetchNegocios(), fetchProductos(), fetchOfertas()]);
+  };
+
+  /* =====================
+    Effects
+  ===================== */
   useEffect(() => {
-    const fetchAll = async () => {
-      /* =====================
-       Negocios
-    ===================== */
-      try {
-        const res = await obtenerNegocios();
-        setBusinesses(Array.isArray(res) ? res : []);
-      } catch (e) {
-        console.error("Negocios:", e);
-        setBusinesses([]);
-      } finally {
-        setLoading(false);
-      }
+    aplicarFiltros();
+  }, [categoriaId, ordenPrecio]);
 
-      /* =====================
-       Productos
-    ===================== */
-      try {
-        const res = await obtenerProductos();
-        setProductos(res.productos ?? []);
-      } catch (e) {
-        console.error("Productos:", e);
-        setProductos([]);
-      } finally {
-        setLoadingProductos(false);
-      }
+  useEffect(() => {
+    if (search.trim() === "") {
+      aplicarFiltros();
+      return;
+    }
 
-      /* =====================
-       Ofertas
-    ===================== */
-      try {
-        const res = await obtenerOfertas();
-        setOfertas(res.ofertas ?? []);
-      } catch (e) {
-        console.error("Ofertas:", e);
-        setOfertas([]);
-      } finally {
-        setLoadingOfertas(false);
-      }
-    };
+    const timeout = setTimeout(aplicarFiltros, 450);
+    return () => clearTimeout(timeout);
+  }, [search]);
 
-    fetchAll();
-  }, []);
-
+  /* =====================
+    Render
+  ===================== */
   return (
     <>
-      {/* Header privado */}
       <PrivateHeader onMenuClick={() => setMenuOpen(true)} />
 
-      {/* Menú hamburguesa */}
       <Menu
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
@@ -100,7 +160,6 @@ const principal = () => {
         onLogout={logout}
       />
 
-      {/* Principal-section */}
       <main className="principal-section min-vh-100">
         {/* Search bar */}
         <div className="container-fluid">
@@ -111,10 +170,9 @@ const principal = () => {
                   type="text"
                   placeholder="Buscar"
                   className="personal-search-bar"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
                 />
-                <button className="personal-search-button">
-                  <i className="bi bi-search search-icon"></i>
-                </button>
               </div>
             </div>
           </div>
@@ -127,218 +185,109 @@ const principal = () => {
               <div className="filters-container d-flex flex-wrap gap-2 flex-column flex-md-row">
                 <p className="text-filters-container">Filtrar por:</p>
 
-                <select className="filter-category" defaultValue="">
+                <select
+                  className="filter-category"
+                  value={categoriaId ?? ""}
+                  onChange={(e) =>
+                    setCategoriaId(
+                      e.target.value ? Number(e.target.value) : undefined
+                    )
+                  }
+                >
                   <option value="">Categoría</option>
-                  <option value="">Comida y bebidas</option>
-                  <option value="">Ropa y Accesorios</option>
-                  <option value="">Belleza y Cuidado Personal</option>
-                  <option value="">Hogar y Decoración</option>
-                  <option value="">Tecnología</option>
-                  <option value="">Mascotas</option>
-                  <option value="">Salud y Bienestar</option>
-                  <option value="">Vehículos y Talleres</option>
-                  <option value="">Deportes y Fitness</option>
-                  <option value="">Educación</option>
-                  <option value="">Bebés y Niños</option>
-                  <option value="">Arte y Entretenimiento</option>
-                  <option value="">Otra</option>
+                  <option value="1">Comida y bebidas</option>
+                  <option value="2">Ropa y Accesorios</option>
+                  <option value="3">Belleza</option>
+                  <option value="4">Hogar</option>
+                  <option value="5">Tecnología</option>
                 </select>
 
-                <select className="filter-price" defaultValue="">
+                <select
+                  className="filter-price"
+                  value={ordenPrecio ?? ""}
+                  onChange={(e) =>
+                    setOrdenPrecio(
+                      e.target.value
+                        ? (e.target.value as "economico" | "costoso")
+                        : undefined
+                    )
+                  }
+                >
                   <option value="">Precio</option>
-                  <option value="economico">Mas economico</option>
-                  <option value="costoso">Mas costoso</option>
+                  <option value="economico">Más económico</option>
+                  <option value="costoso">Más costoso</option>
                 </select>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Sections */}
+        {/* Negocios */}
+        <section className="mt-5">
+          <div className="d-flex justify-content-between mb-3">
+            <h4>Negocios</h4>
+            <SlicerButtons
+              onLeft={() => scrollSlider(negociosRef, "left")}
+              onRight={() => scrollSlider(negociosRef, "right")}
+            />
+          </div>
 
-        {/* Business section */}
-        <section className="business-section mt-5">
-          <div className="business-container p-2">
-            <div className="d-flex justify-content-between mb-4">
-              <h4>Negocios</h4>
-              <SlicerButtons
-                onLeft={() => scrollSlider(negociosRef, "left")}
-                onRight={() => scrollSlider(negociosRef, "right")}
-              />
-            </div>
+          {loading.negocios && <p>Cargando negocios...</p>}
 
-            {loading && <p>Cargando negocios...</p>}
+          <div ref={negociosRef} className="d-flex gap-4 overflow-hidden">
+            {!loading.negocios && businesses.length === 0 && (
+              <p>No hay negocios disponibles</p>
+            )}
 
-            <div
-              ref={negociosRef}
-              className="d-flex gap-4 overflow-hidden"
-              style={{ scrollBehavior: "smooth" }}
-            >
-              {!loading && businesses.length === 0 && (
-                <p>No hay negocios disponibles</p>
-              )}
-
-              {businesses.map((business) => (
-                <div
-                  key={business.id_negocio}
-                  style={{ minWidth: "260px", maxWidth: "260px" }}
-                >
-                  <div className="card h-100 shadow-sm">
-                    <img
-                      src={
-                        business.foto_url ||
-                        "https://via.placeholder.com/300x200?text=Sin+Imagen"
-                      }
-                      className="card-img-top"
-                      alt={business.nombre}
-                      style={{ height: "180px", objectFit: "cover" }}
-                    />
-
-                    <div className="card-body d-flex flex-column">
-                      <h5 className="card-title">{business.nombre}</h5>
-                      <p className="card-text text-muted">
-                        {business.descripcion || "Sin descripción"}
-                      </p>
-
-                      <p className="small mb-1">📍 {business.ciudad}</p>
-                      <p className="small mb-3">📞 {business.telefono}</p>
-
-                      <button className="btn btn-primary mt-auto">
-                        Ver negocio
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {businesses.map((b) => (
+              <BusinessCard key={b.id_negocio} business={b} />
+            ))}
           </div>
         </section>
 
-        {/* Products section */}
-        <section className="business-section mt-5">
-          <div className="products-container p-2">
-            <div className="d-flex justify-content-between mb-4">
-              <h4>Productos</h4>
-              <SlicerButtons
-                onLeft={() => scrollSlider(productosRef, "left")}
-                onRight={() => scrollSlider(productosRef, "right")}
-              />
-            </div>
+        {/* Productos */}
+        <section className="mt-5">
+          <div className="d-flex justify-content-between mb-3">
+            <h4>Productos</h4>
+            <SlicerButtons
+              onLeft={() => scrollSlider(productosRef, "left")}
+              onRight={() => scrollSlider(productosRef, "right")}
+            />
+          </div>
 
-            {loadingProductos && <p>Cargando productos...</p>}
+          {loading.productos && <p>Cargando productos...</p>}
 
-            <div
-              ref={productosRef}
-              className="d-flex gap-4 overflow-hidden"
-              style={{ scrollBehavior: "smooth" }}
-            >
-              {!loadingProductos && productos.length === 0 && (
-                <p>No hay productos disponibles</p>
-              )}
+          <div ref={productosRef} className="d-flex gap-4 overflow-hidden">
+            {!loading.productos && productos.length === 0 && (
+              <p>No hay productos disponibles</p>
+            )}
 
-              {productos.map((producto) => (
-                <div
-                  key={producto.id_producto}
-                  style={{ minWidth: "260px", maxWidth: "260px" }}
-                >
-                  <div className="card h-100 shadow-sm">
-                    <img
-                      src={
-                        producto.foto_url ||
-                        "https://via.placeholder.com/300x200?text=Producto"
-                      }
-                      className="card-img-top"
-                      alt={producto.nombre}
-                      style={{ height: "180px", objectFit: "cover" }}
-                    />
-
-                    <div className="card-body d-flex flex-column">
-                      <h5 className="card-title">{producto.nombre}</h5>
-
-                      <p className="card-text text-muted">
-                        {producto.descripcion || "Sin descripción"}
-                      </p>
-
-                      <p className="fw-bold mb-1">
-                        💲 {Number(producto.precio).toLocaleString()}
-                      </p>
-
-                      <p className="small text-muted mb-3">
-                        🏪 {producto.nombre_negocio}
-                      </p>
-
-                      <button className="btn btn-success mt-auto">
-                        Ver negocio
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {productos.map((p) => (
+              <ProductCard key={p.id_producto} producto={p} />
+            ))}
           </div>
         </section>
 
-        {/* Offers section */}
-        <section className="business-section mt-5">
-          <div className="offers-container p-2">
-            <div className="d-flex justify-content-between mb-4">
-              <h4>Ofertas</h4>
-              <SlicerButtons
-                onLeft={() => scrollSlider(ofertasRef, "left")}
-                onRight={() => scrollSlider(ofertasRef, "right")}
-              />
-            </div>
+        {/* Ofertas */}
+        <section className="mt-5">
+          <div className="d-flex justify-content-between mb-3">
+            <h4>Ofertas</h4>
+            <SlicerButtons
+              onLeft={() => scrollSlider(ofertasRef, "left")}
+              onRight={() => scrollSlider(ofertasRef, "right")}
+            />
+          </div>
 
-            {loadingOfertas && <p>Cargando ofertas...</p>}
+          {loading.ofertas && <p>Cargando ofertas...</p>}
 
-            <div
-              ref={ofertasRef}
-              className="d-flex gap-4 overflow-hidden"
-              style={{ scrollBehavior: "smooth" }}
-            >
-              {!loadingOfertas && ofertas.length === 0 && (
-                <p>No hay ofertas disponibles</p>
-              )}
+          <div ref={ofertasRef} className="d-flex gap-4 overflow-hidden">
+            {!loading.ofertas && ofertas.length === 0 && (
+              <p>No hay ofertas disponibles</p>
+            )}
 
-              {ofertas.map((oferta) => (
-                <div
-                  key={oferta.id_oferta}
-                  style={{ minWidth: "260px", maxWidth: "260px" }}
-                >
-                  <div className="card h-100 shadow-sm border-success">
-                    <img
-                      src={
-                        oferta.foto_url ||
-                        "https://via.placeholder.com/300x200?text=Oferta"
-                      }
-                      className="card-img-top"
-                      alt={oferta.nombre}
-                      style={{ height: "180px", objectFit: "cover" }}
-                    />
-
-                    <div className="card-body d-flex flex-column">
-                      <h5 className="card-title">{oferta.nombre}</h5>
-
-                      <p className="card-text text-muted">
-                        {oferta.descripcion || "Sin descripción"}
-                      </p>
-
-                      <p className="fw-bold text-success mb-1">
-                        🔥 {Number(oferta.precio_oferta).toLocaleString()}
-                      </p>
-
-                      <p className="small text-muted mb-3">
-                        🏪 {oferta.nombre_negocio}
-                      </p>
-
-                      <button className="btn btn-warning mt-auto">
-                        Ver negocio
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {ofertas.map((o) => (
+              <OfferCard key={o.id_oferta} oferta={o} />
+            ))}
           </div>
         </section>
       </main>
@@ -346,4 +295,4 @@ const principal = () => {
   );
 };
 
-export default principal;
+export default Principal;

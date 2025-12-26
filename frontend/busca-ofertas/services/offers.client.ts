@@ -28,6 +28,13 @@ export interface Oferta {
   plan_id: number;
 }
 
+// Parámetros para filtrar ofertas
+export interface FiltroOfertasParams {
+  nombre?: string;
+  categoriaId?: number;
+  orden?: "asc" | "desc";
+}
+
 
 /* =====================
    Crear oferta
@@ -86,6 +93,23 @@ export const obtenerMisOfertas = async () => {
 // Obtener todas las ofertas
 export const obtenerOfertas = async () => {
   return apiFetch("/offers", {
+    method: "GET",
+  });
+};
+
+// filtrar ofertas
+export const filtrarOfertas = async ({
+  nombre,
+  categoriaId,
+  orden = "asc",
+}: FiltroOfertasParams) => {
+  const params = new URLSearchParams();
+
+  if (nombre) params.append("nombre", nombre);
+  if (categoriaId) params.append("categoriaId", String(categoriaId));
+  if (orden) params.append("orden", orden);
+
+  return apiFetch(`/offers/filtrar?${params.toString()}`, {
     method: "GET",
   });
 };
