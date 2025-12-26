@@ -157,26 +157,37 @@ export const eliminarProducto = async (id_producto) => {
 ===================================================== */
 export const obtenerProductos = async () => {
   try {
-    const [rows] = await db.execute(`
-      SELECT 
-        p.*, 
-        n.nombre AS nombre_negocio,
-        n.plan_id
-      FROM productos p
-      INNER JOIN negocios n ON p.negocio_id = n.id_negocio
-      ORDER BY 
-        CASE n.plan_id
-          WHEN 2 THEN 1
-          WHEN 3 THEN 2
-          WHEN 4 THEN 3
-          WHEN 5 THEN 4
-          WHEN 1 THEN 5
-          ELSE 6
+    const query = `
+      WITH productos_ranked AS (
+        SELECT
+          p.*,
+          n.nombre AS nombre_negocio,
+          n.plan_id,
+          ROW_NUMBER() OVER (
+            PARTITION BY p.negocio_id
+            ORDER BY p.id_producto DESC
+          ) AS rn
+        FROM productos p
+        INNER JOIN negocios n ON p.negocio_id = n.id_negocio
+      )
+      SELECT *
+      FROM productos_ranked
+      ORDER BY
+        CASE
+          WHEN plan_id IN (2, 3) THEN 1   -- mensual y anual
+          WHEN plan_id = 4 THEN 2         -- fundadores
+          WHEN plan_id = 5 THEN 3         -- primeros pasos
+          WHEN plan_id = 1 THEN 4         -- gratuito
+          ELSE 5
         END,
-        p.id_producto DESC
-    `);
+        rn,
+        negocio_id,
+        id_producto DESC;
+    `;
 
-    // Agrupar por negocio
+    const [rows] = await db.execute(query);
+
+    // Agrupar productos por negocio
     const porNegocio = rows.reduce((acc, prod) => {
       if (!acc[prod.negocio_id]) acc[prod.negocio_id] = [];
       acc[prod.negocio_id].push(prod);
@@ -188,6 +199,7 @@ export const obtenerProductos = async () => {
       const limite = obtenerLimitePorPlan(lista[0].plan_id);
       return limite === Infinity ? lista : lista.slice(0, limite);
     });
+
   } catch (error) {
     console.error("Error en obtenerProductos:", error);
     throw error;

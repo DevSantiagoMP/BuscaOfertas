@@ -11,8 +11,14 @@ import cloudinary from "../config/cloudinary.js";
 // Crear oferta
 export const createOferta = async (req, res) => {
   try {
-    const negocio = req.negocio; // 👈 validado por middleware
-    const { nombre, descripcion, precio_oferta } = req.body;
+    const negocio = req.negocio;
+    const {
+      nombre,
+      descripcion,
+      precio_oferta,
+      foto_url = null,
+      foto_public_id = null,
+    } = req.body;
 
     // VALIDACIONES
     if (!nombre || precio_oferta == null) {
@@ -22,26 +28,13 @@ export const createOferta = async (req, res) => {
       });
     }
 
-    // 🟢 IMAGEN OPCIONAL
-    let foto_url = null;
-    let foto_public_id = null;
-
-    if (req.file) {
-      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-        folder: "ofertas",
-      });
-
-      foto_url = uploadResult.secure_url;
-      foto_public_id = uploadResult.public_id;
-    }
-
     const nuevaOferta = {
       negocio_id: negocio.id_negocio,
       nombre,
       descripcion: descripcion ?? null,
       precio_oferta,
-      foto_url,        // 👈 URL de Cloudinary
-      foto_public_id,  // 👈 para eliminar / actualizar luego
+      foto_url,
+      foto_public_id,
     };
 
     const {
@@ -63,7 +56,7 @@ export const createOferta = async (req, res) => {
   } catch (error) {
     console.error("Error en createOferta:", error);
 
-    if (error.message.includes("plan")) {
+    if (error.message?.includes("plan")) {
       return res.status(403).json({
         ok: false,
         msg: error.message,
@@ -80,8 +73,14 @@ export const createOferta = async (req, res) => {
 // Actualizar informacion de oferta
 export const updateOferta = async (req, res) => {
   try {
-    const oferta = req.recurso; // 👈 middleware genérico
-    const { nombre, descripcion, precio_oferta } = req.body;
+    const oferta = req.recurso;
+    const {
+      nombre,
+      descripcion,
+      precio_oferta,
+      foto_url = null,
+      foto_public_id = null,
+    } = req.body;
 
     if (!nombre || precio_oferta == null) {
       return res.status(400).json({
@@ -94,22 +93,16 @@ export const updateOferta = async (req, res) => {
       nombre,
       descripcion: descripcion ?? null,
       precio_oferta,
-      foto_url: null,        
-      foto_public_id: null,  
     };
 
-    // 🟢 IMAGEN OPCIONAL
-    if (req.file) {
-      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-        folder: "ofertas",
-      });
-
+    // 🔥 Si viene nueva imagen → borrar la anterior
+    if (foto_url && foto_public_id) {
       if (oferta.foto_public_id) {
         await cloudinary.uploader.destroy(oferta.foto_public_id);
       }
 
-      datosActualizados.foto_url = uploadResult.secure_url;
-      datosActualizados.foto_public_id = uploadResult.public_id;
+      datosActualizados.foto_url = foto_url;
+      datosActualizados.foto_public_id = foto_public_id;
     }
 
     const result = await actualizarOferta(

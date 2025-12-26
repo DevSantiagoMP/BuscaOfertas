@@ -143,17 +143,18 @@ export const actualizarPlanNegocio = async (id_negocio, plan_id) => {
 
 export const obtenerTodosLosNegocios = async () => {
   const [rows] = await db.query(`
-    SELECT * FROM negocios
+    SELECT * 
+    FROM negocios
     ORDER BY 
       CASE 
-        WHEN plan_id = 2 THEN 1   -- mensual
-        WHEN plan_id = 3 THEN 2   -- anual
-        WHEN plan_id = 4 THEN 3   -- fundadores
-        WHEN plan_id = 5 THEN 4   -- primeros pasos
-        WHEN plan_id = 1 THEN 5   -- gratuito
-        ELSE 6                    -- cualquier otro plan
+        WHEN plan_id IN (2, 3) THEN 1   -- mensual y anual
+        WHEN plan_id = 4 THEN 2         -- fundadores
+        WHEN plan_id = 5 THEN 3         -- primeros pasos
+        WHEN plan_id = 1 THEN 4         -- gratuito
+        ELSE 5
       END
   `);
+
   return rows;
 };
 

@@ -1,11 +1,18 @@
 import { db } from "../config/dbConnection.js";
 
-// Crear una ofertas con limite segun plan 
+// Crear una ofertas con limite segun plan
 export const crearOferta = async (oferta) => {
   try {
-    const { negocio_id, nombre, descripcion, precio_oferta, foto_url } = oferta;
+    const {
+      negocio_id,
+      nombre,
+      descripcion,
+      precio_oferta,
+      foto_url,
+      foto_public_id,
+    } = oferta;
 
-    // 1. Obtener el plan del negocio
+    // 1️⃣ Obtener plan del negocio
     const [negocioRows] = await db.execute(
       "SELECT plan_id FROM negocios WHERE id_negocio = ?",
       [negocio_id]
@@ -17,18 +24,18 @@ export const crearOferta = async (oferta) => {
 
     const planId = negocioRows[0].plan_id;
 
-    // 2. Definir límites por plan (MISMO que productos)
+    // 2️⃣ Límites por plan
     const limites = {
-      1: 10,         // gratuito
-      2: Infinity,   // mensual
-      3: Infinity,   // anual
-      4: 30,         // fundadores
-      5: 30,         // primeros pasos
+      1: 10, // gratuito
+      2: Infinity, // mensual
+      3: Infinity, // anual
+      4: Infinity, // fundadores
+      5: 30, // primeros pasos
     };
 
     const limiteOfertas = limites[planId];
 
-    // 3. Contar ofertas existentes
+    // 3️⃣ Contar ofertas actuales
     const [ofertasRows] = await db.execute(
       "SELECT COUNT(*) AS total FROM ofertas WHERE negocio_id = ?",
       [negocio_id]
@@ -36,17 +43,18 @@ export const crearOferta = async (oferta) => {
 
     const totalOfertas = ofertasRows[0].total;
 
-    // 4. Validar límite
+    // 4️⃣ Validar límite
     if (totalOfertas >= limiteOfertas) {
       throw new Error(
         `Este plan solo permite registrar ${limiteOfertas} ofertas`
       );
     }
 
-    // 5. Insertar oferta
+    // 5️⃣ Insertar oferta
     const query = `
-      INSERT INTO ofertas (negocio_id, nombre, descripcion, precio_oferta, foto_url)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO ofertas 
+        (negocio_id, nombre, descripcion, precio_oferta, foto_url, foto_public_id)
+      VALUES (?, ?, ?, ?, ?, ?)
     `;
 
     const [result] = await db.execute(query, [
@@ -55,22 +63,22 @@ export const crearOferta = async (oferta) => {
       descripcion,
       precio_oferta,
       foto_url,
+      foto_public_id,
     ]);
 
-    // 6. Calcular ofertas restantes
+    // 6️⃣ Ofertas restantes
     const ofertas_restantes =
       limiteOfertas === Infinity
         ? "ilimitado"
         : limiteOfertas - (totalOfertas + 1);
 
-    // 7. Retornar info completa
+    // 7️⃣ Respuesta
     return {
       insertResult: result,
       ofertas_actuales: totalOfertas + 1,
       limite: limiteOfertas,
       ofertas_restantes,
     };
-
   } catch (error) {
     console.error("Error en crearOferta:", error);
     throw error;
@@ -79,19 +87,31 @@ export const crearOferta = async (oferta) => {
 
 export const actualizarOferta = async (id_oferta, datos) => {
   try {
-    const { nombre, descripcion, precio_oferta, foto_url } = datos;
+    const {
+      nombre,
+      descripcion,
+      precio_oferta,
+      foto_url = null,
+      foto_public_id = null,
+    } = datos;
 
     const query = `
       UPDATE ofertas
-      SET nombre = ?, descripcion = ?, precio_oferta = ?, foto_url = ?
+      SET
+        nombre = ?,
+        descripcion = ?,
+        precio_oferta = ?,
+        foto_url = ?,
+        foto_public_id = ?
       WHERE id_oferta = ?
     `;
 
     const [result] = await db.execute(query, [
       nombre,
-      descripcion,
+      descripcion ?? null,
       precio_oferta,
       foto_url,
+      foto_public_id,
       id_oferta,
     ]);
 
@@ -114,52 +134,57 @@ export const eliminarOferta = async (id_oferta) => {
   }
 };
 
-// Obtener todas las ofertas 
+// Obtener todas las ofertas (intercaladas por negocio)
 export const obtenerOfertas = async () => {
   try {
     const query = `
-      SELECT 
-        o.*, 
-        n.nombre AS nombre_negocio,
-        n.plan_id
-      FROM ofertas o
-      INNER JOIN negocios n ON o.negocio_id = n.id_negocio
-      ORDER BY 
-        CASE n.plan_id
-          WHEN 2 THEN 1   -- mensual
-          WHEN 3 THEN 2   -- anual
-          WHEN 4 THEN 3   -- fundadores
-          WHEN 5 THEN 4   -- primeros pasos
-          WHEN 1 THEN 5   -- gratuito
-          ELSE 6
+      WITH ofertas_ranked AS (
+        SELECT
+          o.*,
+          n.nombre AS nombre_negocio,
+          n.plan_id,
+          ROW_NUMBER() OVER (
+            PARTITION BY o.negocio_id
+            ORDER BY o.id_oferta DESC
+          ) AS rn
+        FROM ofertas o
+        INNER JOIN negocios n ON o.negocio_id = n.id_negocio
+      )
+      SELECT *
+      FROM ofertas_ranked
+      ORDER BY
+        CASE
+          WHEN plan_id IN (2, 3) THEN 1
+          WHEN plan_id = 4 THEN 2
+          WHEN plan_id = 5 THEN 3
+          WHEN plan_id = 1 THEN 4
+          ELSE 5
         END,
-        o.id_oferta DESC;
+        rn,
+        negocio_id,
+        id_oferta DESC;
     `;
 
     const [rows] = await db.execute(query);
 
-    // Agrupar ofertas por negocio
     const porNegocio = rows.reduce((acc, oferta) => {
       if (!acc[oferta.negocio_id]) acc[oferta.negocio_id] = [];
       acc[oferta.negocio_id].push(oferta);
       return acc;
     }, {});
 
-    // Aplicar límites según el plan
-    const ofertasFiltradas = Object.values(porNegocio)
-      .flatMap(lista => {
-        const plan = lista[0].plan_id;
+    const ofertasFiltradas = Object.values(porNegocio).flatMap((lista) => {
+      const plan = lista[0].plan_id;
 
-        const limit =
-          plan === 1 ? 10 :        // gratuito
-          plan === 5 ? 30 :        // primeros pasos
-          Infinity;                // mensual, anual, fundadores
+      const limit =
+        plan === 1 ? 10 :
+        plan === 5 ? 30 :
+        Infinity;
 
-        return lista.slice(0, limit);
-      });
+      return lista.slice(0, limit);
+    });
 
     return ofertasFiltradas;
-
   } catch (error) {
     console.error("Error en obtenerOfertas:", error);
     throw error;
@@ -202,7 +227,6 @@ export const obtenerOfertasFiltradas = async ({
 
     const [rows] = await db.execute(query, params);
     return rows;
-
   } catch (error) {
     console.error("Error en obtenerOfertasFiltradas:", error);
     throw error;
@@ -226,11 +250,11 @@ export const obtenerOfertasPorNegocio = async (negocio_id) => {
 
     // 2. Definir límites por plan (igual que productos)
     const limites = {
-      1: 10,        // gratuito
-      2: Infinity,  // mensual
-      3: Infinity,  // anual
-      4: Infinity,        // fundadores
-      5: 30,        // primeros pasos
+      1: 10, // gratuito
+      2: Infinity, // mensual
+      3: Infinity, // anual
+      4: Infinity, // fundadores
+      5: 30, // primeros pasos
     };
 
     const limite = limites[planId];
@@ -252,10 +276,8 @@ export const obtenerOfertasPorNegocio = async (negocio_id) => {
       ofertas: rows,
       limite_aplicado: limite === Infinity ? "ilimitado" : limite,
     };
-
   } catch (error) {
     console.error("Error en obtenerOfertasPorNegocio:", error);
     throw error;
   }
 };
-

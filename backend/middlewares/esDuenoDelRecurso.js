@@ -30,7 +30,6 @@ export const esDuenoDelRecurso = (tabla, idCampo) => {
         });
       }
 
-      // 🔑 AQUÍ ESTÁ LA CLAVE
       req.recurso = rows[0];
 
       next();
