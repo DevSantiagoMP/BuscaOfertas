@@ -46,7 +46,7 @@ export const crearOferta = async (oferta) => {
     // 4️⃣ Validar límite
     if (totalOfertas >= limiteOfertas) {
       throw new Error(
-        `Este plan solo permite registrar ${limiteOfertas} ofertas`
+        `Este plan solo permite registrar ${limiteOfertas} ofertas. Si deseas registrar mas renueva tu plan.`
       );
     }
 
@@ -281,3 +281,24 @@ export const obtenerOfertasPorNegocio = async (negocio_id) => {
     throw error;
   }
 };
+
+export const obtenerOfertasPorNegocioId = async (negocioId) => {
+  const [rows] = await db.query(
+    `
+    SELECT
+      id_oferta,
+      negocio_id,
+      nombre,
+      descripcion,
+      precio_oferta,
+      foto_url,
+      foto_public_id
+    FROM ofertas
+    WHERE negocio_id = ?
+    `,
+    [negocioId]
+  );
+
+  return rows;
+};
+

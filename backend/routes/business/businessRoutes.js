@@ -8,6 +8,7 @@ import {
   getNegocios,
   getNegociosPorCategoria,
   getMyBusiness,
+  getNegocioById 
 } from "../../controllers/businessController.js";
 
 const router = express.Router();
@@ -42,5 +43,7 @@ router.get("/", getNegocios);
 router.get("/categoria/:categoriaId", getNegociosPorCategoria);
 //Ruta para obtener el negocio del usuario autenticado
 router.get("/me", validarJWT, getMyBusiness);
+// Ruta para obtener negocio por ID
+router.get("/:id", validarJWT, getNegocioById);
 
 export default router;

@@ -5,7 +5,8 @@ import {
   deleteProducto,
   getProductos,
   getProductosFiltrados,
-  getProductosByNegocio
+  getProductosByNegocio,
+  getProductosByNegocioId 
 } from "../../controllers/productsController.js";
 
 import { validarJWT } from "../../middlewares/auth.js";
@@ -56,5 +57,8 @@ router.get(
   cargarMiNegocio,
   getProductosByNegocio
 );
+
+// Obtener productos por ID de negocio
+router.get("/business/:businessId", validarJWT, getProductosByNegocioId);
 
 export default router;

@@ -6,6 +6,7 @@ import {
   getOfertas,
   getOfertasFiltradas,
   getOfertasByNegocio,
+  getOfertasByNegocioId
 } from "../../controllers/offersController.js";
 
 import { validarJWT } from "../../middlewares/auth.js";
@@ -45,5 +46,8 @@ router.get("/filtrar", getOfertasFiltradas);
 
 // Obtener MIS ofertas (según sesión)
 router.get("/mis-ofertas", validarJWT, cargarMiNegocio, getOfertasByNegocio);
+
+// Obtener ofertas por ID de negocio
+router.get("/business/:businessId", validarJWT, getOfertasByNegocioId);
 
 export default router;

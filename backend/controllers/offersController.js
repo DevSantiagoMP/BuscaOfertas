@@ -4,7 +4,8 @@ import {
   eliminarOferta,
   obtenerOfertas,
   obtenerOfertasFiltradas,
-  obtenerOfertasPorNegocio 
+  obtenerOfertasPorNegocio,
+  obtenerOfertasPorNegocioId 
 } from "../models/offersModel.js";
 import cloudinary from "../config/cloudinary.js";
 
@@ -59,7 +60,7 @@ export const createOferta = async (req, res) => {
     if (error.message?.includes("plan")) {
       return res.status(403).json({
         ok: false,
-        msg: error.message,
+        message: error.message,
       });
     }
 
@@ -234,6 +235,25 @@ export const getOfertasByNegocio = async (req, res) => {
     return res.status(500).json({
       ok: false,
       msg: "Error al obtener ofertas",
+    });
+  }
+};
+
+export const getOfertasByNegocioId = async (req, res) => {
+  try {
+    const { businessId } = req.params;
+
+    const ofertas = await obtenerOfertasPorNegocioId(businessId);
+
+    res.json({
+      ok: true,
+      data: ofertas,
+    });
+  } catch (error) {
+    console.error("Error al obtener ofertas:", error);
+    res.status(500).json({
+      ok: false,
+      message: "Error interno del servidor",
     });
   }
 };

@@ -52,7 +52,7 @@ export const crearProducto = async (producto) => {
     // 3. Validar límite
     if (totalProductos >= limiteProductos) {
       throw new Error(
-        `Este plan solo permite registrar ${limiteProductos} productos`
+        `Este plan solo permite registrar ${limiteProductos} productos. Si deseas registrar mas renueva tu plan.`
       );
     }
 
@@ -279,4 +279,24 @@ export const obtenerProductosPorNegocio = async (negocio_id) => {
     console.error("Error en obtenerProductosPorNegocio:", error);
     throw error;
   }
+};
+
+export const obtenerProductosPorNegocioId = async (negocioId) => {
+  const [rows] = await db.query(
+    `
+    SELECT
+      id_producto,
+      negocio_id,
+      nombre,
+      descripcion,
+      precio,
+      foto_url,
+      foto_public_id
+    FROM productos
+    WHERE negocio_id = ?
+    `,
+    [negocioId]
+  );
+
+  return rows;
 };

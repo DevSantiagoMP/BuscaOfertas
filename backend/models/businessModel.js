@@ -166,36 +166,6 @@ export const obtenerNegociosPorCategoria = async (categoriaId) => {
   return rows;
 };
 
-export const obtenerNegocioPorId = async (id_negocio) => {
-  const [rows] = await db.query(
-    `SELECT * FROM negocios WHERE id_negocio = ?`,
-    [id_negocio]
-  );
-
-  let negocio = rows[0];
-  if (!negocio) return null;
-
-  // ¿Tiene fecha de expiración?
-  if (negocio.plan_expira) {
-    const ahora = new Date();
-    const expira = new Date(negocio.plan_expira);
-
-    if (ahora > expira) {
-      // Expiró → volver al plan gratuito
-      await actualizarPlanAFree(id_negocio);
-
-      // Volvemos a consultar el negocio para asegurar datos actualizados
-      const [newRows] = await db.query(
-        `SELECT * FROM negocios WHERE id_negocio = ?`,
-        [id_negocio]
-      );
-      negocio = newRows[0];
-    }
-  }
-
-  return negocio;
-};
-
 // Obtener negocio del usuario autenticado
 export const findBusinessByUserId = async (userId) => {
   const [rows] = await db.query(
@@ -209,7 +179,8 @@ export const findBusinessByUserId = async (userId) => {
       telefono,
       categoria_id,
       foto_url,
-      foto_public_id
+      foto_public_id,
+      plan_expira
     FROM negocios
     WHERE usuario_id = ?
     LIMIT 1
@@ -217,5 +188,64 @@ export const findBusinessByUserId = async (userId) => {
     [userId]
   );
 
+  let negocio = rows[0];
+  if (!negocio) return null;
+
+  // ¿Tiene fecha de expiración?
+  if (negocio.plan_expira) {
+    const ahora = new Date();
+    const expira = new Date(negocio.plan_expira);
+
+    if (ahora > expira) {
+      // Expiró → volver al plan gratuito
+      await actualizarPlanAFree(negocio.id_negocio);
+
+      // Reconsultar el negocio para obtener datos actualizados
+      const [newRows] = await db.query(
+        `
+        SELECT
+          id_negocio,
+          nombre,
+          descripcion,
+          ciudad,
+          direccion,
+          telefono,
+          categoria_id,
+          foto_url,
+          foto_public_id,
+          plan_expira
+        FROM negocios
+        WHERE id_negocio = ?
+        `,
+        [negocio.id_negocio]
+      );
+
+      negocio = newRows[0];
+    }
+  }
+
+  return negocio;
+};
+
+export const obtenerNegocioPorId = async (id_negocio) => {
+  const [rows] = await db.query(
+    `
+    SELECT
+      id_negocio,
+      nombre,
+      descripcion,
+      ciudad,
+      direccion,
+      telefono,
+      categoria_id,
+      foto_url,
+      foto_public_id
+    FROM negocios
+    WHERE id_negocio = ?
+    LIMIT 1
+    `,
+    [id_negocio]
+  );
+
   return rows[0] || null;
-}
+};

@@ -8,6 +8,7 @@ import {
   obtenerTodosLosNegocios,
   obtenerNegociosPorCategoria,
   findBusinessByUserId,
+  obtenerNegocioPorId 
 } from "../models/businessModel.js";
 
 export const crearNegocio = async (req, res) => {
@@ -234,3 +235,29 @@ export const getMyBusiness = async (req, res) => {
     res.status(500).json({ message: "Error al obtener el negocio" });
   }
 }
+
+export const getNegocioById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const negocio = await obtenerNegocioPorId(id);
+
+    if (!negocio) {
+      return res.status(404).json({
+        ok: false,
+        message: "Negocio no encontrado",
+      });
+    }
+
+    res.json({
+      ok: true,
+      data: negocio,
+    });
+  } catch (error) {
+    console.error("Error al obtener negocio:", error);
+    res.status(500).json({
+      ok: false,
+      message: "Error interno del servidor",
+    });
+  }
+};

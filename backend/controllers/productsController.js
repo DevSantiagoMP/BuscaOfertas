@@ -5,6 +5,7 @@ import {
   obtenerProductos,
   obtenerProductosFiltrados,
   obtenerProductosPorNegocio,
+  obtenerProductosPorNegocioId 
 } from "../models/productsModel.js";
 import cloudinary from "../config/cloudinary.js";
 
@@ -24,7 +25,7 @@ export const createProducto = async (req, res) => {
     if (!nombre || precio == null) {
       return res.status(400).json({
         ok: false,
-        msg: "nombre y precio son obligatorios",
+        message: "nombre y precio son obligatorios",
       });
     }
 
@@ -63,13 +64,13 @@ export const createProducto = async (req, res) => {
     ) {
       return res.status(403).json({
         ok: false,
-        msg: error.message,
+        message: error.message,
       });
     }
 
     return res.status(500).json({
       ok: false,
-      msg: "Error al registrar el producto",
+      message: "Error al registrar el producto",
     });
   }
 };
@@ -90,7 +91,7 @@ export const updateProducto = async (req, res) => {
     if (!nombre || precio == null) {
       return res.status(400).json({
         ok: false,
-        msg: "nombre y precio son obligatorios",
+        message: "nombre y precio son obligatorios",
       });
     }
 
@@ -121,7 +122,7 @@ export const updateProducto = async (req, res) => {
 
     return res.status(500).json({
       ok: false,
-      msg: "Error al actualizar el producto",
+      message: "Error al actualizar el producto",
     });
   }
 };
@@ -220,6 +221,25 @@ export const getProductosByNegocio = async (req, res) => {
     return res.status(500).json({
       ok: false,
       message: "Error al obtener productos",
+    });
+  }
+};
+
+export const getProductosByNegocioId = async (req, res) => {
+  try {
+    const { businessId } = req.params;
+
+    const productos = await obtenerProductosPorNegocioId(businessId);
+
+    res.json({
+      ok: true,
+      data: productos,
+    });
+  } catch (error) {
+    console.error("Error al obtener productos:", error);
+    res.status(500).json({
+      ok: false,
+      message: "Error interno del servidor",
     });
   }
 };
