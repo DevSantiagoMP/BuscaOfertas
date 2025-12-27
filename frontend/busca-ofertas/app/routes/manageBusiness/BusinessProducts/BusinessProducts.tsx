@@ -21,7 +21,15 @@ interface Producto {
   foto_public_id?: string | null;
 
   editando: boolean;
-  isNew?: boolean; // ✅ FLAG
+  isNew?: boolean;
+
+  backup?: {
+    nombre: string;
+    descripcion?: string;
+    precio: string;
+    foto_url?: string | null;
+    foto_public_id?: string | null;
+  };
 }
 
 const BusinessProducts = () => {
@@ -42,12 +50,12 @@ const BusinessProducts = () => {
             id: p.id_producto,
             nombre: p.nombre,
             descripcion: p.descripcion,
-            precio: p.precio,
+            precio: String(p.precio),
             imagen: null,
             foto_url: p.foto_url,
             foto_public_id: p.foto_public_id,
             editando: false,
-            isNew: false, // ✅ vienen del backend
+            isNew: false,
           })
         );
 
@@ -64,7 +72,7 @@ const BusinessProducts = () => {
   }, []);
 
   /* =====================
-     Agregar producto
+     Acciones UI
   ===================== */
   const agregarProducto = () => {
     if (productos.some((p) => p.editando)) return;
@@ -80,11 +88,55 @@ const BusinessProducts = () => {
         foto_url: null,
         foto_public_id: null,
         editando: true,
-        isNew: true, // ✅ nuevo
+        isNew: true,
       },
     ]);
 
     setContadorId((prev) => prev + 1);
+  };
+
+  const editarProducto = (id: number) => {
+    if (productos.some((p) => p.editando)) return;
+
+    setProductos((prev) =>
+      prev.map((p) =>
+        p.id === id
+          ? {
+              ...p,
+              editando: true,
+              backup: {
+                nombre: p.nombre,
+                descripcion: p.descripcion,
+                precio: p.precio,
+                foto_url: p.foto_url,
+                foto_public_id: p.foto_public_id,
+              },
+            }
+          : p
+      )
+    );
+  };
+
+  const cancelarEdicion = (id: number) => {
+    setProductos((prev) =>
+      prev
+        .map((p) => {
+          if (p.id !== id) return p;
+
+          // 🟢 Nuevo → eliminar
+          if (p.isNew) return null;
+
+          // 🟡 Existente → restaurar backup
+          return {
+            ...p,
+            ...p.backup,
+            imagen: null,
+            editando: false,
+            backup: undefined,
+          };
+        })
+        .filter(Boolean) as Producto[]
+    );
   };
 
   /* =====================
@@ -122,7 +174,9 @@ const BusinessProducts = () => {
                   foto_url,
                   foto_public_id,
                   editando: false,
-                  isNew: false, // ✅ normalizado
+                  isNew: false,
+                  backup: undefined,
+                  imagen: null,
                 }
               : p
           )
@@ -147,47 +201,24 @@ const BusinessProducts = () => {
                   foto_url,
                   foto_public_id,
                   editando: false,
+                  backup: undefined,
+                  imagen: null,
                 }
               : p
           )
         );
       }
     } catch (error: any) {
-      alert(error.message || "Error al guardar producto");
+      alert(
+        error.response?.data?.msg ||
+          error.message ||
+          "Error al guardar producto"
+      );
+
+      cancelarEdicion(producto.id);
     } finally {
       setGuardandoId(null);
     }
-  };
-
-  /* =====================
-     Cancelar edición
-  ===================== */
-  const cancelarEdicion = (id: number) => {
-    setProductos((prev) => {
-      const producto = prev.find((p) => p.id === id);
-      if (!producto) return prev;
-
-      // 🟢 Producto nuevo → eliminar
-      if (producto.isNew) {
-        return prev.filter((p) => p.id !== id);
-      }
-
-      // 🟡 Producto existente → salir de edición
-      return prev.map((p) =>
-        p.id === id ? { ...p, editando: false } : p
-      );
-    });
-  };
-
-  /* =====================
-     Editar producto
-  ===================== */
-  const editarProducto = (id: number) => {
-    if (productos.some((p) => p.editando)) return;
-
-    setProductos((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, editando: true } : p))
-    );
   };
 
   /* =====================
@@ -202,9 +233,6 @@ const BusinessProducts = () => {
     }
   };
 
-  /* =====================
-     Actualizar campo
-  ===================== */
   const actualizarCampo = (id: number, campo: keyof Producto, valor: any) => {
     setProductos((prev) =>
       prev.map((p) => (p.id === id ? { ...p, [campo]: valor } : p))
@@ -218,10 +246,10 @@ const BusinessProducts = () => {
     <div className="container section-container mb-5">
       <div className="row align-items-center">
         <div className="col-12 col-md-6">
-          <h3 className="mb-4 mb-md-0">Productos</h3>
+          <h3>Productos</h3>
         </div>
 
-        <div className="col-12 col-md-6 mb-3 d-flex justify-content-center justify-content-md-end">
+        <div className="col-12 col-md-6 text-md-end">
           <button
             className="button-section-container"
             onClick={agregarProducto}
@@ -267,8 +295,7 @@ const BusinessProducts = () => {
                           ? URL.createObjectURL(producto.imagen)
                           : producto.foto_url!
                       }
-                      className="img-fluid rounded mt-2 mb-3"
-                      style={{ maxHeight: "180px", objectFit: "cover" }}
+                      className="img-fluid rounded my-3"
                     />
                   )}
 
@@ -276,15 +303,15 @@ const BusinessProducts = () => {
                     className="form-control mb-3"
                     placeholder="Nombre"
                     value={producto.nombre}
+                    required
                     onChange={(e) =>
                       actualizarCampo(producto.id, "nombre", e.target.value)
                     }
-                    required
                   />
 
                   <textarea
                     className="form-control mb-3"
-                    placeholder="Descripción (opcional)"
+                    placeholder="Descripción"
                     value={producto.descripcion}
                     onChange={(e) =>
                       actualizarCampo(
@@ -296,23 +323,31 @@ const BusinessProducts = () => {
                   />
 
                   <input
-                    type="number"
+                    type="text"
                     className="form-control mb-3"
                     placeholder="Precio"
                     value={producto.precio}
-                    onChange={(e) =>
-                      actualizarCampo(producto.id, "precio", e.target.value)
-                    }
                     required
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    onChange={(e) =>
+                      actualizarCampo(
+                        producto.id,
+                        "precio",
+                        e.target.value.replace(/[^0-9]/g, "")
+                      )
+                    }
                   />
 
                   <div className="d-flex gap-2">
                     <button
                       type="submit"
-                      className="btn btn-success flex-fill d-flex align-items-center justify-content-center gap-2"
+                      className="btn btn-success flex-fill"
                       disabled={guardandoId === producto.id}
                     >
-                      {guardandoId === producto.id ? "Guardando..." : "Guardar"}
+                      {guardandoId === producto.id
+                        ? "Guardando..."
+                        : "Guardar"}
                     </button>
 
                     <button
@@ -330,7 +365,6 @@ const BusinessProducts = () => {
                     <img
                       src={producto.foto_url}
                       className="img-fluid rounded mb-3"
-                      style={{ maxHeight: "160px", objectFit: "cover" }}
                     />
                   )}
 

@@ -21,13 +21,18 @@ interface Oferta {
   foto_public_id?: string | null;
 
   editando: boolean;
-  isNew?: boolean; // ✅ FLAG
+  isNew?: boolean;
+
+  backup?: {
+    nombre: string;
+    descripcion?: string;
+    precio: string;
+    foto_url?: string | null;
+    foto_public_id?: string | null;
+  };
 }
 
 const BusinessOffers = () => {
-  /* =====================
-     Estados
-  ===================== */
   const [ofertas, setOfertas] = useState<Oferta[]>([]);
   const [contadorId, setContadorId] = useState(1);
   const [guardandoId, setGuardandoId] = useState<number | null>(null);
@@ -45,14 +50,17 @@ const BusinessOffers = () => {
             id: o.id_oferta,
             nombre: o.nombre,
             descripcion: o.descripcion,
-            precio: o.precio_oferta,
+            precio: String(o.precio_oferta),
             imagen: null,
             foto_url: o.foto_url,
             foto_public_id: o.foto_public_id,
             editando: false,
-            isNew: false, // ✅ viene del backend
+            isNew: false,
           }))
         );
+
+        const maxId = Math.max(0, ...data.ofertas.map((o: any) => o.id_oferta));
+        setContadorId(maxId + 1);
       } catch (error) {
         console.error("Error cargando ofertas:", error);
       }
@@ -67,19 +75,21 @@ const BusinessOffers = () => {
   const agregarOferta = () => {
     if (ofertas.some((o) => o.editando)) return;
 
-    const nuevaOferta: Oferta = {
-      id: contadorId,
-      nombre: "",
-      descripcion: "",
-      precio: "",
-      imagen: null,
-      foto_url: null,
-      foto_public_id: null,
-      editando: true,
-      isNew: true, // ✅ nueva
-    };
+    setOfertas((prev) => [
+      ...prev,
+      {
+        id: contadorId,
+        nombre: "",
+        descripcion: "",
+        precio: "",
+        imagen: null,
+        foto_url: null,
+        foto_public_id: null,
+        editando: true,
+        isNew: true,
+      },
+    ]);
 
-    setOfertas((prev) => [...prev, nuevaOferta]);
     setContadorId((prev) => prev + 1);
   };
 
@@ -87,25 +97,44 @@ const BusinessOffers = () => {
     if (ofertas.some((o) => o.editando)) return;
 
     setOfertas((prev) =>
-      prev.map((o) => (o.id === id ? { ...o, editando: true } : o))
+      prev.map((o) =>
+        o.id === id
+          ? {
+              ...o,
+              editando: true,
+              backup: {
+                nombre: o.nombre,
+                descripcion: o.descripcion,
+                precio: o.precio,
+                foto_url: o.foto_url,
+                foto_public_id: o.foto_public_id,
+              },
+            }
+          : o
+      )
     );
   };
 
   const cancelarEdicion = (id: number) => {
-    setOfertas((prev) => {
-      const oferta = prev.find((o) => o.id === id);
-      if (!oferta) return prev;
+    setOfertas((prev) =>
+      prev
+        .map((o) => {
+          if (o.id !== id) return o;
 
-      // 🟢 Oferta nueva → eliminar
-      if (oferta.isNew) {
-        return prev.filter((o) => o.id !== id);
-      }
+          // 🟢 Nueva → eliminar
+          if (o.isNew) return null;
 
-      // 🟡 Oferta existente → solo salir de edición
-      return prev.map((o) =>
-        o.id === id ? { ...o, editando: false } : o
-      );
-    });
+          // 🟡 Existente → restaurar backup
+          return {
+            ...o,
+            ...o.backup,
+            imagen: null,
+            editando: false,
+            backup: undefined,
+          };
+        })
+        .filter(Boolean) as Oferta[]
+    );
   };
 
   /* =====================
@@ -145,7 +174,9 @@ const BusinessOffers = () => {
                   foto_url,
                   foto_public_id,
                   editando: false,
-                  isNew: false, // ✅ normalizada
+                  isNew: false,
+                  backup: undefined,
+                  imagen: null,
                 }
               : o
           )
@@ -170,13 +201,21 @@ const BusinessOffers = () => {
                   foto_url,
                   foto_public_id,
                   editando: false,
+                  backup: undefined,
+                  imagen: null,
                 }
               : o
           )
         );
       }
     } catch (error: any) {
-      alert(error.message || "Error al guardar la oferta");
+      alert(
+        error.response?.data?.message ||
+          error.message ||
+          "Error al guardar la oferta"
+      );
+
+      cancelarEdicion(id);
     } finally {
       setGuardandoId(null);
     }
@@ -207,10 +246,10 @@ const BusinessOffers = () => {
     <div className="container section-container mb-5">
       <div className="row align-items-center">
         <div className="col-12 col-md-6">
-          <h3 className="mb-4 mb-md-0">Ofertas</h3>
+          <h3>Ofertas</h3>
         </div>
 
-        <div className="col-12 col-md-6 mb-3 d-flex justify-content-center justify-content-md-end">
+        <div className="col-12 col-md-6 text-md-end">
           <button
             className="button-section-container"
             onClick={agregarOferta}
@@ -228,28 +267,26 @@ const BusinessOffers = () => {
               {oferta.editando ? (
                 <form
                   onSubmit={(e) => {
-                    if (!e.currentTarget.checkValidity()) return;
                     e.preventDefault();
                     guardarOferta(oferta.id);
                   }}
                 >
-                  <label
-                    htmlFor={`imagen-oferta-${oferta.id}`}
-                    className="custom-file-upload"
-                  >
+                  <label className="custom-file-upload">
                     Toca aquí para añadir una foto (opcional)
+                    <input
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      onChange={(e) =>
+                        e.target.files &&
+                        actualizarCampo(
+                          oferta.id,
+                          "imagen",
+                          e.target.files[0]
+                        )
+                      }
+                    />
                   </label>
-
-                  <input
-                    type="file"
-                    id={`imagen-oferta-${oferta.id}`}
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    onChange={(e) =>
-                      e.target.files &&
-                      actualizarCampo(oferta.id, "imagen", e.target.files[0])
-                    }
-                  />
 
                   {(oferta.imagen || oferta.foto_url) && (
                     <img
@@ -258,16 +295,13 @@ const BusinessOffers = () => {
                           ? URL.createObjectURL(oferta.imagen)
                           : oferta.foto_url!
                       }
-                      alt="Previsualización"
-                      className="img-fluid rounded mt-2 mb-3"
-                      style={{ maxHeight: "180px", objectFit: "cover" }}
+                      className="img-fluid rounded my-3"
                     />
                   )}
 
                   <input
-                    type="text"
                     className="form-control mb-3"
-                    placeholder="Nombre de la oferta"
+                    placeholder="Nombre"
                     value={oferta.nombre}
                     required
                     onChange={(e) =>
@@ -277,21 +311,31 @@ const BusinessOffers = () => {
 
                   <textarea
                     className="form-control mb-3"
-                    placeholder="Descripción (opcional)"
+                    placeholder="Descripción"
                     value={oferta.descripcion}
                     onChange={(e) =>
-                      actualizarCampo(oferta.id, "descripcion", e.target.value)
+                      actualizarCampo(
+                        oferta.id,
+                        "descripcion",
+                        e.target.value
+                      )
                     }
                   />
 
                   <input
-                    type="number"
+                    type="text"
                     className="form-control mb-3"
                     placeholder="Precio"
                     value={oferta.precio}
                     required
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     onChange={(e) =>
-                      actualizarCampo(oferta.id, "precio", e.target.value)
+                      actualizarCampo(
+                        oferta.id,
+                        "precio",
+                        e.target.value.replace(/[^0-9]/g, "")
+                      )
                     }
                   />
 
@@ -301,7 +345,9 @@ const BusinessOffers = () => {
                       className="btn btn-success flex-fill"
                       disabled={guardandoId === oferta.id}
                     >
-                      {guardandoId === oferta.id ? "Guardando..." : "Guardar"}
+                      {guardandoId === oferta.id
+                        ? "Guardando..."
+                        : "Guardar"}
                     </button>
 
                     <button
@@ -318,12 +364,9 @@ const BusinessOffers = () => {
                   {oferta.foto_url && (
                     <img
                       src={oferta.foto_url}
-                      alt={oferta.nombre}
                       className="img-fluid rounded mb-3"
-                      style={{ maxHeight: "160px", objectFit: "cover" }}
                     />
                   )}
-
                   <p className="fw-bold">Nombre: {oferta.nombre}</p>
                   {oferta.descripcion && (
                     <p className="fw-bold">
