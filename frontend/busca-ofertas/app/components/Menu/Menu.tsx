@@ -13,8 +13,10 @@ const Menu = ({ open, onClose, rolId, correo, onLogout }: MenuProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isPrincipal = location.pathname === "/principal";
-  const isAdmin = location.pathname === "/administrar-negocio";
+  const pathname = location.pathname;
+
+  const isPrincipal = pathname === "/principal";
+  const isAdmin = pathname === "/administrar-negocio";
 
   const handleLogoutClick = () => {
     onLogout();
@@ -39,19 +41,18 @@ const Menu = ({ open, onClose, rolId, correo, onLogout }: MenuProps) => {
         </div>
 
         <div className="offcanvas-body d-flex flex-column gap-4">
-          {rolId === 2 && isPrincipal && (
+
+          {rolId === 2 && !isAdmin && (
             <Link to="/administrar-negocio" onClick={onClose}>
-              <button className="menu-button w-100">
+              <button className="admin-menu-button w-100">
                 Administrar mi negocio
               </button>
             </Link>
           )}
 
-          {rolId === 2 && isAdmin && (
+          {rolId === 2 && !isPrincipal && (
             <Link to="/principal" onClick={onClose}>
-              <button className="menu-button w-100">
-                Página principal
-              </button>
+              <button className="principal-menu-button w-100">Página principal</button>
             </Link>
           )}
 

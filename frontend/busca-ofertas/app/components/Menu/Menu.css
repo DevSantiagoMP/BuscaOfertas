@@ -27,17 +27,30 @@
 }
 
 /* Reutilizas tus estilos */
-.menu-button {
+.admin-menu-button {
   font-size: 0.8rem;
   height: 1.8rem;
-  background-color: black;
+  background-color: rgb(150, 148, 5);
   color: white;
   border: none;
   border-radius: 0.5rem;
 }
 
-.menu-button:hover {
+.admin-menu-button:hover {
   background-color: green;
+}
+
+.principal-menu-button {
+  font-size: 0.8rem;
+  height: 1.8rem;
+  background-color: rgb(73, 71, 201);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+}
+
+.principal-menu-button:hover {
+  background-color: rgb(3, 46, 110);
 }
 
 .user-icon {
@@ -48,10 +61,12 @@
 .close-section {
   font-size: 0.8rem;
   height: 1.8rem;
-  background-color: rgb(179, 174, 174);
+  background-color: rgb(223, 90, 90);
+  color: white;
+  border: none;
   border-radius: 0.5rem;
 }
 
 .close-section:hover {
-  background-color: red;
+  background-color: rgb(206, 6, 6);
 }
