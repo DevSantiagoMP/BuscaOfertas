@@ -24,6 +24,17 @@ export interface Producto {
   plan_id: number;
 }
 
+// Tipo para productos públicos por id negocio
+export interface ProductoPublico {
+  id_producto: number;
+  negocio_id: number;
+  nombre: string;
+  descripcion?: string;
+  precio: number;
+  foto_url?: string | null;
+}
+
+
 export interface ProductoUpdatePayload extends ProductoPayload {
   id: number;
 }
@@ -118,3 +129,14 @@ export const filtrarProductos = async ({
     method: "GET",
   });
 };
+
+/* =====================
+   🔥 Obtener productos por negocio
+   GET /products/business/:id
+===================== */
+export const obtenerProductosPorNegocio = async (businessId: number) => {
+  return apiFetch(`/products/business/${businessId}`, {
+    method: "GET",
+  });
+};
+

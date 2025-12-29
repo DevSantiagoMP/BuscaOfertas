@@ -1,43 +1,68 @@
 import { redirect } from "react-router";
 
-export async function checkSessionServer(request: Request) {
+const API_URL = "http://localhost:3000/api/auth/check-session";
+
+/* =====================
+  Check sesión (bool)
+  👉 usado en otras partes
+===================== */
+export async function checkSessionServer(request: Request): Promise<boolean> {
   const cookie = request.headers.get("cookie");
 
   if (!cookie) return false;
 
-  const res = await fetch("http://localhost:3000/api/auth/check-session", {
-    headers: {
-      cookie, // 👈 reenviamos cookies al backend
-    },
-  });
+  try {
+    const res = await fetch(API_URL, {
+      headers: { cookie },
+    });
 
-  return res.ok;
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
-export async function requireRole(request: Request, requiredRole: number) {
+/* =====================
+  Requiere login
+  👉 para loaders protegidos
+===================== */
+export async function requireAuth(request: Request) {
   const cookie = request.headers.get("cookie");
 
   if (!cookie) {
     throw redirect("/login");
   }
 
-  const res = await fetch("http://localhost:3000/api/auth/check-session", {
-    headers: {
-      cookie,
-    },
-  });
+  let res: Response;
+
+  try {
+    res = await fetch(API_URL, {
+      headers: { cookie },
+    });
+  } catch {
+    throw redirect("/login");
+  }
 
   if (!res.ok) {
     throw redirect("/login");
   }
 
   const data = await res.json();
+  return data.usuario;
+}
 
-  if (data.usuario.rol !== requiredRole) {
-    // ❌ no autorizado
-    throw redirect("/principal"); // o /403 si quieres
+/* =====================
+  Requiere rol específico
+===================== */
+export async function requireRole(
+  request: Request,
+  requiredRole: number
+) {
+  const usuario = await requireAuth(request);
+
+  if (usuario.rol !== requiredRole) {
+    throw redirect("/principal"); // o /403
   }
 
-  // ✅ autorizado
-  return data.usuario;
+  return usuario;
 }

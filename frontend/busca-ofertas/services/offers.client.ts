@@ -28,6 +28,17 @@ export interface Oferta {
   plan_id: number;
 }
 
+// Tipo para oferta pública
+export interface OfertaPublica {
+  id_oferta: number;
+  negocio_id: number;
+  nombre: string;
+  descripcion?: string;
+  precio_oferta: number;
+  foto_url?: string | null;
+}
+
+
 // Parámetros para filtrar ofertas
 export interface FiltroOfertasParams {
   nombre?: string;
@@ -110,6 +121,16 @@ export const filtrarOfertas = async ({
   if (orden) params.append("orden", orden);
 
   return apiFetch(`/offers/filtrar?${params.toString()}`, {
+    method: "GET",
+  });
+};
+
+/* =====================
+   🔥 Obtener ofertas por negocio
+   GET /offers/business/:id
+===================== */
+export const obtenerOfertasPorNegocio = async (businessId: number) => {
+  return apiFetch(`/offers/business/${businessId}`, {
     method: "GET",
   });
 };

@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router";
 import type { Business } from "../../../services/business.client";
 
 interface Props {
@@ -5,6 +6,12 @@ interface Props {
 }
 
 const BusinessCard = ({ business }: Props) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/ver-negocio?businessId=${business.id_negocio}`);
+  };
+
   return (
     <div style={{ minWidth: "260px", maxWidth: "260px" }}>
       <div className="card h-100 shadow-sm">
@@ -28,7 +35,7 @@ const BusinessCard = ({ business }: Props) => {
           <p className="small mb-1">📍 {business.ciudad}</p>
           <p className="small mb-3">📞 {business.telefono}</p>
 
-          <button className="btn btn-primary mt-auto">
+          <button className="btn btn-primary mt-auto" onClick={handleClick}>
             Ver negocio
           </button>
         </div>

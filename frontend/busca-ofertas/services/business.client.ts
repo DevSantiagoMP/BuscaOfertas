@@ -26,6 +26,19 @@ export interface Business {
   foto_url?: string | null;
 }
 
+// tipo de negocio público (vista detalle)
+export interface BusinessDetail {
+  id_negocio: number;
+  nombre: string;
+  descripcion?: string;
+  ciudad: string;
+  direccion: string;
+  telefono: string;
+  categoria_id: number;
+  foto_url?: string | null;
+}
+
+
 
 //Crear negocio
 export const registerBusiness = async (payload: BusinessPayload) => {
@@ -69,6 +82,16 @@ export const obtenerNegocios = async () => {
 ===================== */
 export const obtenerNegociosPorCategoria = async (categoriaId: number) => {
   return apiFetch(`/business/categoria/${categoriaId}`, {
+    method: "GET",
+  });
+};
+
+/* =====================
+   🔥 Obtener negocio por ID (vista pública)
+   GET /business/:id
+===================== */
+export const obtenerNegocioPorId = async (id: number) => {
+  return apiFetch(`/business/${id}`, {
     method: "GET",
   });
 };

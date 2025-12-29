@@ -1,3 +1,6 @@
+import type { Route } from "./+types/principal";
+import { requireAuth } from "../../../services/auth.server";
+
 import type { Business } from "../../../services/business.client";
 import type { Producto } from "../../../services/products.client";
 import type { Oferta } from "../../../services/offers.client";
@@ -39,6 +42,11 @@ const mapOrdenPrecio = (
   if (orden === "costoso") return "desc";
   return undefined;
 };
+
+export async function loader({ request }: Route.LoaderArgs) {
+  await requireAuth(request); // o requireRole(request, X)
+  return null;
+}
 
 const Principal = () => {
   /* =====================
