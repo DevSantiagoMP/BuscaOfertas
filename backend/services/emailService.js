@@ -3,11 +3,25 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+const isPerformance = process.env.NODE_ENV === "performance";
+
 // ENVIAR CORREO DE VERIFICACION
 export const sendVerificationEmail = async (to, verificationLink) => {
+  if (isPerformance) {
+    console.log("📧 [PERFORMANCE] Email de verificación simulado:", {
+      to,
+      verificationLink,
+    });
+
+    return {
+      id: "simulated-email-id",
+      status: "simulated",
+    };
+  }
+
   try {
-    const response = await resend.emails.send({
-      from: "onboarding@resend.dev", // o tu dominio verificado
+    return await resend.emails.send({
+      from: "onboarding@resend.dev",
       to,
       subject: "Verifica tu correo - BuscaOfertas",
       html: `
@@ -16,8 +30,6 @@ export const sendVerificationEmail = async (to, verificationLink) => {
         <a href="${verificationLink}" style="color: blue">Verificar correo</a>
       `,
     });
-
-    return response;
   } catch (error) {
     console.error("Error enviando correo:", error);
     throw error;
@@ -26,8 +38,20 @@ export const sendVerificationEmail = async (to, verificationLink) => {
 
 // ENVIAR CORREO DE RECUPERACIÓN
 export const sendPasswordResetEmail = async (to, resetLink) => {
+  if (isPerformance) {
+    console.log("📧 [PERFORMANCE] Email de recuperación simulado:", {
+      to,
+      resetLink,
+    });
+
+    return {
+      id: "simulated-email-id",
+      status: "simulated",
+    };
+  }
+
   try {
-    const response = await resend.emails.send({
+    return await resend.emails.send({
       from: "onboarding@resend.dev",
       to,
       subject: "Recupera tu contraseña - BuscaOfertas",
@@ -38,8 +62,6 @@ export const sendPasswordResetEmail = async (to, resetLink) => {
         <p>Este enlace expirará en <strong>15 minutos</strong>.</p>
       `,
     });
-
-    return response;
   } catch (error) {
     console.error("Error enviando correo de recuperación:", error);
     throw error;

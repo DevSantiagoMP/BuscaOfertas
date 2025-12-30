@@ -38,9 +38,9 @@ router.put(
 );
 
 //Ruta para obtener todos los negocios
-router.get("/", getNegocios);
+router.get("/", validarJWT, getNegocios);
 //Ruta para obtener todos los negocios por categoria
-router.get("/categoria/:categoriaId", getNegociosPorCategoria);
+router.get("/categoria/:categoriaId", validarJWT, getNegociosPorCategoria);
 //Ruta para obtener el negocio del usuario autenticado
 router.get("/me", validarJWT, getMyBusiness);
 // Ruta para obtener negocio por ID
