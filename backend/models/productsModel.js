@@ -1,8 +1,6 @@
 import { db } from "../config/dbConnection.js";
 
-/* =====================================================
-   UTILIDAD: límites por plan (centralizado)
-===================================================== */
+// UTILIDAD: límites por plan (centralizado)
 const LIMITES_POR_PLAN = {
   1: 10,        // gratuito
   2: Infinity,  // mensual
@@ -14,9 +12,7 @@ const LIMITES_POR_PLAN = {
 const obtenerLimitePorPlan = (planId) =>
   LIMITES_POR_PLAN[planId] ?? 0;
 
-/* =====================================================
-   CREAR PRODUCTO
-===================================================== */
+// CREAR PRODUCTO
 export const crearProducto = async (producto) => {
   try {
     const {
@@ -95,9 +91,7 @@ export const crearProducto = async (producto) => {
   }
 };
 
-/* =====================================================
-   ACTUALIZAR PRODUCTO (SIN cambiar negocio)
-===================================================== */
+// ACTUALIZAR PRODUCTO (SIN cambiar negocio)
 export const actualizarProducto = async (id_producto, datos) => {
   try {
     const {
@@ -136,9 +130,7 @@ export const actualizarProducto = async (id_producto, datos) => {
   }
 };
 
-/* =====================================================
-   ELIMINAR PRODUCTO
-===================================================== */
+// ELIMINAR PRODUCTO
 export const eliminarProducto = async (id_producto) => {
   try {
     const [result] = await db.execute(
@@ -152,9 +144,7 @@ export const eliminarProducto = async (id_producto) => {
   }
 };
 
-/* =====================================================
-   OBTENER PRODUCTOS (prioridad por plan)
-===================================================== */
+// OBTENER PRODUCTOS (prioridad por plan)
 export const obtenerProductos = async () => {
   try {
     const query = `
@@ -206,9 +196,7 @@ export const obtenerProductos = async () => {
   }
 };
 
-/* =====================================================
-   OBTENER PRODUCTOS FILTRADOS
-===================================================== */
+// OBTENER PRODUCTOS FILTRADOS
 export const obtenerProductosFiltrados = async ({
   nombre = null,
   categoria_id = null,
@@ -246,9 +234,7 @@ export const obtenerProductosFiltrados = async ({
   }
 };
 
-/* =====================================================
-   OBTENER PRODUCTOS POR NEGOCIO
-===================================================== */
+// OBTENER PRODUCTOS POR NEGOCIO
 export const obtenerProductosPorNegocio = async (negocio_id) => {
   try {
     const [negocioRows] = await db.execute(

@@ -12,7 +12,7 @@ export const crearOferta = async (oferta) => {
       foto_public_id,
     } = oferta;
 
-    // 1️⃣ Obtener plan del negocio
+    // Obtener plan del negocio
     const [negocioRows] = await db.execute(
       "SELECT plan_id FROM negocios WHERE id_negocio = ?",
       [negocio_id]
@@ -24,7 +24,7 @@ export const crearOferta = async (oferta) => {
 
     const planId = negocioRows[0].plan_id;
 
-    // 2️⃣ Límites por plan
+    // Límites por plan
     const limites = {
       1: 10, // gratuito
       2: Infinity, // mensual
@@ -35,7 +35,7 @@ export const crearOferta = async (oferta) => {
 
     const limiteOfertas = limites[planId];
 
-    // 3️⃣ Contar ofertas actuales
+    // Contar ofertas actuales
     const [ofertasRows] = await db.execute(
       "SELECT COUNT(*) AS total FROM ofertas WHERE negocio_id = ?",
       [negocio_id]
@@ -43,14 +43,14 @@ export const crearOferta = async (oferta) => {
 
     const totalOfertas = ofertasRows[0].total;
 
-    // 4️⃣ Validar límite
+    // Validar límite
     if (totalOfertas >= limiteOfertas) {
       throw new Error(
         `Este plan solo permite registrar ${limiteOfertas} ofertas. Si deseas registrar mas renueva tu plan.`
       );
     }
 
-    // 5️⃣ Insertar oferta
+    // Insertar oferta
     const query = `
       INSERT INTO ofertas 
         (negocio_id, nombre, descripcion, precio_oferta, foto_url, foto_public_id)
@@ -66,13 +66,13 @@ export const crearOferta = async (oferta) => {
       foto_public_id,
     ]);
 
-    // 6️⃣ Ofertas restantes
+    // Ofertas restantes
     const ofertas_restantes =
       limiteOfertas === Infinity
         ? "ilimitado"
         : limiteOfertas - (totalOfertas + 1);
 
-    // 7️⃣ Respuesta
+    // Respuesta
     return {
       insertResult: result,
       ofertas_actuales: totalOfertas + 1,

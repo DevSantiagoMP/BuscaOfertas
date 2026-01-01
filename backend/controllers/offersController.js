@@ -96,7 +96,7 @@ export const updateOferta = async (req, res) => {
       precio_oferta,
     };
 
-    // 🔥 Si viene nueva imagen → borrar la anterior
+    // Si viene nueva imagen → borrar la anterior
     if (foto_url && foto_public_id) {
       if (oferta.foto_public_id) {
         await cloudinary.uploader.destroy(oferta.foto_public_id);
@@ -134,9 +134,9 @@ export const updateOferta = async (req, res) => {
 // Borrar ofertas
 export const deleteOferta = async (req, res) => {
   try {
-    const oferta = req.recurso; // 👈 viene validada por middleware
+    const oferta = req.recurso; // viene validada por middleware
 
-    // 🟢 Intentar eliminar imagen en Cloudinary (NO bloqueante)
+    // Intentar eliminar imagen en Cloudinary (NO bloqueante)
     if (oferta.foto_public_id) {
       try {
         await cloudinary.uploader.destroy(oferta.foto_public_id);
@@ -148,7 +148,7 @@ export const deleteOferta = async (req, res) => {
       }
     }
 
-    // 🗑️ Eliminar oferta de la base de datos
+    // Eliminar oferta de la base de datos
     const result = await eliminarOferta(oferta.id_oferta);
 
     if (result.affectedRows === 0) {

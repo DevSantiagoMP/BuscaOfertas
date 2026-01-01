@@ -29,7 +29,7 @@ export const createUser = async (userData) => {
         userData.contrasena_hash,
         userData.rol_id,
         userData.token_verificacion,
-        new Date(userData.token_verificacion_expira), // <--- Asegura formato DATE
+        new Date(userData.token_verificacion_expira),
       ]
     );
 

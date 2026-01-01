@@ -15,7 +15,7 @@ export const crearNegocio = async (req, res) => {
   try {
     const usuario_id = req.user.id;
 
-    // 🔥 VALIDAR SI YA TIENE NEGOCIO
+    // VALIDAR SI YA TIENE NEGOCIO
     const negocioExistente = await findBusinessByUserId(usuario_id);
     if (negocioExistente) {
       return res.status(409).json({
@@ -34,7 +34,7 @@ export const crearNegocio = async (req, res) => {
       foto_public_id = null,
     } = req.body;
 
-    // 🔒 VALIDACIONES
+    // VALIDACIONES
     if (!nombre)
       return res.status(400).json({ message: "El nombre es obligatorio" });
 
@@ -50,19 +50,19 @@ export const crearNegocio = async (req, res) => {
     if (!categoria_id)
       return res.status(400).json({ message: "categoria_id es obligatorio" });
 
-    // 📊 CONTAR NEGOCIOS
+    // CONTAR NEGOCIOS
     const [countRows] = await db.query(
       "SELECT COUNT(*) AS total FROM negocios"
     );
     const totalNegocios = countRows[0].total;
 
-    // 🏷️ PLAN AUTOMÁTICO
+    // PLAN AUTOMÁTICO
     const planExpira = new Date();
     planExpira.setFullYear(planExpira.getFullYear() + 1);
 
     const finalPlanId = totalNegocios < 500 ? 4 : 5;
 
-    // 💾 REGISTRAR NEGOCIO
+    // REGISTRAR NEGOCIO
     const nuevoId = await registrarNegocio({
       usuario_id,
       foto_url,
@@ -77,7 +77,7 @@ export const crearNegocio = async (req, res) => {
       plan_expira: planExpira,
     });
 
-    // ✅ RESPUESTA
+    // RESPUESTA
     return res.status(201).json({
       message: "Negocio registrado correctamente",
       id_negocio: nuevoId,
@@ -117,7 +117,7 @@ export const updateBusiness = async (req, res) => {
       categoria_id,
     };
 
-    // 🔥 SI VIENE NUEVA IMAGEN, BORRAR LA ANTERIOR
+    // SI VIENE NUEVA IMAGEN, BORRAR LA ANTERIOR
     if (foto_url && foto_public_id) {
       if (negocio.foto_public_id) {
         await cloudinary.uploader.destroy(negocio.foto_public_id);

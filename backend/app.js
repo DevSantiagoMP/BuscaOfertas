@@ -13,7 +13,7 @@ import offersRoutes from "./routes/offers/offersRoutes.js"; //importacion de rut
 const app = express();
 
 //middlewares
-app.use(express.urlencoded({ extended: true }));  // ← Recomendado
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(
@@ -37,7 +37,7 @@ const startServer = async () => {
 
   //servidor
   app.listen(3000, () => {
-    console.log("🚀 Servidor corriendo en puerto 3000");
+    console.log("Servidor corriendo en puerto 3000");
   });
 };
 

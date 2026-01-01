@@ -1,9 +1,7 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
 
-// ---------------------------
 // CONFIGURACIÓN - STRESS TEST
-// ---------------------------
 export const options = {
   scenarios: {
     stress_business: {
@@ -23,9 +21,7 @@ export const options = {
   },
 };
 
-// ---------------------------
 // VARIABLES
-// ---------------------------
 const BASE_URL = "http://localhost:3000/api/business";
 
 const TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwicm9sIjoyLCJjb3JyZW8iOiJidXNjYW9mZXJ0YXNwcnVlYmFAZ21haWwuY29tIiwiaWF0IjoxNzY3MTExMTQxLCJleHAiOjE3NjcxOTc1NDF9.WnrbjAp2Dvs7bwJNXV8igSqK6b6dU0L9vrxGbRiC5WY";
@@ -37,9 +33,7 @@ const headers = {
   },
 };
 
-// ---------------------------
 // TEST PRINCIPAL
-// ---------------------------
 export default function () {
 
   // GET todos los negocios

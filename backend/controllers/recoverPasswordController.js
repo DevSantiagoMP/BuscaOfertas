@@ -23,7 +23,7 @@ export const solicitarRecuperacion = async (req, res) => {
     // Crear token
     const token = crypto.randomBytes(40).toString("hex");
 
-    // 🔐 Hash del token (esto es lo que se guarda)
+    // Hash del token (esto es lo que se guarda)
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
     const expira = new Date(Date.now() + 1000 * 60 * 15); // 15 minutos
@@ -47,7 +47,7 @@ export const validarToken = async (req, res) => {
   const { token } = req.params;
 
   try {
-    // 🔐 Hashear token recibido
+    // Hashear token recibido
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
     const usuario = await buscarPorTokenRecuperacion(tokenHash);
 
@@ -67,7 +67,7 @@ export const resetearContrasena = async (req, res) => {
   const { nuevaContrasena } = req.body;
 
   try {
-    // 🔐 Hashear token recibido
+    // Hashear token recibido
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
     const usuario = await buscarPorTokenRecuperacion(tokenHash);
 

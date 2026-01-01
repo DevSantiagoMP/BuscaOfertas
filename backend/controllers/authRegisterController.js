@@ -13,14 +13,14 @@ export const registerUser = async (req, res) => {
   try {
     const { nombre, apellidos, rol_id, correo, password } = req.body;
 
-    // 🔵 Sanitizar entradas
+    // Sanitizar entradas
     const sanitize = (str) => String(str).trim();
 
     const nombreSan = sanitize(nombre);
     const apellidosSan = apellidos ? sanitize(apellidos) : null;
     const correoSan = sanitize(correo).toLowerCase();
-    const rolSan = Number(rol_id); // ✔ corregido
-    const passwordSan = password; // ❗ no usar trim en contraseñas
+    const rolSan = Number(rol_id); 
+    const passwordSan = password;
 
     // 1. Validaciones básicas
     if (!nombreSan || !rolSan || !correoSan || !passwordSan) {
@@ -84,7 +84,7 @@ export const registerUser = async (req, res) => {
     try {
       await sendVerificationEmail(newUser.correo, verificationLink);
     } catch (emailError) {
-      console.error("❌ Error enviando correo:", emailError);
+      console.error("Error enviando correo:", emailError);
 
       return res.status(500).json({
         message:
@@ -92,7 +92,7 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    // 7. Respuesta final (❗ antes faltaba)
+    // 7. Respuesta final
     return res.status(201).json({
       message: "Usuario registrado. Revisa tu correo para verificar la cuenta.",
       user: {

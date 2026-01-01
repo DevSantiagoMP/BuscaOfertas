@@ -21,7 +21,7 @@ export const createProducto = async (req, res) => {
       foto_public_id = null,
     } = req.body;
 
-    // 🔒 VALIDACIONES
+    // VALIDACIONES
     if (!nombre || precio == null) {
       return res.status(400).json({
         ok: false,
@@ -87,7 +87,7 @@ export const updateProducto = async (req, res) => {
       foto_public_id = null,
     } = req.body;
 
-    // 🔒 VALIDACIÓN
+    // VALIDACIÓN
     if (!nombre || precio == null) {
       return res.status(400).json({
         ok: false,
@@ -101,7 +101,7 @@ export const updateProducto = async (req, res) => {
       precio,
     };
 
-    // 🔥 SI VIENE NUEVA IMAGEN → BORRAR LA ANTERIOR
+    // SI VIENE NUEVA IMAGEN → BORRAR LA ANTERIOR
     if (foto_url && foto_public_id) {
       if (producto.foto_public_id) {
         await cloudinary.uploader.destroy(producto.foto_public_id);
@@ -129,9 +129,9 @@ export const updateProducto = async (req, res) => {
 
 export const deleteProducto = async (req, res) => {
   try {
-    const producto = req.recurso; // 👈 viene validado por middleware
+    const producto = req.recurso; // viene validado por middleware
 
-    // 🟢 Intentar eliminar imagen en Cloudinary (NO bloqueante)
+    // Intentar eliminar imagen en Cloudinary (NO bloqueante)
     if (producto.foto_public_id) {
       try {
         await cloudinary.uploader.destroy(producto.foto_public_id);
@@ -143,7 +143,7 @@ export const deleteProducto = async (req, res) => {
       }
     }
 
-    // 🗑️ Eliminar producto de la base de datos
+    // Eliminar producto de la base de datos
     await eliminarProducto(producto.id_producto);
 
     return res.status(200).json({
@@ -203,7 +203,7 @@ export const getProductosFiltrados = async (req, res) => {
 
 export const getProductosByNegocio = async (req, res) => {
   try {
-    const negocio = req.negocio; // 👈 viene del middleware
+    const negocio = req.negocio; // viene del middleware
 
     const { productos, limite_aplicado } = await obtenerProductosPorNegocio(
       negocio.id_negocio

@@ -16,9 +16,7 @@ import { esDuenoDelRecurso } from "../../middlewares/esDuenoDelRecurso.js";
 
 const router = express.Router();
 
-/* ===============================
-   PRODUCTOS
-================================ */
+// PRODUCTOS
 
 // Crear producto (mi negocio)
 router.post(

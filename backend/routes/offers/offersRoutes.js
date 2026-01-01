@@ -15,9 +15,7 @@ import { esDuenoDelRecurso } from "../../middlewares/esDuenoDelRecurso.js";
 
 const router = express.Router();
 
-// =======================
 // OFERTAS
-// =======================
 
 // Crear oferta (mi negocio)
 router.post("/register-offers", validarJWT, cargarMiNegocio, createOferta);
