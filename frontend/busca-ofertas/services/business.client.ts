@@ -38,8 +38,6 @@ export interface BusinessDetail {
   foto_url?: string | null;
 }
 
-
-
 //Crear negocio
 export const registerBusiness = async (payload: BusinessPayload) => {
   return apiFetch("/business/register-business", {
@@ -76,20 +74,14 @@ export const obtenerNegocios = async () => {
   });
 };
 
-/* =====================
-   🔥 Obtener negocios por categoría
-   GET /business/categoria/:categoriaId
-===================== */
+// Obtener negocios por categoría
 export const obtenerNegociosPorCategoria = async (categoriaId: number) => {
   return apiFetch(`/business/categoria/${categoriaId}`, {
     method: "GET",
   });
 };
 
-/* =====================
-   🔥 Obtener negocio por ID (vista pública)
-   GET /business/:id
-===================== */
+// Obtener negocio por ID (vista pública)
 export const obtenerNegocioPorId = async (id: number) => {
   return apiFetch(`/business/${id}`, {
     method: "GET",

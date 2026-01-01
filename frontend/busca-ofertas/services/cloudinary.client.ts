@@ -10,7 +10,7 @@ export const uploadImageToCloudinary = async (
   file: File
 ): Promise<CloudinaryUploadResponse> => {
 
-  // ✅ VALIDACIÓN LOCAL (ANTES DE SUBIR)
+  // VALIDACIÓN LOCAL (ANTES DE SUBIR)
   if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
     throw new Error("Formato de imagen no permitido (Formatos permitidos: JPG, PNG, WEBP)");
   }
@@ -19,7 +19,7 @@ export const uploadImageToCloudinary = async (
     throw new Error("La imagen supera los 2 MB");
   }
 
-  // 📦 FormData solo si pasó validaciones
+  // FormData solo si pasó validaciones
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", UPLOAD_PRESET);

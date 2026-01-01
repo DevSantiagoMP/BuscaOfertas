@@ -49,9 +49,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 const Principal = () => {
-  /* =====================
-    Estados
-  ===================== */
+  // Estados
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [productos, setProductos] = useState<Producto[]>([]);
   const [ofertas, setOfertas] = useState<Oferta[]>([]);
@@ -77,9 +75,7 @@ const Principal = () => {
   const productosRef = useRef<HTMLDivElement>(null);
   const ofertasRef = useRef<HTMLDivElement>(null);
 
-  /* =====================
-    Fetch
-  ===================== */
+  // Obtener datos
   const fetchNegocios = async () => {
     setLoading((l) => ({ ...l, negocios: true }));
     try {
@@ -136,9 +132,7 @@ const Principal = () => {
     await Promise.all([fetchNegocios(), fetchProductos(), fetchOfertas()]);
   };
 
-  /* =====================
-    Effects
-  ===================== */
+  // Efectos en filtros
   useEffect(() => {
     aplicarFiltros();
   }, [categoriaId, ordenPrecio]);
@@ -153,9 +147,7 @@ const Principal = () => {
     return () => clearTimeout(timeout);
   }, [search]);
 
-  /* =====================
-    Render
-  ===================== */
+  // Render
   return (
     <>
       <PrivateHeader onMenuClick={() => setMenuOpen(true)} />
@@ -208,6 +200,15 @@ const Principal = () => {
                   <option value="3">Belleza</option>
                   <option value="4">Hogar</option>
                   <option value="5">Tecnología</option>
+                  <option value="6">Mascotas</option>
+                  <option value="7">Salud y Bienestar</option>
+                  <option value="8">Vehículos y Talleres</option>
+                  <option value="9">Deportes y Fitness</option>
+                  <option value="10">Educación</option>
+                  <option value="11">Bebés y Niños</option>
+                  <option value="12">Arte y Entretenimiento</option>
+                  <option value="13">Otra</option>
+
                 </select>
 
                 <select

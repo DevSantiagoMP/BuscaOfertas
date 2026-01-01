@@ -15,14 +15,22 @@ const OfferCard = ({ oferta }: Props) => {
   return (
     <div style={{ minWidth: "260px", maxWidth: "260px" }}>
       <div className="card h-100 shadow-sm border-success">
-        <img
-          src={
-            oferta.foto_url || "https://via.placeholder.com/300x200?text=Oferta"
-          }
-          className="card-img-top"
-          alt={oferta.nombre}
-          style={{ height: "180px", objectFit: "cover" }}
-        />
+
+        {/* CONTENEDOR DE IMAGEN (siempre existe) */}
+        <div style={{ height: "180px", backgroundColor: "#f1f1f1" }}>
+          {oferta.foto_url ? (
+            <img
+              src={oferta.foto_url}
+              alt={oferta.nombre}
+              className="w-100 h-100"
+              style={{ objectFit: "cover" }}
+            />
+          ) : (
+            <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+              Sin imagen
+            </div>
+          )}
+        </div>
 
         <div className="card-body d-flex flex-column">
           <h5 className="card-title">{oferta.nombre}</h5>
@@ -35,7 +43,9 @@ const OfferCard = ({ oferta }: Props) => {
             🔥💲 {Number(oferta.precio_oferta).toLocaleString()}
           </p>
 
-          <p className="small text-muted mb-3">🏪 {oferta.nombre_negocio}</p>
+          <p className="small text-muted mb-3">
+            🏪 {oferta.nombre_negocio}
+          </p>
 
           <button className="btn btn-warning mt-auto" onClick={handleClick}>
             Ver negocio

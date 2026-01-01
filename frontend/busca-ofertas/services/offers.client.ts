@@ -1,9 +1,6 @@
 import { apiFetch } from "./api";
 
-/* =====================
-   Tipos
-===================== */
-
+// Tipos
 export interface OfertaPayload {
   nombre: string;
   descripcion?: string;
@@ -46,11 +43,7 @@ export interface FiltroOfertasParams {
   orden?: "asc" | "desc";
 }
 
-
-/* =====================
-   Crear oferta
-   POST /offers/register-offers
-===================== */
+// Crear oferta
 export const crearOferta = async (data: OfertaPayload) => {
   return apiFetch("/offers/register-offers", {
     method: "POST",
@@ -64,10 +57,7 @@ export const crearOferta = async (data: OfertaPayload) => {
   });
 };
 
-/* =====================
-   Actualizar oferta
-   PUT /offers/:id
-===================== */
+// Actualizar oferta
 export const actualizarOferta = async (data: OfertaUpdatePayload) => {
   return apiFetch(`/offers/${data.id}`, {
     method: "PUT",
@@ -81,20 +71,14 @@ export const actualizarOferta = async (data: OfertaUpdatePayload) => {
   });
 };
 
-/* =====================
-   Eliminar oferta
-   DELETE /offers/:id
-===================== */
+// Eliminar oferta
 export const eliminarOfertaApi = async (id: number) => {
   return apiFetch(`/offers/${id}`, {
     method: "DELETE",
   });
 };
 
-/* =====================
-   Obtener ofertas del negocio
-   GET /offers/mis-ofertas
-===================== */
+// Obtener mis ofertas
 export const obtenerMisOfertas = async () => {
   return apiFetch("/offers/mis-ofertas", {
     method: "GET",
@@ -125,10 +109,7 @@ export const filtrarOfertas = async ({
   });
 };
 
-/* =====================
-   🔥 Obtener ofertas por negocio
-   GET /offers/business/:id
-===================== */
+// Obtener ofertas por negocio
 export const obtenerOfertasPorNegocio = async (businessId: number) => {
   return apiFetch(`/offers/business/${businessId}`, {
     method: "GET",

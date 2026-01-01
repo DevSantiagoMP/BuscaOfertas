@@ -7,9 +7,7 @@ import {
 } from "../../../../services/offers.client";
 import { uploadImageToCloudinary } from "../../../../services/cloudinary.client";
 
-/* =====================
-   Tipos
-===================== */
+// Tipos
 interface Oferta {
   id: number;
   nombre: string;
@@ -37,9 +35,7 @@ const BusinessOffers = () => {
   const [contadorId, setContadorId] = useState(1);
   const [guardandoId, setGuardandoId] = useState<number | null>(null);
 
-  /* =====================
-     Obtener ofertas
-  ===================== */
+// Obtener ofertas
   useEffect(() => {
     const fetchOfertas = async () => {
       try {
@@ -69,9 +65,7 @@ const BusinessOffers = () => {
     fetchOfertas();
   }, []);
 
-  /* =====================
-     Acciones UI
-  ===================== */
+// Agregar oferta
   const agregarOferta = () => {
     if (ofertas.some((o) => o.editando)) return;
 
@@ -121,10 +115,10 @@ const BusinessOffers = () => {
         .map((o) => {
           if (o.id !== id) return o;
 
-          // 🟢 Nueva → eliminar
+          // Nueva → eliminar
           if (o.isNew) return null;
 
-          // 🟡 Existente → restaurar backup
+          // Existente → restaurar backup
           return {
             ...o,
             ...o.backup,
@@ -137,9 +131,7 @@ const BusinessOffers = () => {
     );
   };
 
-  /* =====================
-     Guardar oferta
-  ===================== */
+  //    Guardar oferta
   const guardarOferta = async (id: number) => {
     try {
       setGuardandoId(id);
@@ -155,7 +147,7 @@ const BusinessOffers = () => {
         foto_public_id = upload.public_id;
       }
 
-      // 🟢 CREAR
+      // CREAR
       if (oferta.isNew) {
         const response = await crearOferta({
           nombre: oferta.nombre,
@@ -182,7 +174,7 @@ const BusinessOffers = () => {
           )
         );
       }
-      // 🟡 ACTUALIZAR
+      // ACTUALIZAR
       else {
         await actualizarOferta({
           id: oferta.id,
@@ -221,9 +213,7 @@ const BusinessOffers = () => {
     }
   };
 
-  /* =====================
-     Eliminar oferta
-  ===================== */
+  //    Eliminar oferta
   const eliminarOferta = async (id: number) => {
     try {
       await eliminarOfertaApi(id);
@@ -239,9 +229,7 @@ const BusinessOffers = () => {
     );
   };
 
-  /* =====================
-     Render
-  ===================== */
+  //Render
   return (
     <div className="container section-container mb-5">
       <div className="row align-items-center">

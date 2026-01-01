@@ -2,10 +2,7 @@ import { redirect } from "react-router";
 
 const API_URL = "http://localhost:3000/api/auth/check-session";
 
-/* =====================
-  Check sesión (bool)
-  👉 usado en otras partes
-===================== */
+// chequear sesion
 export async function checkSessionServer(request: Request): Promise<boolean> {
   const cookie = request.headers.get("cookie");
 
@@ -22,10 +19,7 @@ export async function checkSessionServer(request: Request): Promise<boolean> {
   }
 }
 
-/* =====================
-  Requiere login
-  👉 para loaders protegidos
-===================== */
+// Requiere login
 export async function requireAuth(request: Request) {
   const cookie = request.headers.get("cookie");
 
@@ -51,9 +45,7 @@ export async function requireAuth(request: Request) {
   return data.usuario;
 }
 
-/* =====================
-  Requiere rol específico
-===================== */
+// Requiere rol específico
 export async function requireRole(
   request: Request,
   requiredRole: number

@@ -1,44 +1,29 @@
-import "./Navbar.css";
+import { useState } from "react";
 import Logo from "../Logo/Logo";
+import PublicMenu from "../../components/PublicMenu/PublicMenu";
+import "./Navbar.css";
 
 const Navbar = () => {
+  const [open, setOpen] = useState(false);
+
   return (
-    <nav className="navbar navbar-expand-lg">
-      <div className="container-fluid">
+    <>
+      <nav className="navbar custom-navbar">
+        <div className="container-fluid">
+          <Logo />
 
-        {/* Logo */}
-        <Logo />
-
-        {/* Hamburger menu */}
-        <button
-          className="navbar-toggler hamburger-menu"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-
-        {/* Search bar */}
-        <div className="collapse navbar-collapse justify-content-center" id="navbarSupportedContent">
-          <form className="d-flex justify-content-center w-100" role="search">
-            <input
-              className="search-bar"
-              type="search"
-              placeholder="¿Qué estás buscando?"
-              aria-label="Search"
-            />
-            <button className="button-search">
-              <i className="bi bi-search search-icon"></i>
-            </button>
-          </form>
-
+          <button
+            className="navbar-toggler always-hamburger"
+            onClick={() => setOpen(true)}
+            aria-label="Abrir menú"
+          >
+            <span className="navbar-toggler-icon" />
+          </button>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      <PublicMenu open={open} onClose={() => setOpen(false)} />
+    </>
   );
 };
 

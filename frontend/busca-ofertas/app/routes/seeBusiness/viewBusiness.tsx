@@ -13,14 +13,12 @@ import BusinessOffersView from "./BusinessOffersView/BusinessOffersView";
 import { useAuth } from "../../hooks/useAuth";
 import { useState } from "react";
 
-/* =====================
-   Loader
-===================== */
+// loader
 export async function loader({ request }: Route.LoaderArgs) {
-  // 🔐 Verificar sesión
+  // Verificar sesión
   await requireAuth(request);
 
-  // 🏪 Obtener businessId desde query
+  // Obtener businessId desde query
   const url = new URL(request.url);
   const businessId = Number(url.searchParams.get("businessId"));
 
@@ -31,9 +29,6 @@ export async function loader({ request }: Route.LoaderArgs) {
   return { businessId };
 }
 
-/* =====================
-   Component
-===================== */
 const ViewBusiness = () => {
   const { businessId } = useLoaderData() as { businessId: number };
 

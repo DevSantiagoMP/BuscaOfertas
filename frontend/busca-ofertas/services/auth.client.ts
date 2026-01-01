@@ -1,7 +1,6 @@
 import { apiFetch } from "./api";
-// ------------------------------
+
 // Registrar usuario
-// ------------------------------
 export const registerUser = async (data: {
   nombre: string;
   apellidos: string;
@@ -15,18 +14,15 @@ export const registerUser = async (data: {
   });
 };
 
-// ------------------------------
+
 // Verificar email
-// ------------------------------
 export const verifyEmail = async (token: string) => {
   return apiFetch(`/auth/verify-email?token=${token}`, {
     method: "GET",
   });
 };
 
-// ------------------------------
 // Reenviar enlace verificación
-// ------------------------------
 export const resendVerification = async (correo: string) => {
   return apiFetch("/auth/resend-verification", {
     method: "POST",
@@ -34,9 +30,7 @@ export const resendVerification = async (correo: string) => {
   });
 };
 
-// ------------------------------
 // Login
-// ------------------------------
 export const loginUser = async (correo: string, password: string) => {
   return apiFetch("/auth/login", {
     method: "POST",
@@ -44,9 +38,7 @@ export const loginUser = async (correo: string, password: string) => {
   });
 };
 
-// ------------------------------
 // Recuperar contraseña - enviar correo
-// ------------------------------
 export const recoverPassword = async (correo: string) => {
   return apiFetch("/auth/recuperar", {
     method: "POST",
@@ -54,18 +46,14 @@ export const recoverPassword = async (correo: string) => {
   });
 };
 
-// ------------------------------
 // Validar token de recuperación
-// ------------------------------
 export const validateRecoverToken = async (token: string) => {
   return apiFetch(`/auth/recuperar/${token}`, {
     method: "GET",
   });
 };
 
-// ------------------------------
 // Actualizar contraseña
-// ------------------------------
 export const updatePassword = async (
   token: string,
   nuevaContrasena: string
@@ -76,9 +64,7 @@ export const updatePassword = async (
   });
 };
 
-// ------------------------------
 // Logout
-// ------------------------------
 export const logoutUser = async () => {
   return apiFetch("/auth/logout", {
     method: "POST",

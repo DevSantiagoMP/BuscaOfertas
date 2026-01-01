@@ -7,9 +7,7 @@ import {
 } from "../../../../services/products.client";
 import { uploadImageToCloudinary } from "../../../../services/cloudinary.client";
 
-/* =====================
-   Tipos
-===================== */
+// Tipos
 interface Producto {
   id: number;
   nombre: string;
@@ -37,9 +35,7 @@ const BusinessProducts = () => {
   const [contadorId, setContadorId] = useState(1);
   const [guardandoId, setGuardandoId] = useState<number | null>(null);
 
-  /* =====================
-     Cargar productos
-  ===================== */
+  // Cargar productos
   useEffect(() => {
     const fetchProductos = async () => {
       try {
@@ -71,9 +67,7 @@ const BusinessProducts = () => {
     fetchProductos();
   }, []);
 
-  /* =====================
-     Acciones UI
-  ===================== */
+  // Acciones UI
   const agregarProducto = () => {
     if (productos.some((p) => p.editando)) return;
 
@@ -123,10 +117,10 @@ const BusinessProducts = () => {
         .map((p) => {
           if (p.id !== id) return p;
 
-          // 🟢 Nuevo → eliminar
+          // Nuevo → eliminar
           if (p.isNew) return null;
 
-          // 🟡 Existente → restaurar backup
+          //Existente → restaurar backup
           return {
             ...p,
             ...p.backup,
@@ -139,9 +133,7 @@ const BusinessProducts = () => {
     );
   };
 
-  /* =====================
-     Guardar producto
-  ===================== */
+  // Guardar producto
   const guardarProducto = async (producto: Producto) => {
     setGuardandoId(producto.id);
 
@@ -155,7 +147,7 @@ const BusinessProducts = () => {
         foto_public_id = upload.public_id;
       }
 
-      // 🟢 CREAR
+      // CREAR
       if (producto.isNew) {
         const response = await crearProducto({
           nombre: producto.nombre,
@@ -182,7 +174,7 @@ const BusinessProducts = () => {
           )
         );
       }
-      // 🟡 ACTUALIZAR
+      // ACTUALIZAR
       else {
         await actualizarProducto({
           id: producto.id,
@@ -221,9 +213,7 @@ const BusinessProducts = () => {
     }
   };
 
-  /* =====================
-     Eliminar producto
-  ===================== */
+  // Eliminar producto
   const eliminarProducto = async (id: number) => {
     try {
       await eliminarProductoApi(id);
@@ -239,9 +229,7 @@ const BusinessProducts = () => {
     );
   };
 
-  /* =====================
-     Render
-  ===================== */
+  // Render
   return (
     <div className="container section-container mb-5">
       <div className="row align-items-center">

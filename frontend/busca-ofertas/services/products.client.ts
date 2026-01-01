@@ -1,9 +1,6 @@
 import { apiFetch } from "./api";
 
-/* =====================
-   Tipos
-===================== */
-
+// Tipos
 export interface ProductoPayload {
   nombre: string;
   descripcion?: string;
@@ -46,10 +43,7 @@ export interface FiltroProductosParams {
   orden?: "asc" | "desc";
 }
 
-/* =====================
-   Crear producto
-   POST /products
-===================== */
+// Crear producto
 export const crearProducto = async (data: ProductoPayload) => {
   return apiFetch("/products", {
     method: "POST",
@@ -63,10 +57,7 @@ export const crearProducto = async (data: ProductoPayload) => {
   });
 };
 
-/* =====================
-   Actualizar producto
-   PUT /products/:id
-===================== */
+// Actualizar producto
 export const actualizarProducto = async (data: ProductoUpdatePayload) => {
   return apiFetch(`/products/${data.id}`, {
     method: "PUT",
@@ -80,40 +71,28 @@ export const actualizarProducto = async (data: ProductoUpdatePayload) => {
   });
 };
 
-/* =====================
-   Eliminar producto
-   DELETE /products/:id
-===================== */
+// Eliminar producto
 export const eliminarProductoApi = async (id: number) => {
   return apiFetch(`/products/${id}`, {
     method: "DELETE",
   });
 };
 
-/* =====================
-   Obtener productos del negocio
-   GET /products/mios
-===================== */
+// Obtener productos del negocio
 export const obtenerMisProductos = async () => {
   return apiFetch("/products/mios", {
     method: "GET",
   });
 };
 
-/* =====================
-   Obtener todos los productos
-===================== */
+//Obtener todos los productos
 export const obtenerProductos = async () => {
   return apiFetch("/products", {
     method: "GET",
   });
 };
 
-/* =====================
-   🔥 Filtrar productos
-   GET /products/filtrar
-===================== */
-
+// Filtrar productos
 export const filtrarProductos = async ({
   nombre,
   categoriaId,
@@ -130,10 +109,7 @@ export const filtrarProductos = async ({
   });
 };
 
-/* =====================
-   🔥 Obtener productos por negocio
-   GET /products/business/:id
-===================== */
+// Obtener productos por negocio
 export const obtenerProductosPorNegocio = async (businessId: number) => {
   return apiFetch(`/products/business/${businessId}`, {
     method: "GET",

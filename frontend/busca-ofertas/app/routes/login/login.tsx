@@ -72,7 +72,7 @@ const Login = () => {
 
       await recoverPassword(recoverEmail);
 
-      // ⏳ Iniciar contador
+      // Iniciar contador
       const interval = setInterval(() => {
         setResendCooldown((prev) => {
           if (prev <= 1) {

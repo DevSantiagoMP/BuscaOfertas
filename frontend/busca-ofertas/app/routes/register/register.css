@@ -127,3 +127,10 @@
 .modal-button:hover{
   background-color: orange;
 }
+
+/* Boton registrar */
+.btn-register:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+

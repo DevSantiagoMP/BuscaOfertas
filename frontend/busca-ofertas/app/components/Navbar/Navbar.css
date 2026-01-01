@@ -1,32 +1,29 @@
-.search-bar {
-  width: 70%;
-  min-width: 250px;
-  max-width: 800px;
-  margin-right: -2rem;
-  height: 2.5rem;
-  padding: 0 1rem;
-  border-radius: 2rem;
-  border: 0.1rem solid #e0e0e0;
+.custom-navbar {
+  padding: 0.6rem 1rem;
 }
 
-.search-bar:focus {
-  outline: none;
-  box-shadow: none;
-  border-color: #e0e0e0;
+/* Fuerza el hamburguesa visible siempre */
+.always-hamburger {
+  display: block !important;
+  border: none;
 }
 
-.button-search {
-  background-color: #f97316;
-  padding: 0 1rem;
-  border: 0.1rem solid #f97316;
-  border-top-right-radius: 2rem;
-  border-bottom-right-radius: 2rem;
+/* Evita comportamientos responsive de Bootstrap */
+.navbar-toggler-icon {
+  filter: invert(0);
 }
 
-.button-search .search-icon {
-  color: white;
+/* Menú desplegable estilo drawer */
+#navbarSupportedContent {
+  background-color: #fff;
 }
 
-.hamburger-menu:focus {
-  box-shadow: none;
+/* Links */
+.custom-navbar .nav-link {
+  font-weight: 500;
+  color: #333;
+}
+
+.custom-navbar .nav-link:hover {
+  color: #0d6efd;
 }

@@ -12,7 +12,6 @@ export default [
   // route("/plan-mensual", "routes/mensualPlan/mensualPlan.tsx"), 
   // route("/plan-anual", "routes/anualPlan/anualPlan.tsx"), 
   route("/administrar-negocio", "routes/manageBusiness/manageBusiness.tsx"),
-  route("/ver-negocio", "routes/seeBusiness/viewBusiness.tsx")    
-  // ejemplo de ruta route("/about", "routes/about.tsx")
+  route("/ver-negocio", "routes/seeBusiness/viewBusiness.tsx")
 ] satisfies RouteConfig;
 

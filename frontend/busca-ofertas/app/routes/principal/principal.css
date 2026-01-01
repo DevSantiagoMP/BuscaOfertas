@@ -1,5 +1,4 @@
 /* Principal section */
-
 .principal-section {
   background-color: #ebebeb;
   padding: 2rem;
@@ -7,7 +6,6 @@
 }
 
 /* Search bar */
-
 .personal-search-bar {
   flex: 1;
   background-color: white;
@@ -20,7 +18,6 @@
 }
 
 /* Filters */
-
 .filters-container {
   margin-top: 1.5rem;
   flex-wrap: wrap;
@@ -37,7 +34,6 @@
 }
 
 /* Business */
-
 .business-section {
   margin-top: 1rem;
 }
@@ -70,7 +66,6 @@
 }
 
 /* Slicers */
-
 .button-arrow {
   background-color: #ebebeb;
   border: none;

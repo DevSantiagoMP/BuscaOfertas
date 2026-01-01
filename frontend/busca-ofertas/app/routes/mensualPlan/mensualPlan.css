@@ -99,9 +99,7 @@
   font-weight: 600;
 }
 
-/* ================================
-   ERRORS
-================================ */
+/* Errors styles */
 .mensual-error-text {
   color: red;
   font-size: 0.9rem;
@@ -113,10 +111,7 @@ input.error {
   border: 2px solid red !important;
 }
 
-/* ================================
-   RESPONSIVE
-================================ */
-
+/* Responsive Design */
 @media (max-width: 768px) {
   .mensual-plan-card {
     width: 90%;

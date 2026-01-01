@@ -23,6 +23,9 @@ const Register = () => {
   const [correoGuardado, setCorreoGuardado] = useState("");
   const [cooldown, setCooldown] = useState(0);
 
+  // spiner de carga
+  const [isLoading, setIsLoading] = useState(false);
+
   // Timer cada 1 segundo
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -71,6 +74,7 @@ const Register = () => {
     const rol_id = rol === "usuario" ? 1 : 2;
 
     try {
+      setIsLoading(true); // START LOADING
       await registerUser({
         nombre,
         apellidos,
@@ -91,6 +95,8 @@ const Register = () => {
       console.error("Error al registrar:", err.message);
       setSuccessMessage(err.message || "Error al registrar usuario");
       setShowModal(true);
+    } finally {
+      setIsLoading(false); // STOP LOADING
     }
   };
 
@@ -187,8 +193,23 @@ const Register = () => {
               <p className="input-register-error">{confirmError}</p>
             )}
 
-            <button className="btn-register mt-3" type="submit">
-              Registrar
+            <button
+              className="btn-register mt-3 d-flex justify-content-center align-items-center gap-2"
+              type="submit"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                  Registrando...
+                </>
+              ) : (
+                "Registrar"
+              )}
             </button>
 
             <div className="d-flex justify-content-center align-items-center gap-2 mt-2">

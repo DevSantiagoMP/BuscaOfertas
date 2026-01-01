@@ -23,6 +23,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 export const links: Route.LinksFunction = () => [
+  { rel: "icon", type: "image/png", href: "/logo-busca-ofertas.png" },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",

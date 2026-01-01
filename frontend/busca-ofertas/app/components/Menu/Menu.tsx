@@ -42,6 +42,12 @@ const Menu = ({ open, onClose, rolId, correo, onLogout }: MenuProps) => {
 
         <div className="offcanvas-body d-flex flex-column gap-4">
 
+          {rolId === 1 && !isPrincipal && (
+            <Link to="/principal" onClick={onClose}>
+              <button className="principal-menu-button w-100">Página principal</button>
+            </Link>
+          )}
+
           {rolId === 2 && !isAdmin && (
             <Link to="/administrar-negocio" onClick={onClose}>
               <button className="admin-menu-button w-100">
