@@ -55,7 +55,7 @@ export default function Home() {
             <div className="col-md-4">
               <i className="bi bi-cart-dash cart-icon ms-md-5"></i>
               <h5 className="first-benefit-title">Para usuarios</h5>
-              <p>Encuentra ofertas</p>
+              <p>Encuentra negocios, productos y ofertas</p>
             </div>
 
             {/* Second benefit */}
