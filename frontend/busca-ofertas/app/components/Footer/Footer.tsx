@@ -11,6 +11,8 @@ const Footer = () => {
             <h6>Encuentra:</h6>
             <Link to="/principal">Ofertas</Link>
             <Link to="/administrar-negocio">Administra tu negocio</Link>
+            <Link to="/terminos-condiciones">Términos y condiciones</Link>
+            <Link to="/politica-de-privacidad">Política de privacidad</Link>
           </div>
 
           <div className="col-md-4 mt-4 mt-md-0">

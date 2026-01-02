@@ -213,11 +213,25 @@ const Register = () => {
             </button>
 
             <div className="d-flex justify-content-center align-items-center gap-2 mt-2">
-              <p>¿Ya tienes una cuenta?</p>
-              <Link to="/login" className="link-register">
-                <p>Inicia sesión</p>
-              </Link>
+              <p className="mb-0">
+                ¿Ya tienes una cuenta?{" "}
+                <Link to="/login" className="d-inline link-register">
+                  Inicia sesión
+                </Link>
+              </p>
             </div>
+
+            <p className="text-muted small mt-2">
+              Al registrarte aceptas los{" "}
+              <Link to="/terminos-condiciones" className="d-inline">
+                Términos y Condiciones
+              </Link>{" "}
+              y la{" "}
+              <Link to="/politica-de-privacidad" className="d-inline">
+                Política de Privacidad
+              </Link>
+              .
+            </p>
           </form>
         </div>
       </main>

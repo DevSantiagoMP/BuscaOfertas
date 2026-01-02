@@ -12,6 +12,8 @@ export default [
   // route("/plan-mensual", "routes/mensualPlan/mensualPlan.tsx"), 
   // route("/plan-anual", "routes/anualPlan/anualPlan.tsx"), 
   route("/administrar-negocio", "routes/manageBusiness/manageBusiness.tsx"),
-  route("/ver-negocio", "routes/seeBusiness/viewBusiness.tsx")
+  route("/ver-negocio", "routes/seeBusiness/viewBusiness.tsx"),
+  route("/terminos-condiciones", "routes/terms/terms.tsx"),
+  route("/politica-de-privacidad", "routes/privacyPolicy/privacyPolicy.tsx"),
 ] satisfies RouteConfig;
 
