@@ -9,14 +9,16 @@ export interface CloudinaryUploadResponse {
 export const uploadImageToCloudinary = async (
   file: File
 ): Promise<CloudinaryUploadResponse> => {
-
   // VALIDACIÓN LOCAL (ANTES DE SUBIR)
   if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-    throw new Error("Formato de imagen no permitido (Formatos permitidos: JPG, PNG, WEBP)");
+    throw new Error(
+      "Formato de imagen no permitido (Formatos permitidos: JPG, PNG, WEBP)"
+    );
   }
 
-  if (file.size > 2 * 1024 * 1024) {
-    throw new Error("La imagen supera los 2 MB");
+  // 300 KB = 300 * 1024 bytes
+  if (file.size > 300 * 1024) {
+    throw new Error("La imagen supera los 300 KB");
   }
 
   // FormData solo si pasó validaciones

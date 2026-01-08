@@ -237,7 +237,7 @@ const BusinessOffers = () => {
           <h3>Ofertas</h3>
         </div>
 
-        <div className="col-12 col-md-6 text-md-end">
+        <div className="mt-2 mt-md-0 col-12 col-md-6 d-flex justify-content-center justify-content-md-end">
           <button
             className="button-section-container"
             onClick={agregarOferta}

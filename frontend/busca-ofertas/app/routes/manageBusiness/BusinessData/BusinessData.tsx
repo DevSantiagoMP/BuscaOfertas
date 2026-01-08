@@ -53,7 +53,6 @@ const BusinessData = () => {
   // Estado de spinner de carga
   const [loading, setLoading] = useState(false);
 
-
   // 🔹 CARGAR NEGOCIO
   useEffect(() => {
     const fetchMyBusiness = async () => {
@@ -167,7 +166,7 @@ const BusinessData = () => {
           <h3 className="mb-4 mb-md-0">Datos del negocio</h3>
         </div>
 
-        <div className="col-12 col-md-6 mb-3 d-flex justify-content-center justify-content-md-end">
+        <div className="mt-2 mt-md-0 col-12 col-md-6 mb-3 d-flex justify-content-center justify-content-md-end">
           <button
             className="button-section-container"
             onClick={() => {
@@ -191,7 +190,7 @@ const BusinessData = () => {
         </div>
       </div>
 
-      {/* ✅ CORRECCIÓN AQUÍ */}
+      {/* Agregar o editar información */}
       <div className="row">
         {mostrar && (
           <div className="col-12">
@@ -200,15 +199,43 @@ const BusinessData = () => {
                 <label htmlFor="imagenNegocio" className="custom-file-upload">
                   Toca aquí para añadir una foto (opcional)
                 </label>
+
                 <input
                   className="input-box-input"
                   type="file"
                   id="imagenNegocio"
-                  accept="image/*"
+                  accept="image/jpeg, image/png, image/webp"
                   onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      setImagenNegocio(e.target.files[0]);
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+
+                    const allowedTypes = [
+                      "image/jpeg",
+                      "image/png",
+                      "image/webp",
+                    ];
+                    const maxSize = 300 * 1024; // 300KB
+
+                    // Validar formato
+                    if (!allowedTypes.includes(file.type)) {
+                      alert(
+                        "Formato no permitido. Solo se aceptan imágenes JPG, PNG o WEBP."
+                      );
+                      e.target.value = ""; // limpia el input
+                      return;
                     }
+
+                    // Validar tamaño
+                    if (file.size > maxSize) {
+                      alert(
+                        "La imagen excede el tamaño máximo permitido de 300KB."
+                      );
+                      e.target.value = ""; // limpia el input
+                      return;
+                    }
+
+                    // Si pasa todas las validaciones
+                    setImagenNegocio(file);
                   }}
                 />
 
@@ -300,11 +327,12 @@ const BusinessData = () => {
         )}
       </div>
 
+      {/* Mostrar datos */}
       {datosGuardados && !mostrar && (
-        <div className="mt-4">
+        <div className="mt-4 p-2">
           <div className="row align-items-center">
             {datosGuardados.fotoPreview && (
-              <div className="col-12 col-md-4 text-center mb-3">
+              <div className="col-12 text-center mb-3">
                 <img
                   src={datosGuardados.fotoPreview}
                   alt="Imagen del negocio"
@@ -314,7 +342,7 @@ const BusinessData = () => {
               </div>
             )}
 
-            <div className="col-12 col-md-8">
+            <div className="col-12">
               <p>
                 <strong>Nombre:</strong> {datosGuardados.nombreNegocio}
               </p>

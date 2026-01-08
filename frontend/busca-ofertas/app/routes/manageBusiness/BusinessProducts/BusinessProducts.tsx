@@ -237,7 +237,7 @@ const BusinessProducts = () => {
           <h3>Productos</h3>
         </div>
 
-        <div className="col-12 col-md-6 text-md-end">
+        <div className="col-12 col-md-6 d-flex justify-content-center justify-content-md-end">
           <button
             className="button-section-container"
             onClick={agregarProducto}
