@@ -5,7 +5,7 @@ import {
   updateMyBusiness,
 } from "../../../../services/business.client";
 import { uploadImageToCloudinary } from "../../../../services/cloudinary.client";
-import "./businessData.css";
+import "./BusinessData.css";
 
 // Interfaz para tipar los datos del negocio
 interface DatosNegocio {
