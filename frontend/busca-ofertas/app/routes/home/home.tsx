@@ -27,11 +27,11 @@ export default function Home() {
                 </p>
                 <div className="d-flex gap-4 container-hero-buttons">
                   {/* Buttons */}
-                  <Link to="/login">
+                  <Link to="/opciones-login">
                     <button className="login-button">Iniciar Sesión</button>
                   </Link>
 
-                  <Link to="/registro">
+                  <Link to="/opciones-registro">
                     <button className="register-button">Registrarse</button>
                   </Link>
                 </div>
