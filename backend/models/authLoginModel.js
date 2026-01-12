@@ -71,3 +71,29 @@ export const updateLastLogin = async (idUsuario) => {
     throw err;
   }
 };
+
+// Obtener rol de usuario
+export const obtenerRolUsuario = async (usuario_id) => {
+  const [rows] = await db.execute(
+    "SELECT rol_id FROM usuarios WHERE id_usuario = ?",
+    [usuario_id]
+  );
+  return rows[0]; // puede ser undefined
+};
+
+// Registrar rol de usuario
+export const registrarRolUsuario = async (usuario_id, rol_id) => {
+  try {
+    const [result] = await db.execute(
+      `UPDATE usuarios 
+       SET rol_id = ? 
+       WHERE id_usuario = ?`,
+      [rol_id, usuario_id]
+    );
+
+    return result.affectedRows > 0;
+  } catch (error) {
+    console.error("Error en registrarRolUsuario:", error);
+    throw error;
+  }
+};

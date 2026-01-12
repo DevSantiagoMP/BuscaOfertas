@@ -14,8 +14,8 @@ passport.use(
       try {
         const googleId = profile.id;
         const correo = profile.emails[0].value;
-        const nombre = profile.name.givenName;
-        const apellidos = profile.name.familyName;
+        const nombre = profile.name.givenName || "";
+        const apellidos = profile.name.familyName || "";
 
         // Buscar usuario por google_id o correo
         const [rows] = await db.query(
@@ -28,19 +28,25 @@ passport.use(
         if (rows.length > 0) {
           user = rows[0];
 
-          // Si existe pero no tiene google_id, lo vinculamos
+          // Vincular google_id si no existe
           if (!user.google_id) {
             await db.query(
               "UPDATE usuarios SET google_id = ? WHERE id_usuario = ?",
               [googleId, user.id_usuario]
             );
           }
+
+          // Actualizar último login
+          await db.query(
+            "UPDATE usuarios SET ultimo_login = NOW() WHERE id_usuario = ?",
+            [user.id_usuario]
+          );
         } else {
-          // Crear usuario nuevo
+          // Crear usuario nuevo desde Google
           const [result] = await db.query(
             `INSERT INTO usuarios 
-            (nombre, apellidos, correo, google_id, email_verificado)
-            VALUES (?, ?, ?, ?, 1)`,
+             (nombre, apellidos, correo, google_id, email_verificado, ultimo_login)
+             VALUES (?, ?, ?, ?, 1, NOW())`,
             [nombre, apellidos, correo, googleId]
           );
 
@@ -48,7 +54,7 @@ passport.use(
             id_usuario: result.insertId,
             nombre,
             correo,
-            rol_id: 2, // rol por defecto
+            rol_id: 1, // rol por defecto
           };
         }
 
@@ -65,7 +71,8 @@ passport.use(
 
         return done(null, { token });
       } catch (error) {
-        done(error, null);
+        console.error("Error en Google Strategy:", error);
+        return done(error, null);
       }
     }
   )

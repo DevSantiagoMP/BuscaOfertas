@@ -6,6 +6,8 @@ import {
   blockAccount,
   resetLoginState,
   updateLastLogin,
+  registrarRolUsuario,
+  obtenerRolUsuario
 } from "../models/authLoginModel.js";
 
 export const loginUser = async (req, res) => {
@@ -148,3 +150,50 @@ export const checkSession = (req, res) => {
     });
   }
 };
+
+export const asignarRolUsuario = async (req, res) => {
+  try {
+    const usuario_id = req.user.id;
+    const { rol_id } = req.body;
+
+    if (!rol_id) {
+      return res.status(400).json({
+        ok: false,
+        msg: "rol_id es obligatorio",
+      });
+    }
+
+    // 1️⃣ Obtener rol actual
+    const usuario = await obtenerRolUsuario(usuario_id);
+
+    if (!usuario) {
+      return res.status(404).json({
+        ok: false,
+        msg: "Usuario no encontrado",
+      });
+    }
+
+    // 2️⃣ Bloquear si ya tiene rol
+    if (usuario.rol_id !== null) {
+      return res.status(403).json({
+        ok: false,
+        msg: "El rol ya fue asignado y no puede modificarse",
+      });
+    }
+
+    // 3️⃣ Asignar rol
+    await registrarRolUsuario(usuario_id, rol_id);
+
+    return res.json({
+      ok: true,
+      msg: "Rol asignado correctamente",
+    });
+  } catch (error) {
+    console.error("Error al asignar rol:", error);
+    return res.status(500).json({
+      ok: false,
+      msg: "Error al asignar el rol",
+    });
+  }
+};
+

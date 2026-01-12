@@ -3,6 +3,10 @@ import passport from "passport";
 
 const router = express.Router();
 
+import { validarJWT } from "../../middlewares/auth.js";
+import { asignarRolUsuario } from "../../controllers/authLoginController.js";
+
+
 // Iniciar login Google
 router.get(
   "/",
@@ -32,5 +36,7 @@ router.get(
     res.redirect("http://localhost:5173/rol");
   }
 );
+
+router.post("/asignar-rol", validarJWT, asignarRolUsuario);
 
 export default router;
