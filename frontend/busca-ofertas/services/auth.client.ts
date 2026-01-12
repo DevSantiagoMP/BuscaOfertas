@@ -70,3 +70,11 @@ export const logoutUser = async () => {
     method: "POST",
   });
 };
+
+// Asignar rol después de login con Google
+export const asignarRolGoogle = async (rol_id: number) => {
+  return apiFetch("/auth/google/asignar-rol", {
+    method: "POST",
+    body: JSON.stringify({ rol_id }),
+  });
+};
