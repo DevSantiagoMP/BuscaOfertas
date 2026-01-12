@@ -5,6 +5,10 @@ import cookieParser from "cookie-parser";
 
 import { connectDB } from "./config/dbConnection.js"; //importacion base de datos
 
+import passport from "passport";
+import "./config/passportGoogle.js";
+
+import googleAuthRoutes from "./routes/auth/googleAuthRoutes.js";
 import authRoutes from "./routes/auth/authRoutes.js"; //importacion de ruta autenticacion normal
 import businessRoutes from "./routes/business/businessRoutes.js"; //importacion de ruta negocios
 import productsRoutes from "./routes/products/productsRoutes.js"; //importacion de ruta productos
@@ -29,11 +33,15 @@ app.use(cookieParser());
 const startServer = async () => {
   await connectDB();
 
+  app.use(passport.initialize());
+
   // Rutas
+  app.use("/api/auth/google", googleAuthRoutes);
   app.use("/api/auth", authRoutes);
   app.use("/api/business", businessRoutes);
   app.use("/api/products", productsRoutes);
   app.use("/api/offers", offersRoutes);
+  
 
   //servidor
   app.listen(3000, () => {

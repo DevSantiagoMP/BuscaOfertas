@@ -4,43 +4,45 @@ import { estaEnBlacklist } from "../models/authLogoutModel.js";
 export const validarJWT = async (req, res, next) => {
   let token = null;
 
-  // Token por header Authorization: Bearer xxx
+  // 1️⃣ Authorization header
   const authHeader = req.headers.authorization;
   if (authHeader?.startsWith("Bearer ")) {
     token = authHeader.split(" ")[1];
   }
 
-  // Token por cookie HttpOnly
+  // 2️⃣ Cookie HttpOnly
   if (!token && req.cookies?.access_token) {
     token = req.cookies.access_token;
   }
 
   if (!token) {
-    return res.status(401).json({ message: "Token no proporcionado" });
+    return res.status(401).json({
+      ok: false,
+      message: "Sesión no válida o expirada",
+    });
   }
 
-  // Sanitizar token
-  token = String(token).trim();
-
   try {
-    // Verificar token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Revisar blacklist
+    // 3️⃣ Revisar blacklist
     const tokenInvalido = await estaEnBlacklist(token);
     if (tokenInvalido) {
-      return res.status(401).json({ message: "Token inválido o expirado" });
+      return res.status(401).json({
+        ok: false,
+        message: "Sesión cerrada",
+      });
     }
 
-    // Guardar usuario en req
     req.user = decoded;
     next();
-
   } catch (error) {
-    if (error.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "El token ha expirado" });
-    }
-
-    return res.status(401).json({ message: "Token inválido" });
+    return res.status(401).json({
+      ok: false,
+      message:
+        error.name === "TokenExpiredError"
+          ? "La sesión ha expirado"
+          : "Sesión inválida",
+    });
   }
 };
