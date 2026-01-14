@@ -163,7 +163,7 @@ export const asignarRolUsuario = async (req, res) => {
       });
     }
 
-    // 1️⃣ Obtener rol actual
+    // 1️⃣ Obtener usuario actual
     const usuario = await obtenerRolUsuario(usuario_id);
 
     if (!usuario) {
@@ -181,8 +181,27 @@ export const asignarRolUsuario = async (req, res) => {
       });
     }
 
-    // 3️⃣ Asignar rol
+    // 3️⃣ Guardar rol
     await registrarRolUsuario(usuario_id, rol_id);
+
+    // 4️⃣ 🔑 NUEVO JWT CON ROL
+    const token = jwt.sign(
+      {
+        id: usuario.id_usuario,
+        rol: rol_id,
+        correo: usuario.correo,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+
+    // 5️⃣ Reemplazar cookie
+    res.cookie("access_token", token, {
+      httpOnly: true,
+      secure: false, // true en producción con HTTPS
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
 
     return res.json({
       ok: true,

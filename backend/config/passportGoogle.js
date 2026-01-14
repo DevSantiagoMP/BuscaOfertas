@@ -54,7 +54,7 @@ passport.use(
             id_usuario: result.insertId,
             nombre,
             correo,
-            rol_id: 1, // rol por defecto
+            rol_id: null, 
           };
         }
 
