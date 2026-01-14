@@ -20,7 +20,7 @@ const Menu = ({ open, onClose, rolId, correo, onLogout }: MenuProps) => {
 
   const handleLogoutClick = () => {
     onLogout();
-    navigate("/login");
+    navigate("/opciones-login");
     onClose();
   };
 

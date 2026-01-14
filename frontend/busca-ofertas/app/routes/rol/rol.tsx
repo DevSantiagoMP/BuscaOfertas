@@ -1,30 +1,65 @@
+import { redirect } from "react-router";
+import type { Route } from "./+types/rol";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import Header from "../../components/Header/Header";
 import { asignarRolGoogle } from "../../../services/auth.client";
 
+const API_URL = "http://localhost:3000/api/auth/check-session";
+
+// 🔒 Loader
+export async function loader({ request }: Route.LoaderArgs) {
+  const cookie = request.headers.get("cookie");
+
+  // 1️⃣ Sin sesión → login
+  if (!cookie) {
+    throw redirect("/opciones-login");
+  }
+
+  let res: Response;
+
+  try {
+    res = await fetch(API_URL, {
+      headers: { cookie },
+    });
+  } catch {
+    throw redirect("/opciones-login");
+  }
+
+  if (!res.ok) {
+    throw redirect("/opciones-login");
+  }
+
+  const { usuario } = await res.json();
+
+  // 2️⃣ Con sesión y con rol → fuera
+  if (usuario.rol) {
+    throw redirect("/principal");
+  }
+
+  // 3️⃣ Con sesión y sin rol → OK
+  return null;
+}
+
 const Rol = () => {
-  const [rolId, setRolId] = useState<number | "">("");
+  const [rolId, setRolId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
 
   const handleGuardarRol = async () => {
-    if (!rolId) return;
-
     try {
       setLoading(true);
       setError(null);
 
-      await asignarRolGoogle(Number(rolId));
+      const rol = Number(rolId);
 
-      // Redirección según rol
-      if (rolId === 1) {
-        navigate("/principal"); // home usuario
-      } else if (rolId === 2) {
-        navigate("/administrar-negocio"); // dashboard negocio
-      }
+      await asignarRolGoogle(rol);
+
+      // 🔄 fuerza relectura del JWT
+      window.location.href = rol === 1 ? "/principal" : "/administrar-negocio";
+      
     } catch (err: any) {
       setError(err.message || "No se pudo asignar el rol");
     } finally {
@@ -49,35 +84,38 @@ const Rol = () => {
             <small>Este rol no podrá cambiarse después.</small>
           </p>
 
-          <div className="mb-4">
-            <label className="form-label fw-semibold">
-              Tipo de cuenta
-            </label>
-            <select
-              className="form-select"
-              value={rolId}
-              onChange={(e) => setRolId(Number(e.target.value))}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleGuardarRol();
+            }}
+          >
+            <div className="mb-4">
+              <label className="form-label fw-semibold">Tipo de cuenta</label>
+
+              <select
+                className="form-select"
+                value={rolId}
+                onChange={(e) => setRolId(e.target.value)}
+                required
+                disabled={loading}
+              >
+                <option value="">Selecciona una opción</option>
+                <option value="1">Usuario</option>
+                <option value="2">Negocio</option>
+              </select>
+            </div>
+
+            {error && <div className="alert alert-danger py-2">{error}</div>}
+
+            <button
+              type="submit"
+              className="btn btn-primary w-100"
               disabled={loading}
             >
-              <option value="">Selecciona una opción</option>
-              <option value={1}>Usuario</option>
-              <option value={2}>Negocio</option>
-            </select>
-          </div>
-
-          {error && (
-            <div className="alert alert-danger py-2">
-              {error}
-            </div>
-          )}
-
-          <button
-            className="btn btn-primary w-100"
-            disabled={!rolId || loading}
-            onClick={handleGuardarRol}
-          >
-            {loading ? "Guardando..." : "Guardar rol"}
-          </button>
+              {loading ? "Guardando..." : "Guardar rol"}
+            </button>
+          </form>
         </div>
       </main>
     </>

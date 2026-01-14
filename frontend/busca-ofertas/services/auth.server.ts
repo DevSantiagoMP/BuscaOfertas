@@ -19,12 +19,11 @@ export async function checkSessionServer(request: Request): Promise<boolean> {
   }
 }
 
-// Requiere login
+// Requiere login + rol
 export async function requireAuth(request: Request) {
   const cookie = request.headers.get("cookie");
-
   if (!cookie) {
-    throw redirect("/login");
+    throw redirect("/opciones-login");
   }
 
   let res: Response;
@@ -34,15 +33,22 @@ export async function requireAuth(request: Request) {
       headers: { cookie },
     });
   } catch {
-    throw redirect("/login");
+    throw redirect("/opciones-login");
   }
 
   if (!res.ok) {
-    throw redirect("/login");
+    throw redirect("/opciones-login");
   }
 
   const data = await res.json();
-  return data.usuario;
+  const usuario = data.usuario;
+
+  // 🔴 NUEVO: tiene sesión pero NO rol
+  if (!usuario.rol) {
+    throw redirect("/rol");
+  }
+
+  return usuario;
 }
 
 // Requiere rol específico

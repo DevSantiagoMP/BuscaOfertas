@@ -26,13 +26,13 @@ const ChangePassword = () => {
   useEffect(() => {
     if (!token) {
       alert("Token inválido o inexistente");
-      navigate("/login");
+      navigate("/opciones-login");
       return;
     }
 
     validateRecoverToken(token).catch(() => {
       alert("Token inválido o expirado");
-      navigate("/login");
+      navigate("/opciones-login");
     });
   }, [token, navigate]);
 

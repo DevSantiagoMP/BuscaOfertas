@@ -48,7 +48,7 @@ export const useAuth = () => {
 
       setRolId(null);
       setCorreo(null);
-      navigate("/login");
+      navigate("/opciones-login");
     } catch (error) {
       console.error("Error al cerrar sesión", error);
     }
