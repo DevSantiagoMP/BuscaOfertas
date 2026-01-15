@@ -5,7 +5,10 @@ import {
   eliminarProductoApi,
   obtenerMisProductos,
 } from "../../../../services/products.client";
-import { uploadImageToCloudinary } from "../../../../services/cloudinary.client";
+import {
+  uploadImageToCloudinary,
+  deleteImageFromCloudinary,
+} from "../../../../services/cloudinary.client";
 
 // Tipos
 interface Producto {
@@ -20,6 +23,7 @@ interface Producto {
 
   editando: boolean;
   isNew?: boolean;
+  imagenEliminada?: boolean;
 
   backup?: {
     nombre: string;
@@ -27,6 +31,7 @@ interface Producto {
     precio: string;
     foto_url?: string | null;
     foto_public_id?: string | null;
+    imagenEliminada?: boolean;
   };
 }
 
@@ -50,6 +55,7 @@ const BusinessProducts = () => {
             imagen: null,
             foto_url: p.foto_url,
             foto_public_id: p.foto_public_id,
+            imagenEliminada: false,
             editando: false,
             isNew: false,
           })
@@ -81,6 +87,7 @@ const BusinessProducts = () => {
         imagen: null,
         foto_url: null,
         foto_public_id: null,
+        imagenEliminada: false,
         editando: true,
         isNew: true,
       },
@@ -104,6 +111,7 @@ const BusinessProducts = () => {
                 precio: p.precio,
                 foto_url: p.foto_url,
                 foto_public_id: p.foto_public_id,
+                imagenEliminada: p.imagenEliminada,
               },
             }
           : p
@@ -112,24 +120,47 @@ const BusinessProducts = () => {
   };
 
   const cancelarEdicion = (id: number) => {
+    setProductos(
+      (prev) =>
+        prev
+          .map((p) => {
+            if (p.id !== id) return p;
+
+            // Nuevo → eliminar
+            if (p.isNew) return null;
+
+            //Existente → restaurar backup
+            return {
+              ...p,
+              ...p.backup,
+              imagen: null,
+              editando: false,
+              backup: undefined,
+            };
+          })
+          .filter(Boolean) as Producto[]
+    );
+  };
+
+  const eliminarImagenProducto = (id: number) => {
+    const producto = productos.find((p) => p.id === id);
+    if (!producto || !producto.foto_public_id) return;
+
+    const confirmar = confirm("¿Seguro que deseas eliminar la imagen?");
+    if (!confirmar) return;
+
+    // NO borrar de Cloudinary aquí
     setProductos((prev) =>
-      prev
-        .map((p) => {
-          if (p.id !== id) return p;
-
-          // Nuevo → eliminar
-          if (p.isNew) return null;
-
-          //Existente → restaurar backup
-          return {
-            ...p,
-            ...p.backup,
-            imagen: null,
-            editando: false,
-            backup: undefined,
-          };
-        })
-        .filter(Boolean) as Producto[]
+      prev.map((p) =>
+        p.id === id
+          ? {
+              ...p,
+              imagenEliminada: true,
+              imagen: null,
+              foto_url: null,
+            }
+          : p
+      )
     );
   };
 
@@ -140,6 +171,13 @@ const BusinessProducts = () => {
     try {
       let foto_url = producto.foto_url ?? null;
       let foto_public_id = producto.foto_public_id ?? null;
+
+      // eliminar imagen anterior SOLO si se confirmó
+      if (producto.imagenEliminada && producto.foto_public_id) {
+        await deleteImageFromCloudinary(producto.foto_public_id);
+        foto_url = null;
+        foto_public_id = null;
+      }
 
       if (producto.imagen) {
         const upload = await uploadImageToCloudinary(producto.imagen);
@@ -169,6 +207,7 @@ const BusinessProducts = () => {
                   isNew: false,
                   backup: undefined,
                   imagen: null,
+                  imagenEliminada: false,
                 }
               : p
           )
@@ -195,6 +234,7 @@ const BusinessProducts = () => {
                   editando: false,
                   backup: undefined,
                   imagen: null,
+                  imagenEliminada: false,
                 }
               : p
           )
@@ -263,28 +303,59 @@ const BusinessProducts = () => {
                     Toca aquí para añadir una foto (opcional)
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg, image/png, image/webp"
                       hidden
-                      onChange={(e) =>
-                        e.target.files &&
-                        actualizarCampo(
-                          producto.id,
-                          "imagen",
-                          e.target.files[0]
-                        )
-                      }
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+
+                        const allowedTypes = [
+                          "image/jpeg",
+                          "image/png",
+                          "image/webp",
+                        ];
+                        const maxSize = 300 * 1024;
+
+                        if (!allowedTypes.includes(file.type)) {
+                          alert("Solo se permiten imágenes JPG, PNG o WEBP");
+                          e.target.value = "";
+                          return;
+                        }
+
+                        if (file.size > maxSize) {
+                          alert("La imagen no puede exceder los 300KB");
+                          e.target.value = "";
+                          return;
+                        }
+
+                        actualizarCampo(producto.id, "imagen", file);
+                      }}
                     />
                   </label>
 
                   {(producto.imagen || producto.foto_url) && (
-                    <img
-                      src={
-                        producto.imagen
-                          ? URL.createObjectURL(producto.imagen)
-                          : producto.foto_url!
-                      }
-                      className="img-fluid rounded my-3"
-                    />
+                    <>
+                      <img
+                        src={
+                          producto.imagen
+                            ? URL.createObjectURL(producto.imagen)
+                            : producto.foto_url!
+                        }
+                        className="img-fluid rounded my-3"
+                      />
+
+                      {producto.foto_public_id &&
+                        !producto.imagen &&
+                        !producto.imagenEliminada && (
+                          <button
+                            type="button"
+                            className="btn btn-outline-danger w-100 mb-3"
+                            onClick={() => eliminarImagenProducto(producto.id)}
+                          >
+                            Eliminar imagen
+                          </button>
+                        )}
+                    </>
                   )}
 
                   <input
@@ -333,9 +404,7 @@ const BusinessProducts = () => {
                       className="btn btn-success flex-fill"
                       disabled={guardandoId === producto.id}
                     >
-                      {guardandoId === producto.id
-                        ? "Guardando..."
-                        : "Guardar"}
+                      {guardandoId === producto.id ? "Guardando..." : "Guardar"}
                     </button>
 
                     <button

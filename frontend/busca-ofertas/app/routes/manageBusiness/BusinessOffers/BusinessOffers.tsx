@@ -5,7 +5,10 @@ import {
   eliminarOfertaApi,
   obtenerMisOfertas,
 } from "../../../../services/offers.client";
-import { uploadImageToCloudinary } from "../../../../services/cloudinary.client";
+import {
+  uploadImageToCloudinary,
+  deleteImageFromCloudinary,
+} from "../../../../services/cloudinary.client";
 
 // Tipos
 interface Oferta {
@@ -18,6 +21,8 @@ interface Oferta {
   foto_url?: string | null;
   foto_public_id?: string | null;
 
+  imagenEliminada?: boolean;
+
   editando: boolean;
   isNew?: boolean;
 
@@ -27,6 +32,7 @@ interface Oferta {
     precio: string;
     foto_url?: string | null;
     foto_public_id?: string | null;
+    imagenEliminada?: boolean;
   };
 }
 
@@ -35,7 +41,7 @@ const BusinessOffers = () => {
   const [contadorId, setContadorId] = useState(1);
   const [guardandoId, setGuardandoId] = useState<number | null>(null);
 
-// Obtener ofertas
+  // Obtener ofertas
   useEffect(() => {
     const fetchOfertas = async () => {
       try {
@@ -50,6 +56,7 @@ const BusinessOffers = () => {
             imagen: null,
             foto_url: o.foto_url,
             foto_public_id: o.foto_public_id,
+            imagenEliminada: false,
             editando: false,
             isNew: false,
           }))
@@ -65,7 +72,7 @@ const BusinessOffers = () => {
     fetchOfertas();
   }, []);
 
-// Agregar oferta
+  // Agregar oferta
   const agregarOferta = () => {
     if (ofertas.some((o) => o.editando)) return;
 
@@ -79,6 +86,7 @@ const BusinessOffers = () => {
         imagen: null,
         foto_url: null,
         foto_public_id: null,
+        imagenEliminada: false,
         editando: true,
         isNew: true,
       },
@@ -102,6 +110,7 @@ const BusinessOffers = () => {
                 precio: o.precio,
                 foto_url: o.foto_url,
                 foto_public_id: o.foto_public_id,
+                imagenEliminada: o.imagenEliminada,
               },
             }
           : o
@@ -110,24 +119,43 @@ const BusinessOffers = () => {
   };
 
   const cancelarEdicion = (id: number) => {
+    setOfertas(
+      (prev) =>
+        prev
+          .map((o) => {
+            if (o.id !== id) return o;
+
+            // Nueva → eliminar
+            if (o.isNew) return null;
+
+            // Existente → restaurar backup
+            return {
+              ...o,
+              ...o.backup,
+              imagen: null,
+              editando: false,
+              backup: undefined,
+            };
+          })
+          .filter(Boolean) as Oferta[]
+    );
+  };
+
+  const eliminarImagenOferta = (id: number) => {
+    const confirmar = confirm("¿Seguro que deseas eliminar la imagen?");
+    if (!confirmar) return;
+
     setOfertas((prev) =>
-      prev
-        .map((o) => {
-          if (o.id !== id) return o;
-
-          // Nueva → eliminar
-          if (o.isNew) return null;
-
-          // Existente → restaurar backup
-          return {
-            ...o,
-            ...o.backup,
-            imagen: null,
-            editando: false,
-            backup: undefined,
-          };
-        })
-        .filter(Boolean) as Oferta[]
+      prev.map((o) =>
+        o.id === id
+          ? {
+              ...o,
+              imagen: null,
+              foto_url: null,
+              imagenEliminada: true,
+            }
+          : o
+      )
     );
   };
 
@@ -140,6 +168,13 @@ const BusinessOffers = () => {
 
       let foto_url = oferta.foto_url ?? null;
       let foto_public_id = oferta.foto_public_id ?? null;
+
+      // Si la imagen fue marcada para eliminar
+      if (oferta.imagenEliminada && oferta.foto_public_id) {
+        await deleteImageFromCloudinary(oferta.foto_public_id);
+        foto_public_id = null;
+        foto_url = null;
+      }
 
       if (oferta.imagen) {
         const upload = await uploadImageToCloudinary(oferta.imagen);
@@ -165,6 +200,7 @@ const BusinessOffers = () => {
                   id: response.id_oferta,
                   foto_url,
                   foto_public_id,
+                  imagenEliminada: false,
                   editando: false,
                   isNew: false,
                   backup: undefined,
@@ -192,6 +228,7 @@ const BusinessOffers = () => {
                   ...o,
                   foto_url,
                   foto_public_id,
+                  imagenEliminada: false,
                   editando: false,
                   backup: undefined,
                   imagen: null,
@@ -213,7 +250,7 @@ const BusinessOffers = () => {
     }
   };
 
-  //    Eliminar oferta
+  // Eliminar oferta
   const eliminarOferta = async (id: number) => {
     try {
       await eliminarOfertaApi(id);
@@ -263,28 +300,58 @@ const BusinessOffers = () => {
                     Toca aquí para añadir una foto (opcional)
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg, image/png, image/webp"
                       hidden
-                      onChange={(e) =>
-                        e.target.files &&
-                        actualizarCampo(
-                          oferta.id,
-                          "imagen",
-                          e.target.files[0]
-                        )
-                      }
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+
+                        const allowedTypes = [
+                          "image/jpeg",
+                          "image/png",
+                          "image/webp",
+                        ];
+                        const maxSize = 300 * 1024; // 300 KB
+
+                        if (!allowedTypes.includes(file.type)) {
+                          alert("Solo se permiten imágenes JPG, PNG o WEBP");
+                          e.target.value = "";
+                          return;
+                        }
+
+                        if (file.size > maxSize) {
+                          alert("La imagen no puede exceder los 300KB");
+                          e.target.value = "";
+                          return;
+                        }
+
+                        actualizarCampo(oferta.id, "imagen", file);
+                        actualizarCampo(oferta.id, "imagenEliminada", false);
+                      }}
                     />
                   </label>
 
                   {(oferta.imagen || oferta.foto_url) && (
-                    <img
-                      src={
-                        oferta.imagen
-                          ? URL.createObjectURL(oferta.imagen)
-                          : oferta.foto_url!
-                      }
-                      className="img-fluid rounded my-3"
-                    />
+                    <>
+                      <img
+                        src={
+                          oferta.imagen
+                            ? URL.createObjectURL(oferta.imagen)
+                            : oferta.foto_url!
+                        }
+                        className="img-fluid rounded my-3"
+                      />
+
+                      {oferta.foto_public_id && (
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger w-100 mb-3"
+                          onClick={() => eliminarImagenOferta(oferta.id)}
+                        >
+                          Eliminar imagen
+                        </button>
+                      )}
+                    </>
                   )}
 
                   <input
@@ -302,11 +369,7 @@ const BusinessOffers = () => {
                     placeholder="Descripción"
                     value={oferta.descripcion}
                     onChange={(e) =>
-                      actualizarCampo(
-                        oferta.id,
-                        "descripcion",
-                        e.target.value
-                      )
+                      actualizarCampo(oferta.id, "descripcion", e.target.value)
                     }
                   />
 
@@ -333,9 +396,7 @@ const BusinessOffers = () => {
                       className="btn btn-success flex-fill"
                       disabled={guardandoId === oferta.id}
                     >
-                      {guardandoId === oferta.id
-                        ? "Guardando..."
-                        : "Guardar"}
+                      {guardandoId === oferta.id ? "Guardando..." : "Guardar"}
                     </button>
 
                     <button
@@ -357,9 +418,7 @@ const BusinessOffers = () => {
                   )}
                   <p className="fw-bold">Nombre: {oferta.nombre}</p>
                   {oferta.descripcion && (
-                    <p className="fw-bold">
-                      Descripción: {oferta.descripcion}
-                    </p>
+                    <p className="fw-bold">Descripción: {oferta.descripcion}</p>
                   )}
                   <p className="fw-bold">Precio: {oferta.precio}</p>
 

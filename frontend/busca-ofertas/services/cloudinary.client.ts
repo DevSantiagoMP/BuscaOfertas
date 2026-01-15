@@ -60,3 +60,17 @@ export const uploadImageToCloudinary = async (
     public_id: data.public_id,
   };
 };
+
+export const deleteImageFromCloudinary = async (public_id: string) => {
+  const response = await fetch("http://localhost:3000/api/cloudinary/delete-image", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ public_id }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Error eliminando imagen");
+  }
+
+  return response.json();
+};

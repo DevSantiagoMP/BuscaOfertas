@@ -4,7 +4,10 @@ import {
   getMyBusiness,
   updateMyBusiness,
 } from "../../../../services/business.client";
-import { uploadImageToCloudinary } from "../../../../services/cloudinary.client";
+import {
+  uploadImageToCloudinary,
+  deleteImageFromCloudinary,
+} from "../../../../services/cloudinary.client";
 import "./BusinessData.css";
 
 // Interfaz para tipar los datos del negocio
@@ -17,6 +20,7 @@ interface DatosNegocio {
   telefono: string;
   categoriaId: number;
   fotoPreview?: string;
+  foto_public_id?: string | null;
 }
 
 const CATEGORIAS: Record<number, string> = {
@@ -53,7 +57,13 @@ const BusinessData = () => {
   // Estado de spinner de carga
   const [loading, setLoading] = useState(false);
 
-  // 🔹 CARGAR NEGOCIO
+  const [imagenEliminada, setImagenEliminada] = useState(false);
+
+  const [datosOriginales, setDatosOriginales] = useState<DatosNegocio | null>(
+    null
+  );
+
+  // CARGAR NEGOCIO
   useEffect(() => {
     const fetchMyBusiness = async () => {
       try {
@@ -68,6 +78,7 @@ const BusinessData = () => {
           telefono: data.telefono,
           categoriaId: data.categoria_id,
           fotoPreview: data.foto_url,
+          foto_public_id: data.foto_public_id,
         });
 
         setNombreNegocio(data.nombre);
@@ -84,25 +95,56 @@ const BusinessData = () => {
     fetchMyBusiness();
   }, []);
 
-  // 🔹 ENVIAR FORMULARIO
+  const eliminarImagenNegocio = () => {
+    if (!datosGuardados?.foto_public_id) return;
+
+    const confirmar = confirm(
+      "¿Seguro que deseas eliminar la imagen del negocio?"
+    );
+    if (!confirmar) return;
+
+    // SOLO estado local
+    setImagenEliminada(true);
+    setImagenNegocio(null);
+
+    setDatosGuardados((prev) =>
+      prev
+        ? {
+            ...prev,
+            fotoPreview: undefined,
+            foto_public_id: prev.foto_public_id,
+          }
+        : null
+    );
+  };
+
+  // ENVIAR FORMULARIO
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (categoria === "") return;
 
     try {
-      setLoading(true); // 🔥 INICIA SPINNER
-      let foto_url: string | null = null;
-      let foto_public_id: string | null = null;
+      setLoading(true); // INICIA SPINNER
+      let foto_url: string | null = datosGuardados?.fotoPreview ?? null;
+      let foto_public_id: string | null =
+        datosGuardados?.foto_public_id ?? null;
 
-      // 🔥 1️⃣ SUBIR IMAGEN DIRECTO A CLOUDINARY (SI EXISTE)
+      // Eliminar imagen anterior SOLO si se confirmó al guardar
+      if (imagenEliminada && datosGuardados?.foto_public_id) {
+        await deleteImageFromCloudinary(datosGuardados.foto_public_id);
+        foto_url = null;
+        foto_public_id = null;
+      }
+
+      // SUBIR IMAGEN DIRECTO A CLOUDINARY (SI EXISTE)
       if (imagenNegocio) {
         const uploadResult = await uploadImageToCloudinary(imagenNegocio);
         foto_url = uploadResult.secure_url;
         foto_public_id = uploadResult.public_id;
       }
 
-      // 🔹 ACTUALIZAR NEGOCIO
+      // ACTUALIZAR NEGOCIO
       if (datosGuardados) {
         await updateMyBusiness({
           nombre: nombreNegocio,
@@ -126,7 +168,7 @@ const BusinessData = () => {
           fotoPreview: foto_url || datosGuardados.fotoPreview,
         });
       }
-      // 🔹 CREAR NEGOCIO
+      // CREAR NEGOCIO
       else {
         const response = await registerBusiness({
           nombre: nombreNegocio,
@@ -148,14 +190,17 @@ const BusinessData = () => {
           telefono,
           categoriaId: categoria,
           fotoPreview: foto_url || undefined,
+          foto_public_id,
         });
       }
 
       setMostrar(false);
+      setImagenEliminada(false);
+      setDatosOriginales(null);
     } catch (error: any) {
       alert(error.message || "Error al guardar la información");
     } finally {
-      setLoading(false); // 🔥 DETIENE SPINNER
+      setLoading(false); // DETIENE SPINNER
     }
   };
 
@@ -171,6 +216,8 @@ const BusinessData = () => {
             className="button-section-container"
             onClick={() => {
               if (!mostrar && datosGuardados) {
+                setDatosOriginales({ ...datosGuardados }); // SNAPSHOT
+
                 setNombreNegocio(datosGuardados.nombreNegocio);
                 setDescripcionNegocio(datosGuardados.descripcionNegocio);
                 setCiudad(datosGuardados.ciudad);
@@ -178,6 +225,16 @@ const BusinessData = () => {
                 setTelefono(datosGuardados.telefono);
                 setCategoria(datosGuardados.categoriaId);
               }
+
+              if (mostrar) {
+                // cancelar
+                if (datosOriginales) {
+                  setDatosGuardados(datosOriginales); // RESTAURA IMAGEN
+                }
+                setImagenNegocio(null);
+                setImagenEliminada(false);
+              }
+
               setMostrar((prev) => !prev);
             }}
           >
@@ -236,16 +293,31 @@ const BusinessData = () => {
 
                     // Si pasa todas las validaciones
                     setImagenNegocio(file);
+                    setImagenEliminada(false);
                   }}
                 />
 
-                {imagenNegocio && (
-                  <div className="mb-3 d-flex justify-content-center">
+                {(imagenNegocio || datosGuardados?.fotoPreview) && (
+                  <div className="mb-3 d-flex flex-column align-items-center gap-2">
                     <img
-                      src={URL.createObjectURL(imagenNegocio)}
+                      src={
+                        imagenNegocio
+                          ? URL.createObjectURL(imagenNegocio)
+                          : datosGuardados?.fotoPreview
+                      }
                       alt="Vista previa"
                       className="info-preview-img"
                     />
+
+                    {datosGuardados?.fotoPreview && !imagenNegocio && !imagenEliminada && (
+                      <button
+                        type="button"
+                        className="btn btn-outline-danger"
+                        onClick={eliminarImagenNegocio}
+                      >
+                        Eliminar imagen
+                      </button>
+                    )}
                   </div>
                 )}
 
