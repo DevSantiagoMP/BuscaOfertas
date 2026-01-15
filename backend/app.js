@@ -13,6 +13,7 @@ import authRoutes from "./routes/auth/authRoutes.js"; //importacion de ruta aute
 import businessRoutes from "./routes/business/businessRoutes.js"; //importacion de ruta negocios
 import productsRoutes from "./routes/products/productsRoutes.js"; //importacion de ruta productos
 import offersRoutes from "./routes/offers/offersRoutes.js"; //importacion de ruta ofertas
+import cloudinaryRoutes from "./routes/cloudinary.routes.js";
 
 const app = express();
 
@@ -41,8 +42,8 @@ const startServer = async () => {
   app.use("/api/business", businessRoutes);
   app.use("/api/products", productsRoutes);
   app.use("/api/offers", offersRoutes);
+  app.use("/api/cloudinary", cloudinaryRoutes);
   
-
   //servidor
   app.listen(3000, () => {
     console.log("Servidor corriendo en puerto 3000");
