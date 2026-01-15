@@ -14,23 +14,17 @@ const ProductCard = ({ producto }: Props) => {
 
   return (
     <div style={{ minWidth: "260px", maxWidth: "260px" }}>
-      <div className="card h-100 shadow-sm">
-
-        {/* CONTENEDOR DE IMAGEN (siempre existe) */}
-        <div style={{ height: "180px", backgroundColor: "#f1f1f1" }}>
-          {producto.foto_url ? (
+      <div className={`card shadow-sm ${producto.foto_url ? "h-100" : ""}`}>
+        {producto.foto_url && (
+          <div style={{ height: "180px" }}>
             <img
               src={producto.foto_url}
               alt={producto.nombre}
               className="w-100 h-100"
               style={{ objectFit: "cover" }}
             />
-          ) : (
-            <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
-              Sin imagen
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="card-body d-flex flex-column">
           <h5 className="card-title">{producto.nombre}</h5>

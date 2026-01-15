@@ -14,23 +14,21 @@ const OfferCard = ({ oferta }: Props) => {
 
   return (
     <div style={{ minWidth: "260px", maxWidth: "260px" }}>
-      <div className="card h-100 shadow-sm border-success">
-
-        {/* CONTENEDOR DE IMAGEN (siempre existe) */}
-        <div style={{ height: "180px", backgroundColor: "#f1f1f1" }}>
-          {oferta.foto_url ? (
+      <div
+        className={`card shadow-sm border-success ${
+          oferta.foto_url ? "h-100" : ""
+        }`}
+      >
+        {oferta.foto_url && (
+          <div style={{ height: "180px" }}>
             <img
               src={oferta.foto_url}
               alt={oferta.nombre}
               className="w-100 h-100"
               style={{ objectFit: "cover" }}
             />
-          ) : (
-            <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
-              Sin imagen
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="card-body d-flex flex-column">
           <h5 className="card-title">{oferta.nombre}</h5>
