@@ -57,13 +57,12 @@ const Rol = () => {
 
       await asignarRolGoogle(rol);
 
-      // 🔄 fuerza relectura del JWT
-      window.location.href = rol === 1 ? "/principal" : "/administrar-negocio";
-      
+      navigate(rol === 1 ? "/principal" : "/administrar-negocio", {
+        replace: true,
+      });
     } catch (err: any) {
       setError(err.message || "No se pudo asignar el rol");
-    } finally {
-      setLoading(false);
+      setLoading(false); // solo aquí
     }
   };
 
