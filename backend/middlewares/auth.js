@@ -4,13 +4,13 @@ import { estaEnBlacklist } from "../models/authLogoutModel.js";
 export const validarJWT = async (req, res, next) => {
   let token = null;
 
-  // 1️⃣ Authorization header
+  // 1 Authorization header
   const authHeader = req.headers.authorization;
   if (authHeader?.startsWith("Bearer ")) {
     token = authHeader.split(" ")[1];
   }
 
-  // 2️⃣ Cookie HttpOnly
+  // 2 Cookie HttpOnly
   if (!token && req.cookies?.access_token) {
     token = req.cookies.access_token;
   }
@@ -25,7 +25,7 @@ export const validarJWT = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // 3️⃣ Revisar blacklist
+    // 3 Revisar blacklist
     const tokenInvalido = await estaEnBlacklist(token);
     if (tokenInvalido) {
       return res.status(401).json({

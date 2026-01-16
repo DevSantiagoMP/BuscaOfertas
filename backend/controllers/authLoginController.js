@@ -112,7 +112,7 @@ export const loginUser = async (req, res) => {
         maxAge: 24 * 60 * 60 * 1000,
       });
     } catch (err) {
-      console.error("❌ Error enviando cookie:", err);
+      console.error("Error enviando cookie:", err);
       return res.status(500).json({
         message: "Error al generar la sesión del usuario",
       });
@@ -163,7 +163,6 @@ export const asignarRolUsuario = async (req, res) => {
       });
     }
 
-    // 1️⃣ Obtener usuario actual
     const usuario = await obtenerRolUsuario(usuario_id);
 
     if (!usuario) {
@@ -173,7 +172,6 @@ export const asignarRolUsuario = async (req, res) => {
       });
     }
 
-    // 2️⃣ Bloquear si ya tiene rol
     if (usuario.rol_id !== null) {
       return res.status(403).json({
         ok: false,
@@ -181,24 +179,22 @@ export const asignarRolUsuario = async (req, res) => {
       });
     }
 
-    // 3️⃣ Guardar rol
     await registrarRolUsuario(usuario_id, rol_id);
 
-    // 4️⃣ 🔑 NUEVO JWT CON ROL
+    // JWT nuevo con el rol asignado
     const token = jwt.sign(
       {
-        id: usuario.id_usuario,
+        id: req.user.id,
         rol: rol_id,
-        correo: usuario.correo,
+        correo: req.user.correo, 
       },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
 
-    // 5️⃣ Reemplazar cookie
     res.cookie("access_token", token, {
       httpOnly: true,
-      secure: false, // true en producción con HTTPS
+      secure: false,
       sameSite: "lax",
       maxAge: 24 * 60 * 60 * 1000,
     });

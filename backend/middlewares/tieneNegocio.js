@@ -6,7 +6,7 @@ export const cargarMiNegocio = async (req, res, next) => {
 
     if (!negocio) {
       return res.status(404).json({
-        message: "El usuario no tiene un negocio registrado",
+        message: "Por favor agrega la información de tu negocio antes de continuar.",
       });
     }
 
