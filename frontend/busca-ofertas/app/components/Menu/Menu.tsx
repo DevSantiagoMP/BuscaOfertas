@@ -44,7 +44,7 @@ const Menu = ({ open, onClose, rolId, correo, onLogout }: MenuProps) => {
 
           {rolId === 1 && !isPrincipal && (
             <Link to="/principal" onClick={onClose}>
-              <button className="principal-menu-button w-100">Página principal</button>
+              <button className="principal-menu-button w-100">Negocios / Productos / Ofertas</button>
             </Link>
           )}
 
@@ -58,7 +58,7 @@ const Menu = ({ open, onClose, rolId, correo, onLogout }: MenuProps) => {
 
           {rolId === 2 && !isPrincipal && (
             <Link to="/principal" onClick={onClose}>
-              <button className="principal-menu-button w-100">Página principal</button>
+              <button className="principal-menu-button w-100">Negocios / Productos / Ofertas</button>
             </Link>
           )}
 

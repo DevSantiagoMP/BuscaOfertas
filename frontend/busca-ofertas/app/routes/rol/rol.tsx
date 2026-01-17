@@ -1,4 +1,4 @@
-import { redirect } from "react-router";
+import { redirect, Link } from "react-router";
 import type { Route } from "./+types/rol";
 import { useState } from "react";
 import { useNavigate } from "react-router";
@@ -7,11 +7,11 @@ import { asignarRolGoogle } from "../../../services/auth.client";
 
 const API_URL = "http://localhost:3000/api/auth/check-session";
 
-// 🔒 Loader
+// Loader
 export async function loader({ request }: Route.LoaderArgs) {
   const cookie = request.headers.get("cookie");
 
-  // 1️⃣ Sin sesión → login
+  // 1 Sin sesión → login
   if (!cookie) {
     throw redirect("/opciones-login");
   }
@@ -32,12 +32,12 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const { usuario } = await res.json();
 
-  // 2️⃣ Con sesión y con rol → fuera
+  // 2 Con sesión y con rol → fuera
   if (usuario.rol) {
     throw redirect("/principal");
   }
 
-  // 3️⃣ Con sesión y sin rol → OK
+  // 3 Con sesión y sin rol → OK
   return null;
 }
 
@@ -114,6 +114,17 @@ const Rol = () => {
             >
               {loading ? "Guardando..." : "Guardar rol"}
             </button>
+            <p className="text-muted small mt-2">
+              Al registrarte aceptas los{" "}
+              <Link to="/terminos-condiciones" className="d-inline">
+                Términos y Condiciones
+              </Link>{" "}
+              y la{" "}
+              <Link to="/politica-de-privacidad" className="d-inline">
+                Política de Privacidad
+              </Link>
+              .
+            </p>
           </form>
         </div>
       </main>
