@@ -166,6 +166,7 @@ const BusinessData = () => {
           telefono,
           categoriaId: categoria,
           fotoPreview: foto_url || datosGuardados.fotoPreview,
+          foto_public_id,
         });
       }
       // CREAR NEGOCIO
@@ -194,6 +195,7 @@ const BusinessData = () => {
         });
       }
 
+      setImagenNegocio(null); 
       setMostrar(false);
       setImagenEliminada(false);
       setDatosOriginales(null);

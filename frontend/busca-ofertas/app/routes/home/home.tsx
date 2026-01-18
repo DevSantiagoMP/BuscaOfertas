@@ -98,9 +98,8 @@ export default function Home() {
             <div className="col-md-4 plan-container">
               <h5>Registra productos y ofertas ilimitadas.</h5>
               <p>
-                Plan mensual desde <br />
-                10.000 COP.
-              </p>
+                Plan mensual
+              </p> {/* <br /> desde 10.000 COP */}
               {/* <Link to="/plan-mensual">
                 <button>Adquirir plan</button>
               </Link> */}
@@ -110,9 +109,8 @@ export default function Home() {
             <div className="col-md-4 plan-container">
               <h5>Registra productos y ofertas ilimitadas.</h5>
               <p>
-                Plan anual desde <br />
-                110.000 COP.
-              </p>
+                Plan anual 
+              </p> {/* <br /> desde 100.000 COP */}
               {/*<Link to="/plan-anual">
                 <button>Adquirir plan</button>
               </Link>  */}

@@ -342,7 +342,7 @@ const BusinessOffers = () => {
                         className="img-fluid rounded my-3"
                       />
 
-                      {oferta.foto_public_id && (
+                      {oferta.foto_public_id && !oferta.imagen && !oferta.imagenEliminada && (
                         <button
                           type="button"
                           className="btn btn-outline-danger w-100 mb-3"

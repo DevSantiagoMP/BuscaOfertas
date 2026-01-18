@@ -329,6 +329,7 @@ const BusinessProducts = () => {
                         }
 
                         actualizarCampo(producto.id, "imagen", file);
+                        actualizarCampo(producto.id, "imagenEliminada", false)
                       }}
                     />
                   </label>
