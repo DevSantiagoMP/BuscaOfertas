@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   crearProducto,
   actualizarProducto,
@@ -39,6 +39,9 @@ const BusinessProducts = () => {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [contadorId, setContadorId] = useState(1);
   const [guardandoId, setGuardandoId] = useState<number | null>(null);
+  
+  // Refs para los inputs file de cada producto
+  const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
 
   // Cargar productos
   useEffect(() => {
@@ -162,6 +165,25 @@ const BusinessProducts = () => {
           : p
       )
     );
+  };
+
+  // NUEVO: Remover imagen recién agregada (antes de guardar)
+  const removerImagenNueva = (id: number) => {
+    setProductos((prev) =>
+      prev.map((p) =>
+        p.id === id
+          ? {
+              ...p,
+              imagen: null,
+            }
+          : p
+      )
+    );
+    
+    // Resetear el input file
+    if (fileInputRefs.current[id]) {
+      fileInputRefs.current[id]!.value = "";
+    }
   };
 
   // Guardar producto
@@ -302,6 +324,7 @@ const BusinessProducts = () => {
                   <label className="custom-file-upload">
                     Toca aquí para añadir una foto (opcional)
                     <input
+                      ref={(el) => { fileInputRefs.current[producto.id] = el; }}
                       type="file"
                       accept="image/jpeg, image/png, image/webp"
                       hidden
@@ -335,28 +358,41 @@ const BusinessProducts = () => {
                   </label>
 
                   {(producto.imagen || producto.foto_url) && (
-                    <>
+                    <div className="mb-3 d-flex flex-column align-items-center gap-2">
                       <img
                         src={
                           producto.imagen
                             ? URL.createObjectURL(producto.imagen)
                             : producto.foto_url!
                         }
-                        className="img-fluid rounded my-3"
+                        className="img-fluid rounded"
+                        alt="Vista previa"
                       />
 
+                      {/* Botón para REMOVER imagen recién agregada */}
+                      {producto.imagen && (
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger w-100"
+                          onClick={() => removerImagenNueva(producto.id)}
+                        >
+                          Remover imagen
+                        </button>
+                      )}
+
+                      {/* Botón para ELIMINAR imagen guardada */}
                       {producto.foto_public_id &&
                         !producto.imagen &&
                         !producto.imagenEliminada && (
                           <button
                             type="button"
-                            className="btn btn-outline-danger w-100 mb-3"
+                            className="btn btn-outline-danger w-100"
                             onClick={() => eliminarImagenProducto(producto.id)}
                           >
                             Eliminar imagen
                           </button>
                         )}
-                    </>
+                    </div>
                   )}
 
                   <input
@@ -423,6 +459,7 @@ const BusinessProducts = () => {
                     <img
                       src={producto.foto_url}
                       className="img-fluid rounded mb-3"
+                      alt={producto.nombre}
                     />
                   )}
 

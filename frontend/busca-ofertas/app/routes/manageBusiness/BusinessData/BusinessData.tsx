@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   registerBusiness,
   getMyBusiness,
@@ -63,6 +63,9 @@ const BusinessData = () => {
     null
   );
 
+  // ← NUEVO: Ref para resetear el input file
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // CARGAR NEGOCIO
   useEffect(() => {
     const fetchMyBusiness = async () => {
@@ -116,6 +119,15 @@ const BusinessData = () => {
           }
         : null
     );
+  };
+
+  // ACTUALIZADO: Remover imagen recién agregada (antes de guardar)
+  const removerImagenNueva = () => {
+    setImagenNegocio(null);
+    // ← RESETEA el input file para permitir seleccionar otra imagen
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   // ENVIAR FORMULARIO
@@ -260,6 +272,7 @@ const BusinessData = () => {
                 </label>
 
                 <input
+                  ref={fileInputRef} // ← NUEVO: Conecta la referencia
                   className="input-box-input"
                   type="file"
                   id="imagenNegocio"
@@ -311,6 +324,18 @@ const BusinessData = () => {
                       className="info-preview-img"
                     />
 
+                    {/* Botón para REMOVER imagen recién agregada */}
+                    {imagenNegocio && (
+                      <button
+                        type="button"
+                        className="btn btn-outline-danger"
+                        onClick={removerImagenNueva}
+                      >
+                        Remover imagen
+                      </button>
+                    )}
+
+                    {/* Botón para ELIMINAR imagen guardada */}
                     {datosGuardados?.fotoPreview && !imagenNegocio && !imagenEliminada && (
                       <button
                         type="button"

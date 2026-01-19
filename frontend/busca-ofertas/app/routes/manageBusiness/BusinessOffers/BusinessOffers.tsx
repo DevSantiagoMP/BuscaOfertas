@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   crearOferta,
   actualizarOferta,
@@ -40,6 +40,9 @@ const BusinessOffers = () => {
   const [ofertas, setOfertas] = useState<Oferta[]>([]);
   const [contadorId, setContadorId] = useState(1);
   const [guardandoId, setGuardandoId] = useState<number | null>(null);
+  
+  // Refs para los inputs file de cada oferta
+  const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
 
   // Obtener ofertas
   useEffect(() => {
@@ -159,7 +162,26 @@ const BusinessOffers = () => {
     );
   };
 
-  //    Guardar oferta
+  // NUEVO: Remover imagen recién agregada (antes de guardar)
+  const removerImagenNueva = (id: number) => {
+    setOfertas((prev) =>
+      prev.map((o) =>
+        o.id === id
+          ? {
+              ...o,
+              imagen: null,
+            }
+          : o
+      )
+    );
+    
+    // Resetear el input file
+    if (fileInputRefs.current[id]) {
+      fileInputRefs.current[id]!.value = "";
+    }
+  };
+
+  // Guardar oferta
   const guardarOferta = async (id: number) => {
     try {
       setGuardandoId(id);
@@ -266,7 +288,7 @@ const BusinessOffers = () => {
     );
   };
 
-  //Render
+  // Render
   return (
     <div className="container section-container mb-5">
       <div className="row align-items-center">
@@ -299,6 +321,7 @@ const BusinessOffers = () => {
                   <label className="custom-file-upload">
                     Toca aquí para añadir una foto (opcional)
                     <input
+                      ref={(el) => { fileInputRefs.current[oferta.id] = el; }}
                       type="file"
                       accept="image/jpeg, image/png, image/webp"
                       hidden
@@ -332,26 +355,39 @@ const BusinessOffers = () => {
                   </label>
 
                   {(oferta.imagen || oferta.foto_url) && (
-                    <>
+                    <div className="mb-3 d-flex flex-column align-items-center gap-2">
                       <img
                         src={
                           oferta.imagen
                             ? URL.createObjectURL(oferta.imagen)
                             : oferta.foto_url!
                         }
-                        className="img-fluid rounded my-3"
+                        className="img-fluid rounded"
+                        alt="Vista previa"
                       />
 
+                      {/* Botón para REMOVER imagen recién agregada */}
+                      {oferta.imagen && (
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger w-100"
+                          onClick={() => removerImagenNueva(oferta.id)}
+                        >
+                          Remover imagen
+                        </button>
+                      )}
+
+                      {/* Botón para ELIMINAR imagen guardada */}
                       {oferta.foto_public_id && !oferta.imagen && !oferta.imagenEliminada && (
                         <button
                           type="button"
-                          className="btn btn-outline-danger w-100 mb-3"
+                          className="btn btn-outline-danger w-100"
                           onClick={() => eliminarImagenOferta(oferta.id)}
                         >
                           Eliminar imagen
                         </button>
                       )}
-                    </>
+                    </div>
                   )}
 
                   <input
@@ -414,6 +450,7 @@ const BusinessOffers = () => {
                     <img
                       src={oferta.foto_url}
                       className="img-fluid rounded mb-3"
+                      alt={oferta.nombre}
                     />
                   )}
                   <p className="fw-bold">Nombre: {oferta.nombre}</p>
