@@ -10,9 +10,6 @@ const PrivacyPolicy = () => {
           <p>
             <strong>BuscaOfertas</strong>
           </p>
-          <p>
-            <strong>Última actualización:</strong> 02/01/26
-          </p>
 
           <hr />
 

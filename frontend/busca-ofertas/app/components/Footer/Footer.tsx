@@ -18,8 +18,8 @@ const Footer = () => {
           <div className="col-md-4 mt-4 mt-md-0">
             <h6>información de contacto:</h6>
             <p>📍Dirección: Colombia, Bogota</p>
-            <p>📱Teléfono: +57 3219596318</p>
-            <p>📧 Email: BuscaOfertas@gmail.com</p>
+            {/* <p>📱Teléfono: +57 3219596318</p> */}
+            <p>📧 Email: buscaofertasprueba@gmail.com</p>
           </div>
 
           <div className="col-md-4 mt-4 mt-md-0">
