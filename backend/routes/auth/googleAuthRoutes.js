@@ -6,6 +6,7 @@ const router = express.Router();
 import { validarJWT } from "../../middlewares/auth.js";
 import { asignarRolUsuario } from "../../controllers/authLoginController.js";
 
+const FRONTEND_URL = process.env.FRONTEND_URL;
 
 // Iniciar login Google
 router.get(
@@ -21,7 +22,7 @@ router.get(
   "/callback",
   passport.authenticate("google", {
     session: false,
-    failureRedirect: "http://localhost:5173/login",
+    failureRedirect: `${FRONTEND_URL}/login`,
   }),
   (req, res) => {
     const { token } = req.user;
@@ -33,7 +34,7 @@ router.get(
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    res.redirect("http://localhost:5173/rol");
+    res.redirect(`${FRONTEND_URL}/rol`);
   }
 );
 

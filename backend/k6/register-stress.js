@@ -2,6 +2,8 @@ import http from "k6/http";
 import { check, sleep } from "k6";
 import { randomString } from "https://jslib.k6.io/k6-utils/1.4.0/index.js";
 
+const BACKEN_URL = process.env.BACKEN_URL;
+
 export const options = {
   stages: [
     { duration: "20s", target: 10 },
@@ -12,7 +14,7 @@ export const options = {
   ],
 };
 
-const BASE_URL = "http://localhost:3000/api/auth";
+const BASE_URL = `${BACKEN_URL}/api/auth`;
 
 export default function () {
   const email = `stress_${randomString(10)}@mail.com`;

@@ -16,6 +16,7 @@ import offersRoutes from "./routes/offers/offersRoutes.js"; //importacion de rut
 import cloudinaryRoutes from "./routes/cloudinary.routes.js";
 
 const app = express();
+const PORT = process.env.BACKEND_PORT;
 
 //middlewares
 app.use(express.urlencoded({ extended: true }));
@@ -23,7 +24,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: "http://localhost:5173",  // dominio frontend
+    origin: process.env.FRONTEND_URL,  // dominio frontend
     credentials: true,                // permitir cookies
   })
 );
@@ -45,8 +46,8 @@ const startServer = async () => {
   app.use("/api/cloudinary", cloudinaryRoutes);
   
   //servidor
-  app.listen(3000, () => {
-    console.log("Servidor corriendo en puerto 3000");
+  app.listen(PORT, () => {
+    console.log(`Servidor corriendo en puerto ${PORT}`);
   });
 };
 
