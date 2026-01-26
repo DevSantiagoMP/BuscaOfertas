@@ -3,8 +3,9 @@ import Header from "../../components/Header/Header";
 import "./beforeLogin.css";
 
 const beforeRegister = () => {
+  const SERVER = import.meta.env.VITE_SERVER;
   const googleLogin = () => {
-    window.location.href = "http://localhost:3000/api/auth/google";
+    window.location.href = `${SERVER}/api/auth/google`;
   };
 
   return (

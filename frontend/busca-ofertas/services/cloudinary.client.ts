@@ -1,5 +1,5 @@
-const CLOUD_NAME = "dmmbzwpii";
-const UPLOAD_PRESET = "negocios_unsigned";
+const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME;
+const UPLOAD_PRESET = import.meta.env.VITE_CLOUD_UPLOAD_PRESET;
 
 export interface CloudinaryUploadResponse {
   secure_url: string;
@@ -62,7 +62,8 @@ export const uploadImageToCloudinary = async (
 };
 
 export const deleteImageFromCloudinary = async (public_id: string) => {
-  const response = await fetch("http://localhost:3000/api/cloudinary/delete-image", {
+  const SERVER = import.meta.env.VITE_SERVER;
+  const response = await fetch(`${SERVER}/api/cloudinary/delete-image`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ public_id }),

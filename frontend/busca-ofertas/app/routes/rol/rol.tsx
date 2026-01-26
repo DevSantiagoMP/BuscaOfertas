@@ -5,7 +5,8 @@ import { useNavigate } from "react-router";
 import Header from "../../components/Header/Header";
 import { asignarRolGoogle } from "../../../services/auth.client";
 
-const API_URL = "http://localhost:3000/api/auth/check-session";
+const SERVER = import.meta.env.VITE_SERVER;
+const API_URL = `${SERVER}/api/auth/check-session`;
 
 // Loader
 export async function loader({ request }: Route.LoaderArgs) {

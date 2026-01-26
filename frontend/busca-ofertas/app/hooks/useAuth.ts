@@ -7,6 +7,7 @@ interface Usuario {
 }
 
 export const useAuth = () => {
+  const SERVER = import.meta.env.VITE_SERVER;
   const navigate = useNavigate();
 
   const [rolId, setRolId] = useState<number | null>(null);
@@ -17,7 +18,7 @@ export const useAuth = () => {
     const fetchSession = async () => {
       try {
         const res = await fetch(
-          "http://localhost:3000/api/auth/check-session",
+          `${SERVER}/api/auth/check-session`,
           { credentials: "include" }
         );
 
@@ -41,7 +42,7 @@ export const useAuth = () => {
 
   const logout = async () => {
     try {
-      await fetch("http://localhost:3000/api/auth/logout", {
+      await fetch(`${SERVER}/api/auth/logout`, {
         method: "POST",
         credentials: "include",
       });

@@ -1,6 +1,7 @@
 import { redirect } from "react-router";
 
-const API_URL = "http://localhost:3000/api/auth/check-session";
+const SERVER = import.meta.env.VITE_SERVER;
+const API_URL = `${SERVER}/api/auth/check-session`;
 
 // chequear sesion
 export async function checkSessionServer(request: Request): Promise<boolean> {

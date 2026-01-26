@@ -1,5 +1,8 @@
 // src/services/api.ts
-const API_URL = "http://localhost:3000/api";
+
+const SERVER = import.meta.env.VITE_SERVER;
+
+const API_URL = `${SERVER}/api`;
 
 type FetchOptions = RequestInit & {
   token?: string;
