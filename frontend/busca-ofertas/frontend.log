@@ -1,0 +1,21 @@
+nohup: ignoring input
+
+> start
+> react-router-serve ./build/server/index.js
+
+[react-router-serve] http://localhost:5173 (http://172.31.1.123:5173)
+GET / 200 - - 60.372 ms
+GET /__manifest?paths=%2F%2C%2Fadministrar-negocio%2C%2Fopciones-login%2C%2Fopciones-registro%2C%2Fpolitica-de-privacidad%2C%2Fprincipal%2C%2Fterminos-condiciones&version=6f422940 200 - - 5.079 ms
+Error: No route matches URL "/druid/index.html"
+    at getInternalRouterError (file:///home/ec2-user/BuscaOfertas/frontend/busca-ofertas/node_modules/react-router/dist/development/chunk-EPOLDU6W.mjs:5160:5)
+    at Object.query (file:///home/ec2-user/BuscaOfertas/frontend/busca-ofertas/node_modules/react-router/dist/development/chunk-EPOLDU6W.mjs:3239:19)
+    at handleDocumentRequest (file:///home/ec2-user/BuscaOfertas/frontend/busca-ofertas/node_modules/react-router/dist/development/chunk-FNSCYPCZ.mjs:1404:38)
+    at requestHandler (file:///home/ec2-user/BuscaOfertas/frontend/busca-ofertas/node_modules/react-router/dist/development/chunk-FNSCYPCZ.mjs:1270:24)
+    at requestHandler (file:///home/ec2-user/BuscaOfertas/frontend/busca-ofertas/node_modules/react-router/dist/development/chunk-FNSCYPCZ.mjs:1329:12)
+    at file:///home/ec2-user/BuscaOfertas/frontend/busca-ofertas/node_modules/@react-router/express/dist/index.mjs:28:28
+No routes matched location "/druid/index.html" 
+GET /druid/index.html 404 - - 16.452 ms
+GET / 200 - - 7.576 ms
+GET /__manifest?paths=%2F%2C%2Fadministrar-negocio%2C%2Fopciones-login%2C%2Fopciones-registro%2C%2Fpolitica-de-privacidad%2C%2Fprincipal%2C%2Fterminos-condiciones&version=6f422940 200 - - 1.929 ms
+GET / 200 - - 8.264 ms
+

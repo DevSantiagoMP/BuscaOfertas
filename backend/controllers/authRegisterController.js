@@ -53,10 +53,55 @@ export const registerUser = async (req, res) => {
     }
 
     // 2. Verificar si el usuario ya existe
-    const userFound = await findUserByEmail(correoSan);
-    if (userFound) {
-      return res.status(400).json({ message: "El correo ya está registrado" });
+const userFound = await findUserByEmail(correoSan);
+if (userFound) {
+  // Si se registró con Google pero no tiene contraseña, permitir agregar contraseña
+  if (!userFound.contrasena_hash) {
+    // Encriptar la nueva contraseña
+    const salt = await bcrypt.genSalt(10);
+    const contrasena_hash = await bcrypt.hash(passwordSan, salt);
+    
+    // Generar token de verificación
+    const token = crypto.randomBytes(32).toString("hex");
+    const tokenExpiration = new Date(Date.now() + 60 * 60 * 1000);
+
+    // Actualizar usuario con la contraseña pero SIN verificar aún
+    await db.query(
+      `UPDATE usuarios 
+       SET contrasena_hash = ?,
+           token_verificacion = ?,
+           token_verificacion_expira = ?,
+           fecha_actualizacion = NOW()
+       WHERE id_usuario = ?`,
+      [contrasena_hash, token, tokenExpiration, userFound.id_usuario]
+    );
+    
+    // Enviar correo de verificación
+    const verificationLink = `${process.env.FRONTEND_URL}/verifyEmail?token=${token}&email=${correoSan}`;
+    
+    try {
+      await sendVerificationEmail(correoSan, verificationLink);
+    } catch (emailError) {
+      console.error("Error enviando correo:", emailError);
+      return res.status(500).json({
+        message: "Contraseña guardada, pero hubo un error enviando el correo de verificación. Intenta reenviar el email.",
+      });
     }
+    
+    return res.status(200).json({
+      message: "Contraseña agregada. Revisa tu correo para verificar y activar el login con contraseña.",
+      user: {
+        id: userFound.id_usuario,
+        correo: userFound.correo,
+      },
+    });
+  }
+  
+  // Si ya tiene contraseña (registro manual previo)
+  return res.status(400).json({ 
+    message: "El correo ya está registrado. Intenta iniciar sesión o recuperar tu contraseña." 
+  });
+}
 
     // 3. Encriptar contraseña
     const salt = await bcrypt.genSalt(10);
@@ -78,8 +123,7 @@ export const registerUser = async (req, res) => {
     });
 
     // Enlace de verificación
-    const verificationLink = `${process.env.FRONTEND_URL}/verificar-correo?token=${token}&email=${correoSan}`;
-
+    const verificationLink = `${process.env.FRONTEND_URL}/verifyEmail?token=${token}&email=${correoSan}`;
     // 6. Enviar correo (manejar error de envío)
     try {
       await sendVerificationEmail(newUser.correo, verificationLink);
@@ -155,7 +199,7 @@ export const resendVerificationEmail = async (req, res) => {
     );
 
     // Nuevo enlace
-    const verificationLink = `${process.env.FRONTEND_URL}/verificar-correo?token=${token}&email=${correo}`;
+    const verificationLink = `${process.env.FRONTEND_URL}/verifyEmail?token=${token}&email=${correo}`;
 
     await sendVerificationEmail(correo, verificationLink);
 

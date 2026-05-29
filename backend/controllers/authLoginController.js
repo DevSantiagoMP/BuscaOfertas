@@ -39,11 +39,13 @@ export const loginUser = async (req, res) => {
     }
 
     // Verificar si el email está verificado
-    if (user.email_verificado !== 1) {
-      return res.status(403).json({
-        message: "Debes verificar tu correo antes de iniciar sesión",
-      });
-    }
+    // Permitir login si el email está verificado (vino de Google)
+// O si no tiene contraseña (solo usa Google)
+if (!user.email_verificado && user.contrasena_hash) {
+  return res.status(403).json({
+    message: "Debes verificar tu correo antes de iniciar sesión con contraseña",
+  });
+}
 
     // Verificar si está bloqueado
     if (

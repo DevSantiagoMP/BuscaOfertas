@@ -14,6 +14,7 @@ import businessRoutes from "./routes/business/businessRoutes.js"; //importacion 
 import productsRoutes from "./routes/products/productsRoutes.js"; //importacion de ruta productos
 import offersRoutes from "./routes/offers/offersRoutes.js"; //importacion de ruta ofertas
 import cloudinaryRoutes from "./routes/cloudinary.routes.js";
+import { iniciarLimpiezaAutomatica } from "./utils/cleanupBlacklist.js";
 
 const app = express();
 const PORT = process.env.BACKEND_PORT;
@@ -34,6 +35,10 @@ app.use(cookieParser());
 // Conectar primero a la base
 const startServer = async () => {
   await connectDB();
+
+  // Iniciar limpieza automática de tokens expirados
+  iniciarLimpiezaAutomatica();
+
 
   app.use(passport.initialize());
 

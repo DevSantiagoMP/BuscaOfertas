@@ -8,7 +8,7 @@ export default [
   route("/login", "routes/login/login.tsx"),
   route("/cambiar-contrasena", "routes/changePassword/changePassword.tsx"),
   route("/registro", "routes/register/register.tsx"),
-  route("/verificar-correo", "routes/verifyEmail/verifyEmail.tsx"),
+  route("/verifyEmail", "routes/verifyEmail/verifyEmail.tsx"),
   route("/principal", "routes/principal/principal.tsx"), 
   // route("/plan-mensual", "routes/mensualPlan/mensualPlan.tsx"), 
   // route("/plan-anual", "routes/anualPlan/anualPlan.tsx"), 

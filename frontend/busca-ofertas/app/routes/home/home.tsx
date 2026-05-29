@@ -27,7 +27,7 @@ export default function Home() {
                 </p>
                 <div className="d-flex gap-4 container-hero-buttons">
                   {/* Buttons */}
-                  <Link to="/opciones-login">
+                  <Link to="/principal">
                     <button className="login-button">Iniciar Sesión</button>
                   </Link>
 
@@ -74,11 +74,11 @@ export default function Home() {
               <p>
                 * Plan fundadores: Los primeros 500 negocios en registrarse
                 podrán registrar productos y ofertas ilimitadas y obtendrán
-                mayor visibilidad ¡POR UN AÑO!
+                mayor visibilidad ¡POR 4 MESES!
               </p>
               <p>
-                * Plan primeros pasos: Si registras tu negocio por primera vez
-                podrás registrar 30 productos y 30 ofertas por un año.
+                * Plan primeros pasos: Si registras tu negocio por primera vez (aunque no estes entre los primeros 500)
+                podrás registrar 30 productos y 30 ofertas por 4 meses.
               </p>
               <p>
                 * Plan gratuito: Podrás registrar 10 productos y 10 ofertas.

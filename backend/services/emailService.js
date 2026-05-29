@@ -7,7 +7,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export const sendVerificationEmail = async (to, verificationLink) => {
   try {
     const response = await resend.emails.send({
-      from: "onboarding@resend.dev", // o tu dominio verificado
+      from: "soporte@buscaofertas.co", // o tu dominio verificado
       to,
       subject: "Verifica tu correo - BuscaOfertas",
       html: `
@@ -28,7 +28,7 @@ export const sendVerificationEmail = async (to, verificationLink) => {
 export const sendPasswordResetEmail = async (to, resetLink) => {
   try {
     const response = await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "soporte@buscaofertas.co",
       to,
       subject: "Recupera tu contraseña - BuscaOfertas",
       html: `

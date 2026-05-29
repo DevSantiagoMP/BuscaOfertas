@@ -58,7 +58,7 @@ export const crearNegocio = async (req, res) => {
 
     // PLAN AUTOMÁTICO
     const planExpira = new Date();
-    planExpira.setFullYear(planExpira.getFullYear() + 1);
+    planExpira.setMonth(planExpira.getMonth() + 4);
 
     const finalPlanId = totalNegocios < 500 ? 4 : 5;
 

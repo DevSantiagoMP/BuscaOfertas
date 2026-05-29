@@ -1,0 +1,7 @@
+nohup: ignoring input
+
+> start
+> node app.js
+
+📌 Conexión a MySQL exitosa
+Servidor corriendo en puerto 3000

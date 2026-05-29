@@ -1,3 +1,19 @@
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  text-decoration: none; /* quita la línea */
+  color: black; /* quita el azul */
+}
+
+.logo-container:visited,
+.logo-container:active,
+.logo-container:hover {
+  text-decoration: none; /* asegura que nunca salga la línea */
+  color: black; /* asegura que nunca se ponga azul */
+}
+
 .nombre-marca {
   font-weight: 500;
   font-size: 1.4rem;
